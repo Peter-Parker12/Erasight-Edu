@@ -1972,9 +1972,10 @@ section.blk {
    FOOTER (NAVY THEME MATCHING REMOTE SITE)
    ========================================================================== */
 footer {
-  background: var(--dark);
+  padding: 0;
+  margin: 0;
+  background: #06111A;
   color: rgba(255, 255, 255, 0.65);
-  padding: 68px 0 36px;
   font-size: 14px;
 }
 

@@ -458,7 +458,10 @@
    2. MODERN SITE FOOTER (TECH NEWSLETTER BANNER + NOTCH + 5-COLUMN GRID)
    Được thiết kế đồng bộ theo layout hiện đại chuẩn EdTech
    -------------------------------------------------------------------------- */
+footer,
 .site-footer {
+  padding: 0 !important;
+  margin: 0 !important;
   background: #06111A;
   color: #8E9CA4;
   font-family: var(--hf-font-main);
@@ -569,10 +572,11 @@
   box-shadow: 0 6px 18px rgba(0, 229, 212, 0.35);
 }
 
-/* 2.2 Modern Notch Ribbon Bar with Cyan Outline */
+/* 2.2 Modern Notch Ribbon Bar with Cyan Outline (Full Width) */
 .footer-notch-wrap {
   position: relative;
-  background: #063732;
+  width: 100%;
+  background: #06111A;
   margin-top: -1px;
 }
 
@@ -584,6 +588,7 @@
   justify-content: space-between;
   position: relative;
   height: 54px;
+  padding: 0 24px;
 }
 
 @media (max-width: 860px) {
@@ -600,7 +605,7 @@
   display: flex;
   align-items: center;
   background: #06111A;
-  padding: 0 32px 0 24px;
+  padding-right: 28px;
   z-index: 3;
   flex-shrink: 0;
 }
