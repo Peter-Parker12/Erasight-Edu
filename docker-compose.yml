@@ -1,0 +1,7 @@
+services:
+  erasight-edu:
+    build: .
+    container_name: erasight-edu
+    restart: unless-stopped
+    ports:
+      - "4232:4232"
