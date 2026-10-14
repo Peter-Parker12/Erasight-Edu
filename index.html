@@ -347,22 +347,102 @@
     </section>
 
     <!-- ======================================================================
-         ANSWER BOX (AEO) & STATEMENT
+         ANSWER BOX (AEO) & STATEMENT WITH WORKFLOW B6 PREVIEW
          ====================================================================== -->
-    <div style="padding-top:64px;">
+    <div style="padding-top:64px; position:relative;">
       <div class="wrap">
-        <div class="answer">
-          <h2>Erasight Academy là gì?</h2>
-          <p>
-            <b>Erasight Academy là học viện đào tạo kỹ năng thực chiến cho người trẻ đi làm.</b> Chúng tôi tập trung vào 2 năng lực mang lại đòn bẩy lớn nhất: tự động hoá marketing bằng AI và chinh phục nhà tuyển dụng quốc tế bằng tiếng Anh.
-          </p>
-          <p style="margin-top:10px;">
-            Mỗi khoá học đều có sản phẩm đầu ra rõ ràng: một workflow tự động đăng bài đang chạy thật hoặc một bản CV tiếng Anh chuẩn ATS được mentor công ty lớn sửa trực tiếp. Học live qua Zoom, kèm 1:1 và miễn phí 3 buổi học lại nếu bận.
-          </p>
-          <div class="upd" style="font-family:var(--font-mono); font-size:12px; color:var(--slate); margin-top:14px; font-weight:700;">
-            Khai giảng đợt gần nhất: Tháng 10/2026 · TP. Hồ Chí Minh &amp; Online
+        <div class="answer-layout" id="answerLayout">
+          
+          <!-- LEFT: Answer Card with Slide / Click Trigger Button -->
+          <div class="answer-card-wrapper">
+            
+            <!-- BUTTON TẠI MŨI TÊN ĐỎ: Bấm / Kéo qua tại đây -->
+            <button class="b6-slide-trigger" id="b6SlideTrigger" type="button" aria-expanded="false" aria-controls="answerB6Popup" title="Bấm hoặc kéo qua để mở Ảnh B6">
+              <span class="b6-trigger-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </span>
+              <span class="b6-trigger-label">Kéo / Bấm xem B6</span>
+              <span class="b6-trigger-ping"></span>
+            </button>
+
+            <div class="answer">
+              <h2>Erasight Academy là gì?</h2>
+              <p>
+                <b>Erasight Academy là học viện đào tạo kỹ năng thực chiến cho người trẻ đi làm.</b> Chúng tôi tập trung vào 2 năng lực mang lại đòn bẩy lớn nhất: tự động hoá marketing bằng AI và chinh phục nhà tuyển dụng quốc tế bằng tiếng Anh.
+              </p>
+              <p style="margin-top:10px;">
+                Mỗi khoá học đều có sản phẩm đầu ra rõ ràng: một workflow tự động đăng bài đang chạy thật 
+                <button class="inline-b6-tag" type="button" onclick="toggleB6Popup()" title="Xem minh hoạ Workflow Ảnh B6">
+                  <span class="pulse-dot"></span> Xem workflow (Ảnh B6) ↗
+                </button>
+                hoặc một bản CV tiếng Anh chuẩn ATS được mentor công ty lớn sửa trực tiếp. Học live qua Zoom, kèm 1:1 và miễn phí 3 buổi học lại nếu bận.
+              </p>
+              <div class="upd" style="font-family:var(--font-mono); font-size:12px; color:var(--slate); margin-top:14px; font-weight:700;">
+                Khai giảng đợt gần nhất: Tháng 10/2026 · TP. Hồ Chí Minh &amp; Online
+              </div>
+            </div>
           </div>
+
+          <!-- RIGHT: Khung màu xanh lá pop up (Ảnh B6) -->
+          <div class="answer-b6-popup" id="answerB6Popup" role="region" aria-label="Khung pop up Ảnh B6 Workflow AI">
+            <div class="b6-popup-header">
+              <div class="b6-popup-badge">
+                <span class="b6-badge-dot"></span>
+                <span class="b6-badge-title">Workflow AI Thực Chiến (Ảnh B6)</span>
+              </div>
+              <button class="b6-popup-close" type="button" onclick="toggleB6Popup(false)" title="Đóng khung Ảnh B6" aria-label="Đóng">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="b6-popup-body" onclick="openB6Lightbox()" title="Bấm để phóng to toàn màn hình">
+              <div class="b6-img-container">
+                <img src="assets/images/B6.png" alt="Workflow tự động hoá tạo poster và sản phẩm bằng AI - Ảnh B6" class="b6-popup-img" loading="lazy" />
+                <div class="b6-zoom-overlay">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                  </svg>
+                  <span>Phóng to xem chi tiết</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="b6-popup-footer">
+              <div class="b6-footer-desc">
+                <strong>Sản phẩm thực tế:</strong> Quy trình tự động tạo poster &amp; copy bằng AI được học viên thực hành trực tiếp tại lớp.
+              </div>
+              <button class="b6-btn-zoom-action" type="button" onclick="openB6Lightbox()">
+                Phóng to toàn cảnh ↗
+              </button>
+            </div>
+          </div>
+
         </div>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX MODAL TO VIEW B6 FULLSCREEN -->
+    <div class="b6-lightbox-modal" id="b6LightboxModal" onclick="closeB6Lightbox(event)">
+      <div class="b6-lightbox-content">
+        <div class="b6-lightbox-header">
+          <div class="b6-lightbox-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span>Mẫu Quy Trình Tự Động Hoá AI Thực Chiến (Ảnh B6)</span>
+          </div>
+          <button class="b6-lightbox-close" type="button" onclick="closeB6Lightbox()">✕ Đóng</button>
+        </div>
+        <img src="assets/images/B6.png" alt="Chi tiết Workflow AI - Ảnh B6" class="b6-lightbox-img" />
       </div>
     </div>
 
@@ -370,7 +450,7 @@
     <div class="statement">
       <div class="wrap">
         <p>
-          <span class="mut">Người trẻ đi làm không thiếu sự cố gắng.</span>{' '}
+          <span class="mut">Người trẻ đi làm không thiếu sự cố gắng.</span> 
           <b>Vấn đề là thiếu một phương pháp thực chiến — <span class="em-p">học xong phải mang về sản phẩm dùng được ngay vào sáng thứ Hai.</span></b>
         </p>
       </div>

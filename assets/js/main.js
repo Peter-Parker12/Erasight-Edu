@@ -86,4 +86,107 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleHeroFlip();
     }
   });
+
+  // 4. B6 Workflow Slide Trigger & Popup Frame ("Kéo qua / Bấm xem Ảnh B6")
+  const answerLayout = document.getElementById('answerLayout');
+  const b6Trigger = document.getElementById('b6SlideTrigger');
+  const b6Popup = document.getElementById('answerB6Popup');
+  const b6Lightbox = document.getElementById('b6LightboxModal');
+
+  function toggleB6Popup(forceState) {
+    if (!answerLayout) return;
+    const isCurrentlyOpen = answerLayout.classList.contains('is-b6-open');
+    const newState = (forceState !== undefined) ? forceState : !isCurrentlyOpen;
+
+    if (newState) {
+      answerLayout.classList.add('is-b6-open');
+      if (b6Trigger) {
+        b6Trigger.setAttribute('aria-expanded', 'true');
+        const label = b6Trigger.querySelector('.b6-trigger-label');
+        if (label) label.textContent = '‹ Đóng Ảnh B6';
+      }
+    } else {
+      answerLayout.classList.remove('is-b6-open');
+      if (b6Trigger) {
+        b6Trigger.setAttribute('aria-expanded', 'false');
+        const label = b6Trigger.querySelector('.b6-trigger-label');
+        if (label) label.textContent = 'Kéo / Bấm xem B6';
+      }
+    }
+  }
+
+  function openB6Lightbox() {
+    if (b6Lightbox) {
+      b6Lightbox.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeB6Lightbox(e) {
+    if (e && e.target && e.target.classList.contains('b6-lightbox-img')) {
+      return; // click on image itself does not close
+    }
+    if (b6Lightbox) {
+      b6Lightbox.classList.remove('is-active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  window.toggleB6Popup = toggleB6Popup;
+  window.openB6Lightbox = openB6Lightbox;
+  window.closeB6Lightbox = closeB6Lightbox;
+
+  // Click & Drag ("Kéo qua") interaction for b6Trigger
+  if (b6Trigger) {
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    const dragThreshold = 25;
+
+    b6Trigger.addEventListener('click', (e) => {
+      // If was dragging across, do not re-toggle on click
+      if (Math.abs(currentX - startX) > 8) return;
+      toggleB6Popup();
+    });
+
+    b6Trigger.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      currentX = e.clientX;
+      isDragging = true;
+      b6Trigger.style.cursor = 'grabbing';
+      b6Trigger.setPointerCapture(e.pointerId);
+    });
+
+    b6Trigger.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      currentX = e.clientX;
+      const diffX = currentX - startX;
+      b6Trigger.style.transform = `translateY(-50%) translateX(${diffX * 0.4}px)`;
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      b6Trigger.style.cursor = 'grab';
+      b6Trigger.style.transform = '';
+      const diffX = currentX - startX;
+      if (Math.abs(diffX) >= dragThreshold) {
+        toggleB6Popup();
+      }
+    };
+
+    b6Trigger.addEventListener('pointerup', endDrag);
+    b6Trigger.addEventListener('pointercancel', endDrag);
+  }
+
+  // Escape key closes lightbox and popup
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (b6Lightbox?.classList.contains('is-active')) {
+        closeB6Lightbox();
+      } else if (answerLayout?.classList.contains('is-b6-open')) {
+        toggleB6Popup(false);
+      }
+    }
+  });
 });
