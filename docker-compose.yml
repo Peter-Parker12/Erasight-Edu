@@ -5,3 +5,6 @@ services:
     restart: unless-stopped
     ports:
       - "4232:4232"
+    environment:
+      TWENTY_URL: ${TWENTY_URL}
+      TWENTY_API_KEY: ${TWENTY_API_KEY}

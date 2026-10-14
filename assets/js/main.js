@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Form Ghi Danh Giữ Chỗ
   const enrollForm = document.getElementById('enrollFormClean');
   const successMsg = document.getElementById('enrollSuccess');
+  const errorMsg = document.getElementById('enrollError');
 
-  enrollForm?.addEventListener('submit', (e) => {
+  enrollForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = enrollForm.querySelector('button[type="submit"]');
     const originalText = btn ? btn.textContent : 'Ghi danh giữ chỗ';
@@ -27,18 +28,41 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = true;
       btn.textContent = 'Đang ghi nhận thông tin...';
     }
+    if (errorMsg) errorMsg.style.display = 'none';
+    if (successMsg) successMsg.style.display = 'none';
 
-    setTimeout(() => {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
+    // Select value is a comma-separated list of Moodle course ids (e.g. "2,3" = combo)
+    const payload = {
+      name: document.getElementById('name').value,
+      phone: document.getElementById('phone').value,
+      email: document.getElementById('email').value,
+      courses: document.getElementById('enrollCourse').value.split(',').map(Number),
+      website: document.getElementById('website').value,
+    };
+
+    try {
+      const res = await fetch('/api/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       enrollForm.reset();
       if (successMsg) {
         successMsg.style.display = 'block';
         successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-    }, 600);
+    } catch (err) {
+      if (errorMsg) {
+        errorMsg.style.display = 'block';
+        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
   });
 
   // 3. Hero Visual 3D Card Flip (Lật xem hình ảnh lớp học thực tế A1.jpg)

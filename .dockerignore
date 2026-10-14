@@ -4,3 +4,6 @@
 *.md
 Dockerfile
 docker-compose.yml
+server.js
+.env
+.env.example
