@@ -138,7 +138,9 @@ function serveStatic(req, res) {
     if (err) { res.writeHead(404); return res.end('Not found'); }
     res.writeHead(200, {
       'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      'Cache-Control': p.startsWith('/assets/') ? 'public, max-age=604800' : 'no-cache',
+      // Code/markup must never be served stale by Cloudflare or browsers; only media is cached long-term.
+      'Cache-Control': /\.(js|css|html|json)$/i.test(p) ? 'no-cache, no-store, must-revalidate'
+        : p.startsWith('/assets/') ? 'public, max-age=604800' : 'no-cache',
     });
     res.end(buf);
   });
