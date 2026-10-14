@@ -572,7 +572,7 @@ footer,
   box-shadow: 0 6px 18px rgba(0, 229, 212, 0.35);
 }
 
-/* 2.2 Modern Notch Ribbon Bar with Cyan Outline (Full Width) */
+/* 2.2 Modern Notch Ribbon Bar with Cyan Outline (Centered & Balanced) */
 .footer-notch-wrap {
   position: relative;
   width: 100%;
@@ -581,31 +581,19 @@ footer,
 }
 
 .footer-notch-bar {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
   position: relative;
   height: 54px;
-  padding: 0 24px;
-}
-
-@media (max-width: 860px) {
-  .footer-notch-bar {
-    height: auto;
-    flex-direction: column;
-    background: #06111A;
-    padding: 20px 24px;
-    gap: 18px;
-  }
+  padding: 0 32px;
 }
 
 .footer-notch-brand {
   display: flex;
   align-items: center;
-  background: #06111A;
-  padding-right: 28px;
   z-index: 3;
   flex-shrink: 0;
 }
@@ -616,11 +604,17 @@ footer,
   display: block;
 }
 
+/* Phần hõm căn chính giữa 50% hoàn hảo khớp với 2 nút Newsletter */
 .footer-notch-center {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
   height: 54px;
+  width: 550px;
+  max-width: calc(100% - 64px);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .footer-notch-svg {
@@ -629,37 +623,30 @@ footer,
   display: block;
 }
 
-@media (max-width: 860px) {
-  .footer-notch-center {
-    display: none;
-  }
-}
-
 .footer-notch-social {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: #06111A;
-  padding: 0 24px 0 32px;
+  gap: 12px;
   z-index: 3;
   flex-shrink: 0;
 }
 
 .footer-notch-social-title {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: #FFFFFF;
+  white-space: nowrap;
 }
 
 .footer-notch-social-icons {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .social-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   display: flex;
@@ -676,22 +663,54 @@ footer,
   transform: translateY(-2px);
 }
 
-/* 2.3 5-Column Modern Footer Grid */
+@media (max-width: 1060px) {
+  .footer-notch-social-title {
+    display: none;
+  }
+  .footer-notch-bar {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 860px) {
+  .footer-notch-bar {
+    height: auto;
+    flex-direction: column;
+    padding: 20px 24px;
+    gap: 16px;
+    align-items: center;
+  }
+  .footer-notch-center {
+    display: none;
+  }
+  .footer-notch-brand {
+    justify-content: center;
+  }
+  .footer-notch-social {
+    justify-content: center;
+  }
+  .footer-notch-social-title {
+    display: inline-block;
+  }
+}
+
+/* 2.3 5-Column Modern Footer Grid (Centered & Balanced Spacing) */
 .footer-body {
-  padding: 48px 0 36px;
+  padding: 48px 0 40px;
   background: #06111A;
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 
 .footer-grid-5col {
   display: grid;
-  grid-template-columns: 1.45fr 1fr 1fr 1.25fr 1fr;
+  grid-template-columns: 1.35fr 1fr 1fr 1.15fr 1.05fr;
   gap: 36px;
+  align-items: start;
 }
 
 @media (max-width: 1080px) {
@@ -748,36 +767,19 @@ footer,
   margin-bottom: 7px;
 }
 
-.bct-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0, 91, 170, 0.16);
-  border: 1px solid rgba(0, 140, 255, 0.4);
-  border-radius: 6px;
-  padding: 6px 12px;
-  margin-top: 14px;
-  text-decoration: none;
-  transition: all 0.2s ease;
+.footer-contact-card {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #8E9CA4;
+  line-height: 1.6;
 }
 
-.bct-badge:hover {
-  transform: translateY(-1px);
-  border-color: #00E5D4;
-  background: rgba(0, 229, 212, 0.12);
-}
-
-.bct-badge svg {
-  flex-shrink: 0;
-}
-
-.bct-badge-text {
-  font-size: 11px;
-  font-weight: 700;
-  color: #7FE0D8;
-  letter-spacing: 0.5px;
-  line-height: 1.25;
-  text-transform: uppercase;
+.footer-contact-card a {
+  display: inline;
 }
 
 /* 2.4 Bottom Copyright Bar */
