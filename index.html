@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Erasight Academy — Skills for what's next.</title>
+  <meta name="description" content="Hai khoá học thực chiến cho người trẻ đi làm: tự động hoá marketing bằng AI và chinh phục vòng phỏng vấn bằng tiếng Anh. Dạy đúng những gì thị trường cần, ra lớp là làm được ngay." />
+  
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+  
+  <!-- Google Fonts: Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="assets/css/style.css?v=2.1" />
+  <link rel="stylesheet" href="assets/css/header-footer.css?v=2.2" />
+</head>
+<body>
+
+  <!-- ======================================================================
+       SITE HEADER (REUSABLE COMPONENT)
+       ====================================================================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="site-header-inner">
+      <!-- Brand / Logo -->
+      <a href="#top" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
+        <img src="assets/logos/erasight-logo-slogan-mau-2000w.png" alt="Erasight — Skills for what's next." />
+      </a>
+
+      <!-- Center Navigation -->
+      <nav class="site-nav" aria-label="Điều hướng chính">
+        <!-- Dropdown Khoá học -->
+        <div class="nav-dropdown" id="navCoursesDropdown">
+          <a href="#khoa-hoc" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+            <span>Khoá học</span>
+            <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </a>
+
+          <!-- Dropdown Content Panel -->
+          <div class="dropdown-panel" role="menu">
+            <a href="#khoa-hoc" class="dropdown-item" role="menuitem">
+              <span class="dropdown-badge badge-orange">MKT_001</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">AI Marketing thực chiến</span>
+                <span class="dropdown-desc">Tự động hoá quy trình đăng bài đa kênh không cần biết code</span>
+              </div>
+            </a>
+
+            <a href="#khoa-hoc" class="dropdown-item" role="menuitem">
+              <span class="dropdown-badge badge-blue">ENG_002</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
+                <span class="dropdown-desc">CV chuẩn ATS, phản xạ STAR và tự tin đàm phán trước HR</span>
+              </div>
+            </a>
+
+            <div class="dropdown-footer">
+              <a href="#khoa-hoc" class="dropdown-footer-link">
+                <span>Xem chi tiết lộ trình 2 khoá học</span>
+                <span>&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <a href="#giang-vien" class="nav-link">Giảng viên</a>
+        <a href="#san-pham" class="nav-link">Sản phẩm học viên</a>
+        <a href="#faq" class="nav-link">Hỏi đáp</a>
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="site-actions">
+        <a href="#dang-nhap" class="btn-login" id="loginBtnTrigger">Đăng nhập</a>
+        <a href="#pricing" class="btn-enroll">Ghi danh ngay</a>
+      </div>
+
+      <!-- Mobile Menu Burger Button -->
+      <button class="mobile-toggle" id="mobileToggleBtn" aria-label="Mở menu điều hướng" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+      <div class="mobile-nav-list">
+        <div>
+          <a href="#khoa-hoc" class="mobile-nav-item">
+            <span>Khoá học</span>
+            <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 khoá</span>
+          </a>
+          <div class="mobile-nav-sublist">
+            <a href="#khoa-hoc" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+            <a href="#khoa-hoc" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+          </div>
+        </div>
+        <a href="#giang-vien" class="mobile-nav-item">Giảng viên</a>
+        <a href="#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
+        <a href="#faq" class="mobile-nav-item">Hỏi đáp</a>
+      </div>
+
+      <div class="mobile-actions">
+        <a href="#dang-nhap" class="btn-login mobile-login-btn">Đăng nhập</a>
+        <a href="#pricing" class="btn-enroll">Ghi danh ngay</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ======================================================================
+         HERO SECTION (REMOTE DISPLAY STYLE WITH GHOST TRACK & SPLIT GRID)
+         ====================================================================== -->
+    <section class="hero">
+      <!-- Watermark ghost track running in background -->
+      <div class="hero-ghost-container" aria-hidden="true">
+        <div class="hero-ghost-track">
+          <span>SKILLS FOR WHAT'S NEXT</span>
+          <span>ERASIGHT ACADEMY</span>
+          <span>SKILLS FOR WHAT'S NEXT</span>
+          <span>ERASIGHT ACADEMY</span>
+        </div>
+      </div>
+
+      <!-- Dynamic Brand Wave Background (Hiệu ứng sóng sau nền) -->
+      <div class="hero-wave-canvas" aria-hidden="true">
+        <svg class="hero-wave-svg" viewBox="0 0 1600 700" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Primary Glow Gradient: Warm Orange to Teal & Blue -->
+            <linearGradient id="heroWaveGradPrimary" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#E85D04" stop-opacity="0.9" />
+              <stop offset="28%" stop-color="#FF7A00" stop-opacity="0.95" />
+              <stop offset="58%" stop-color="#0DA096" stop-opacity="0.9" />
+              <stop offset="85%" stop-color="#2176C7" stop-opacity="0.85" />
+              <stop offset="100%" stop-color="#E85D04" stop-opacity="0.8" />
+            </linearGradient>
+
+            <!-- Secondary Soft Harmonic Gradient -->
+            <linearGradient id="heroWaveGradSecondary" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0DA096" stop-opacity="0.4" />
+              <stop offset="40%" stop-color="#E85D04" stop-opacity="0.45" />
+              <stop offset="75%" stop-color="#2176C7" stop-opacity="0.4" />
+              <stop offset="100%" stop-color="#0DA096" stop-opacity="0.35" />
+            </linearGradient>
+
+            <!-- Subtle Fill Gradient for Ribbon Depth -->
+            <linearGradient id="heroWaveAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#E85D04" stop-opacity="0.08" />
+              <stop offset="50%" stop-color="#0DA096" stop-opacity="0.05" />
+              <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+            </linearGradient>
+
+            <!-- Soft Glow Filter -->
+            <filter id="heroWaveGlow" x="-20%" y="-30%" width="140%" height="160%">
+              <feGaussianBlur stdDeviation="7" result="glowBlur" />
+              <feMerge>
+                <feMergeNode in="glowBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- Ambient Tint Area Ribbon -->
+          <path class="wave-area" d="M -50,655 C 200,585 280,485 440,495 C 600,505 640,605 840,595 C 1040,585 1200,530 1400,545 C 1500,555 1600,565 1700,555 L 1700,750 L -50,750 Z" fill="url(#heroWaveAreaGrad)" />
+
+          <!-- Secondary Harmonic Dashed Wave -->
+          <path class="wave-line-sub" d="M -50,670 C 190,600 270,500 430,510 C 590,520 650,620 850,610 C 1050,600 1210,545 1410,560 C 1510,570 1610,575 1700,565" stroke="url(#heroWaveGradSecondary)" stroke-width="2.5" stroke-dasharray="8 8" stroke-linecap="round" />
+
+          <!-- Main Dynamic Wave Curve matching sketch trajectory, comfortably below headline -->
+          <path class="wave-line-main" d="M -50,650 C 190,580 270,475 440,485 C 610,495 640,595 840,585 C 1040,575 1200,520 1400,535 C 1500,545 1600,555 1700,545" stroke="url(#heroWaveGradPrimary)" stroke-width="4.5" stroke-linecap="round" filter="url(#heroWaveGlow)" />
+        </svg>
+      </div>
+
+      <div class="wrap">
+        <!-- Top Status Bar -->
+        <div class="hero-top">
+          <div class="hero-tz">
+            <span class="dot"></span>
+            <span>Hình thức: <b>Live Zoom &amp; Kèm 1:1</b> · Khai giảng: <b>Thứ Ba &amp; Thứ Năm</b></span>
+          </div>
+          <div class="hero-rating">
+            <span class="stars">★★★★★</span>
+            <span>Đánh giá hiểu bài: <b>4.1 / 5</b> tại khoá MKT_001</span>
+          </div>
+        </div>
+
+        <!-- Hero Content Grid -->
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">Skills for what's next</span>
+            <h1>
+              Kỹ năng thực chiến<br />
+              cho người đi làm.<br />
+              <span class="sl">Ra lớp là làm được ngay.</span>
+            </h1>
+            <p class="sub">
+              Hai khoá học trọng điểm: tự động hoá marketing bằng AI và chinh phục vòng tuyển dụng bằng tiếng Anh. Dạy đúng những gì thị trường cần, thực hành trên bài toán thật.
+            </p>
+            <div class="hero-cta">
+              <a href="#pricing" class="btn btn-primary btn-flip">
+                <div class="btn-flip-inner">
+                  <span class="btn-flip-front">Ghi danh giữ chỗ &rarr;</span>
+                  <span class="btn-flip-back">Ghi danh giữ chỗ &rarr;</span>
+                </div>
+              </a>
+              <a href="#khoa-hoc" class="btn btn-ghost btn-flip">
+                <div class="btn-flip-inner">
+                  <span class="btn-flip-front">Xem 2 khoá học</span>
+                  <span class="btn-flip-back">Xem 2 khoá học</span>
+                </div>
+              </a>
+            </div>
+
+          </div>
+
+          <div class="hero-visual">
+            <!-- 3D Flip Card Container -->
+            <div class="hero-flip-container" id="heroFlipContainer">
+              <div class="hero-flip-inner" id="heroFlipInner">
+                
+                <!-- FRONT: Academy Hub Canvas Card -->
+                <div class="hero-flip-face hero-flip-front">
+                  <div class="hero-deck-canvas">
+                    <div class="deck-topbar">
+                      <div class="deck-dots">
+                        <span class="d-dot red"></span>
+                        <span class="d-dot yellow"></span>
+                        <span class="d-dot green"></span>
+                      </div>
+                      <div class="deck-badge">
+                        <span class="live-pulse"></span>
+                        <span>Erasight - Khóa học tiêu biểu</span>
+                      </div>
+                      <span class="deck-term">2026 TRACK</span>
+                    </div>
+
+                    <!-- Track 1: AI Marketing Flow -->
+                    <div class="deck-track-card mkt">
+                      <div class="dt-head">
+                        <span class="dt-pill orange">MKT_001</span>
+                        <h4>AI Marketing Automation</h4>
+                        <span class="dt-status">Live Running</span>
+                      </div>
+                      <div class="dt-flow">
+                        <span class="node">Sheets Data</span>
+                        <span class="arr">&rarr;</span>
+                        <span class="node hi">Gemini 2.5 API</span>
+                        <span class="arr">&rarr;</span>
+                        <span class="node">Auto-Post Live</span>
+                      </div>
+                      <div class="dt-meta">
+                        <span>✓ 11 Buổi + 3 Buổi kèm lại</span>
+                        <b>Tiết kiệm 14h / tuần</b>
+                      </div>
+                    </div>
+
+                    <!-- Track 2: English for Interview -->
+                    <div class="deck-track-card eng">
+                      <div class="dt-head">
+                        <span class="dt-pill blue">ENG_002</span>
+                        <h4>English Track &amp; Interview</h4>
+                        <span class="dt-status blue">MNC Standard</span>
+                      </div>
+                      <div class="dt-flow">
+                        <span class="node">JD Scan</span>
+                        <span class="arr">&rarr;</span>
+                        <span class="node hi-blue">STAR Method</span>
+                        <span class="arr">&rarr;</span>
+                        <span class="node">Mock Interview</span>
+                      </div>
+                      <div class="dt-meta">
+                        <span>✓ CV chuẩn ATS quốc tế</span>
+                        <b style="color:var(--blue);">Điểm ATS 96/100</b>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BACK: Real Classroom Photo Card (A1.jpg) -->
+                <div class="hero-flip-face hero-flip-back">
+                  <div class="hero-deck-canvas hero-deck-photo-canvas">
+                    <div class="deck-topbar">
+                      <div class="deck-dots">
+                        <span class="d-dot red"></span>
+                        <span class="d-dot yellow"></span>
+                        <span class="d-dot green"></span>
+                      </div>
+                      <button type="button" class="btn-flip-back-link" id="heroFlipBackTextBtn">
+                        <span>Quay lại lộ trình &larr;</span>
+                      </button>
+                      <span class="deck-term" style="color:var(--orange); background:var(--orange-light); border-color:rgba(232,93,4,0.2);">CLASSROOM 1:1</span>
+                    </div>
+
+                    <div class="hero-canvas-photo-wrap" style="margin-bottom:0;">
+                      <img src="assets/images/A1.jpg" alt="Không khí lớp học thực chiến tại Erasight Academy" class="hero-canvas-photo" loading="eager" />
+                      <div class="hero-canvas-photo-overlay">
+                        <div class="photo-overlay-tag">
+                          <span class="tag-live-dot"></span>
+                          <span>Không khí học tập thực tế &amp; tương tác 1:1</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Flip Trigger Button (Nút > như ảnh phác thảo) -->
+            <button type="button" class="hero-flip-btn" id="heroFlipBtn" aria-label="Lật xem hình ảnh lớp học thực tế" title="Xem hình ảnh lớp học thực tế">
+              <svg class="flip-icon-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              <span class="flip-btn-tooltip" id="heroFlipTooltip">Xem ảnh lớp học</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STATS BAR (NAVY ACCENT)
+         ====================================================================== -->
+    <section class="stats" aria-label="Số liệu thực tế">
+      <div class="wrap stats-grid">
+        <div class="stat">
+          <div class="n accent-orange">11+3 buổi</div>
+          <div class="l">Học live kèm 3 buổi học lại 1:1 miễn phí trọn đời</div>
+        </div>
+        <div class="stat">
+          <div class="n">40 người</div>
+          <div class="l">Sĩ số tối đa mỗi lớp · Kèm sát 1:1 theo nhóm nhỏ xuyên suốt khoá</div>
+        </div>
+        <div class="stat">
+          <div class="n">100%</div>
+          <div class="l">Buổi học đều có sản phẩm mẫu và bài tập thực hành thật</div>
+        </div>
+        <div class="stat">
+          <div class="n accent-orange">96/100</div>
+          <div class="l">Điểm ATS của học viên khoá tiếng Anh khi nộp vào MNC</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         ANSWER BOX (AEO) & STATEMENT
+         ====================================================================== -->
+    <div style="padding-top:64px;">
+      <div class="wrap">
+        <div class="answer">
+          <h2>Erasight Academy là gì?</h2>
+          <p>
+            <b>Erasight Academy là học viện đào tạo kỹ năng thực chiến cho người trẻ đi làm.</b> Chúng tôi tập trung vào 2 năng lực mang lại đòn bẩy lớn nhất: tự động hoá marketing bằng AI và chinh phục nhà tuyển dụng quốc tế bằng tiếng Anh.
+          </p>
+          <p style="margin-top:10px;">
+            Mỗi khoá học đều có sản phẩm đầu ra rõ ràng: một workflow tự động đăng bài đang chạy thật hoặc một bản CV tiếng Anh chuẩn ATS được mentor công ty lớn sửa trực tiếp. Học live qua Zoom, kèm 1:1 và miễn phí 3 buổi học lại nếu bận.
+          </p>
+          <div class="upd" style="font-family:var(--font-mono); font-size:12px; color:var(--slate); margin-top:14px; font-weight:700;">
+            Khai giảng đợt gần nhất: Tháng 10/2026 · TP. Hồ Chí Minh &amp; Online
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATEMENT -->
+    <div class="statement">
+      <div class="wrap">
+        <p>
+          <span class="mut">Người trẻ đi làm không thiếu sự cố gắng.</span>{' '}
+          <b>Vấn đề là thiếu một phương pháp thực chiến — <span class="em-p">học xong phải mang về sản phẩm dùng được ngay vào sáng thứ Hai.</span></b>
+        </p>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         WEDGE SECTION (THE DIFFERENCE / BẢNG SO SÁNH)
+         ====================================================================== -->
+    <section class="blk wedge" id="difference">
+      <div class="wrap wedge-grid">
+        <div>
+          <span class="eyebrow pur">Điểm khác biệt</span>
+          <h2>Khoá học lý thuyết cho bạn chứng chỉ.<br />Erasight cho bạn <span style="color:var(--orange);">sản phẩm thật</span>.</h2>
+          <p style="margin-top:16px;">
+            Học lý thuyết không giúp bạn tự động hoá được công việc, cũng không giúp bạn trả lời trôi chảy trước HR. Erasight kết nối toàn bộ lộ trình: công cụ thực chiến, case study thật, mentor sửa bài 1:1 và cam kết học lại miễn phí.
+          </p>
+          <p style="margin-top:10px;">
+            Bạn không mua bài giảng suông. Bạn mua một quy trình tự động hoá đang chạy và một bản CV sẵn sàng nhận offer.
+          </p>
+          <a href="#khoa-hoc" class="btn btn-primary btn-arrow" style="margin-top:24px;">
+            Xem 2 khoá học
+          </a>
+        </div>
+
+        <div class="compare" role="table" aria-label="Bảng so sánh">
+          <div class="compare-row" role="row">
+            <div class="compare-cell head them" role="columnheader">Cách học thông thường</div>
+            <div class="compare-cell head us" role="columnheader">Tại Erasight Academy</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell them" role="cell">Nghe giảng lý thuyết trừu tượng trên slide</div>
+            <div class="compare-cell us" role="cell">Dựng workflow thật trên Google Sheets &amp; API</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell them" role="cell">Tự dịch CV và hy vọng qua vòng ATS</div>
+            <div class="compare-cell us" role="cell">Mentor MNC sửa CV 1:1 chuẩn khung quốc tế</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell them" role="cell">Hỏi đáp ChatGPT chung chung, văn rập khuôn</div>
+            <div class="compare-cell us" role="cell">Quy trình làm mềm câu chữ, xoá sạch dấu vết AI</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell them" role="cell">Bận một buổi là mất bài, tự bơi</div>
+            <div class="compare-cell us" role="cell">3 Buổi học lại "Yêu lại từ đầu" kèm 1:1 miễn phí</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell them" role="cell">Kết thúc bằng chứng chỉ trên giấy</div>
+            <div class="compare-cell us" role="cell">Web portfolio live &amp; Video mock interview</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         HAI KHOÁ HỌC CHỦ LỰC (THE 2 FLAGSHIP COURSES)
+         ====================================================================== -->
+    <section class="blk" id="khoa-hoc">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="eyebrow">Chương trình đào tạo</span>
+          <h2>Hai khoá học cốt lõi cho sự nghiệp của bạn</h2>
+          <p>Mỗi chương trình có một kết quả cụ thể ở cuối lộ trình, không lý thuyết suông.</p>
+        </div>
+
+        <div class="courses-deck-grid">
+          <!-- Khoá 01: AI Marketing -->
+          <div class="course-presentation-card mkt">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <span class="card-code-pill">MÃ: MKT_001</span>
+              <span class="card-tag orange">AI Marketing</span>
+            </div>
+
+            <h3 style="font-size:24px; margin-bottom:10px;">AI Marketing thực chiến</h3>
+            <p style="color:var(--slate); font-size:15px; line-height:1.6; margin-bottom:20px;">
+              Tự dựng được quy trình tự động đăng bài lên các nền tảng online và mạng xã hội, kể cả khi bạn chưa từng viết một dòng code.
+            </p>
+
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; flex-grow:1;">
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--td); font-weight:800;">✓</span>
+                <span>Prompt có cấu trúc và giữ nhận diện người mẫu ảnh thương hiệu nhất quán</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--td); font-weight:800;">✓</span>
+                <span>Dựng workflow tự động đăng bài qua Google Sheets, Gemini API &amp; Webhook</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--td); font-weight:800;">✓</span>
+                <span>Kỹ thuật làm mềm câu chữ, xoá hoàn toàn dấu vết AI rập khuôn trước khi đăng</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--td); font-weight:800;">✓</span>
+                <span>Tự dựng website portfolio motion có tích hợp công cụ đăng bài tự động</span>
+              </li>
+            </ul>
+
+            <div style="padding-top:18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-family:var(--font-mono); font-size:24px; font-weight:800; color:var(--ink);">3.800.000₫</div>
+                <div style="font-size:12px; color:var(--slate);">11 buổi chính + 3 buổi học lại · Tối Thứ 3</div>
+              </div>
+              <a href="#lo-trinh" class="btn btn-ghost btn-sm">Xem lộ trình →</a>
+            </div>
+          </div>
+
+          <!-- Khoá 02: Tiếng Anh phỏng vấn -->
+          <div class="course-presentation-card eng">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <span class="card-code-pill">MÃ: ENG_002</span>
+              <span class="card-tag blue">English Track</span>
+            </div>
+
+            <h3 style="font-size:24px; margin-bottom:10px;">Tiếng Anh phỏng vấn &amp; đi làm</h3>
+            <p style="color:var(--slate); font-size:15px; line-height:1.6; margin-bottom:20px;">
+              Đi hết một vòng tuyển dụng bằng tiếng Anh, từ đọc JD, viết CV tới phỏng vấn vòng cuối, với CV được mentor từ công ty lớn sửa trực tiếp.
+            </p>
+
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; flex-grow:1;">
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--blue); font-weight:800;">✓</span>
+                <span>Viết CV tiếng Anh chuẩn ATS lọt qua vòng lọc hồ sơ tự động</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--blue); font-weight:800;">✓</span>
+                <span>Trả lời phỏng vấn theo khung STAR có số liệu định lượng thuyết phục</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--blue); font-weight:800;">✓</span>
+                <span>Cách nói về điểm yếu, thất bại và xử lý câu hỏi tình huống hóc búa</span>
+              </li>
+              <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
+                <span style="color:var(--blue); font-weight:800;">✓</span>
+                <span>Buổi mock interview mô phỏng 25–30 phút chấm theo chuẩn Pearson</span>
+              </li>
+            </ul>
+
+            <div style="padding-top:18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-family:var(--font-mono); font-size:24px; font-weight:800; color:var(--ink);">4.200.000₫</div>
+                <div style="font-size:12px; color:var(--slate);">15 buổi (4 module) · Kèm 1:1 · Tối Thứ 5</div>
+              </div>
+              <a href="#lo-trinh" class="btn btn-ghost btn-sm">Xem lộ trình →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TIMELINE (4 CHẶNG HỌC TẬP & CAM KẾT HỌC LẠI)
+         ====================================================================== -->
+    <section class="blk" id="lo-trinh" style="background:var(--cloud);">
+      <div class="wrap">
+        <div class="sec-head center">
+          <span class="eyebrow pur" style="margin:0 auto;">Lộ trình 4 chặng</span>
+          <h2>Bốn chặng học tập — Ra sản phẩm từng bước</h2>
+          <p>Mỗi chặng kết thúc bằng một kết quả có thể đo lường và đưa vào hồ sơ năng lực ngay.</p>
+        </div>
+
+        <div class="timeline">
+          <!-- Step 1 -->
+          <div class="tl-step">
+            <div class="tl-num">1</div>
+            <span class="tl-day">Chặng 1 · Nền tảng</span>
+            <h3>Prompting &amp; Media</h3>
+            <p>Nắm cấu trúc prompt chuẩn, dựng workflow nhận diện gương mặt người mẫu ảnh nhất quán 100% và tạo video ngắn.</p>
+            <div class="out">Đầu ra: 5 post chuẩn nhận diện</div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="tl-step">
+            <div class="tl-num">2</div>
+            <span class="tl-day">Chặng 2 · Thực chiến</span>
+            <h3>Automation Flow</h3>
+            <p>Dựng workflow tự động đăng bài: kết nối Google Sheets, Gemini API và Webhook tự động đăng Fanpage &amp; Instagram.</p>
+            <div class="out">Đầu ra: Workflow auto-post chạy live</div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="tl-step">
+            <div class="tl-num">3</div>
+            <span class="tl-day">Chặng 3 · Tối ưu</span>
+            <h3>Seeding &amp; Humanize</h3>
+            <p>Chiến lược seeding phễu 3 tầng, lập lịch Content Calendar 30 ngày và kỹ thuật xoá sạch dấu vết AI rập khuôn.</p>
+            <div class="out">Đầu ra: Bảng Seeding Calendar 30 ngày</div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="tl-step">
+            <div class="tl-num">4</div>
+            <span class="tl-day">Chặng 4 · Đóng gói</span>
+            <h3>Portfolio &amp; Tốt nghiệp</h3>
+            <p>Tự dựng website portfolio cá nhân tích hợp công cụ tự động đăng bài và báo cáo đồ án tốt nghiệp trước hội đồng.</p>
+            <div class="out">Đầu ra: Web portfolio live &amp; Bằng tốt nghiệp</div>
+          </div>
+        </div>
+
+        <!-- Bootcamp Band: Ba Buổi Học Lại Miễn Phí (Remote style) -->
+        <div class="bootcamp-band">
+          <div>
+            <h3>Ba buổi học lại — Miễn phí hoàn toàn</h3>
+            <p>Dành cho học viên bận đột xuất hoặc muốn củng cố lại bài. Được kèm riêng 1:1 theo nhóm nhỏ: Buổi 1 (Prompt &amp; Media) · Buổi 2 (Automation Flow) · Buổi 3 (Review đồ án 1:1).</p>
+          </div>
+          <div>
+            <a href="#pricing" class="btn btn-primary btn-sm">Giữ chỗ đợt này</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         STUDENT ASSETS SHOWCASE (MINH CHỨNG THỰC TẾ)
+         ====================================================================== -->
+    <section class="blk" id="san-pham">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="eyebrow">Minh chứng đầu ra</span>
+          <h2>Sản phẩm thật của học viên tại Erasight</h2>
+          <p>Các hệ thống tự động hoá và hồ sơ xin việc thực tế được học viên hoàn thiện ở cuối khoá.</p>
+        </div>
+
+        <div class="assets-grid">
+          <!-- Card 1 -->
+          <div class="asset-card">
+            <div class="asset-thumb">
+              <img src="assets/images/project_automation_flow.png" alt="Auto-Publishing đa kênh" loading="lazy" />
+              <span class="asset-tag-top">Tiết kiệm 14h/tuần</span>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k">AI Marketing · Đồ án tốt nghiệp</span>
+              <h3>Auto-Publishing đa kênh cho shop Decor</h3>
+              <p>Tự động lấy dữ liệu từ Google Sheets, sinh caption chuẩn SEO qua Gemini API và đăng bài tự động lên Fanpage &amp; Instagram lúc 11h trưa hàng ngày.</p>
+              <div class="asset-foot">Trần Minh Hoàng — Khoá MKT_001</div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="asset-card">
+            <div class="asset-thumb">
+              <img src="assets/images/project_content_calendar.png" alt="Content Seeding Calendar" loading="lazy" />
+              <span class="asset-tag-top">Tăng 280% Reach</span>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k">AI Marketing · Đồ án tốt nghiệp</span>
+              <h3>Bộ nhận diện người mẫu ảo &amp; Seeding Funnel</h3>
+              <p>Xây dựng nhận diện người mẫu ảo nhất quán gương mặt 100% qua prompt tham chiếu, kết hợp kịch bản seeding phễu 3 tầng tạo lịch Content 30 ngày.</p>
+              <div class="asset-foot">Lê Quỳnh Như — Khoá MKT_001</div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="asset-card">
+            <div class="asset-thumb">
+              <img src="assets/images/project_ats_resume.png" alt="CV ATS & Mock Interview" loading="lazy" />
+              <span class="asset-tag-top" style="color:#2176C7;">96/100 ATS Score</span>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k" style="color:var(--blue);">English Track · Kết quả học viên</span>
+              <h3>Hồ sơ tuyển dụng ATS &amp; Mock Interview STAR</h3>
+              <p>Bản CV tiếng Anh định dạng chuẩn ATS vượt qua vòng lọc hồ sơ tự động của MNC, cùng bộ câu trả lời phỏng vấn theo khung STAR có số liệu định lượng.</p>
+              <div class="asset-foot">Phạm Đức Anh — Khoá ENG_002</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         FACULTY (ĐỘI NGŨ GIẢNG VIÊN)
+         ====================================================================== -->
+    <section class="blk" id="giang-vien" style="background:var(--cloud);">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="eyebrow">Người đồng hành</span>
+          <h2>Đội ngũ giảng viên &amp; cố vấn thực chiến</h2>
+          <p>Trực tiếp xây dựng sản phẩm và tuyển dụng nhân sự mỗi ngày.</p>
+        </div>
+
+        <div class="faculty-grid">
+          <div class="faculty-card-clean">
+            <img src="assets/images/instructor_tien.png" alt="Hồ Hoàng Tiến" />
+            <div>
+              <h3>Hồ Hoàng Tiến</h3>
+              <div class="faculty-role">Chủ nhiệm khoá AI Marketing · Automation Architect</div>
+              <p>Hơn 7 năm kinh nghiệm triển khai tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Trực tiếp thiết kế hệ thống tự động hoá cho hơn 40 dự án. Đánh giá mức độ hiểu bài trung bình 4.1/5 từ học viên.</p>
+            </div>
+          </div>
+
+          <div class="faculty-card-clean">
+            <img src="assets/images/instructor_tram.png" alt="Nguyễn Mai Trâm" />
+            <div>
+              <h3>Nguyễn Mai Trâm</h3>
+              <div class="faculty-role blue">Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner</div>
+              <p>8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PRICING & ENROLLMENT (BẢNG HỌC PHÍ & FORM GHI DANH)
+         ====================================================================== -->
+    <section class="blk" id="pricing">
+      <div class="wrap">
+        <div class="sec-head center">
+          <span class="eyebrow pur" style="margin:0 auto;">Học phí &amp; Ghi danh</span>
+          <h2>Học phí trọn gói. Giữ chỗ đợt khai giảng này.</h2>
+          <p>Mỗi lớp tối đa 12 học viên để đảm bảo từng người đều được sửa bài và hỗ trợ 1:1.</p>
+        </div>
+
+        <div class="price-grid">
+          <!-- Card 1 -->
+          <div class="price-card">
+            <h3>01. AI Marketing</h3>
+            <div class="who">11 buổi chính + 3 buổi học lại</div>
+            <div class="amt">3.800.000₫</div>
+            <ul>
+              <li>Workflow tự động hoá đăng bài đa kênh</li>
+              <li>Tạo ảnh người mẫu thương hiệu nhất quán</li>
+              <li>Bộ prompt chuẩn và kỹ thuật humanize</li>
+              <li>Website portfolio cá nhân có gắn công cụ</li>
+              <li>3 Buổi học lại "Yêu lại từ đầu" miễn phí</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-ghost btn-sm" style="width:100%;" onclick="selectCourse('Khoá 01: AI Marketing thực chiến')">Chọn khoá này</a>
+            </div>
+          </div>
+
+          <!-- Card 2: Featured Combo -->
+          <div class="price-card feat">
+            <h3>Combo Cả 2 Khoá</h3>
+            <div class="who" style="color:var(--orange);">AI Marketing + Tiếng Anh đi làm</div>
+            <div class="amt">6.800.000₫</div>
+            <ul>
+              <li>Toàn bộ chương trình AI Marketing 11 buổi</li>
+              <li>Toàn bộ chương trình Tiếng Anh phỏng vấn 15 buổi</li>
+              <li>CV được mentor tập đoàn lớn sửa trực tiếp 1:1</li>
+              <li>Mock interview 1:1 có bảng điểm chuẩn Pearson</li>
+              <li>Tiết kiệm trực tiếp 1.200.000₫ học phí</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-primary btn-sm" style="width:100%;" onclick="selectCourse('Combo cả 2 khoá (Ưu đãi 15%)')">Ghi danh Combo</a>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="price-card">
+            <h3>02. Tiếng Anh đi làm</h3>
+            <div class="who">15 buổi học · 4 module</div>
+            <div class="amt">4.200.000₫</div>
+            <ul>
+              <li>Phân tích JD và viết CV chuẩn ATS</li>
+              <li>Trả lời phỏng vấn theo khung STAR thuyết phục</li>
+              <li>Kỹ năng nói về điểm yếu và xử lý tình huống hóc búa</li>
+              <li>Mock interview trực tiếp có rubric quốc tế</li>
+              <li>Sửa bài phát âm và phản xạ 1:1</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-ghost btn-sm" style="width:100%;" onclick="selectCourse('Khoá 02: Tiếng Anh phỏng vấn & đi làm')">Chọn khoá này</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Enrollment Box -->
+        <div class="enroll-box-wrap" id="enroll-form">
+          <h3 style="font-size:20px; text-align:center; margin-bottom:6px;">Phiếu đăng ký giữ chỗ</h3>
+          <p style="font-size:13.5px; color:var(--slate); text-align:center; margin-bottom:24px;">
+            Đợt khai giảng tuần này chỉ còn 3 / 12 suất trống. Vui lòng để lại thông tin để giáo vụ liên hệ xác nhận.
+          </p>
+
+          <form id="enrollFormClean">
+            <div class="form-group-clean">
+              <label for="enrollCourse">Khoá học bạn chọn *</label>
+              <select id="enrollCourse">
+                <option value="Combo cả 2 khoá (Ưu đãi 15%)">★ Combo cả 2 khoá (6.800.000₫ — Tiết kiệm 1.2M)</option>
+                <option value="Khoá 01: AI Marketing thực chiến">Khoá 01: AI Marketing thực chiến (3.800.000₫)</option>
+                <option value="Khoá 02: Tiếng Anh phỏng vấn & đi làm">Khoá 02: Tiếng Anh phỏng vấn &amp; đi làm (4.200.000₫)</option>
+              </select>
+            </div>
+
+            <div class="form-group-clean">
+              <label for="name">Họ và tên *</label>
+              <input type="text" id="name" placeholder="Ví dụ: Nguyễn Văn An" required />
+            </div>
+
+            <div class="form-group-clean">
+              <label for="phone">Số điện thoại / Zalo *</label>
+              <input type="tel" id="phone" placeholder="Ví dụ: 0912 345 678" required />
+            </div>
+
+            <div class="form-group-clean">
+              <label for="email">Email nhận tài liệu học tập *</label>
+              <input type="email" id="email" placeholder="Ví dụ: an.nguyen@gmail.com" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; height:48px; font-size:16px; margin-top:8px;">
+              Ghi danh giữ chỗ ngay
+            </button>
+          </form>
+
+          <div id="enrollSuccess" style="display:none; margin-top:16px; padding:14px; background:var(--pl); border-radius:8px; font-size:13.5px; color:var(--td); line-height:1.6;">
+            <b>✓ Đã ghi nhận thông tin giữ chỗ!</b> Ban giáo vụ Erasight sẽ liên hệ qua Zalo/Điện thoại trong vòng 2 giờ làm việc để xác nhận lịch học.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         FAQ (HỎI ĐÁP CỐT LÕI)
+         ====================================================================== -->
+    <section class="blk" id="faq" style="background:var(--cloud);">
+      <div class="wrap">
+        <div class="sec-head center">
+          <span class="eyebrow" style="margin:0 auto;">Giải đáp thắc mắc</span>
+          <h2>Câu hỏi thường gặp</h2>
+          <p>Mọi thông tin về phương pháp học và chính sách đồng hành.</p>
+        </div>
+
+        <div class="faq-stack">
+          <details class="faq-card" open>
+            <summary>
+              <span>Tôi chưa từng biết lập trình thì có học được khoá AI Marketing không?</span>
+              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
+            </summary>
+            <div class="faq-body">
+              Hoàn toàn học được. Khoá học được thiết kế theo tư duy No-Code: bạn dùng các công cụ có sẵn qua giao diện trực quan và bảng tính Google Sheets. Không yêu cầu bất kỳ nền tảng code nào từ trước.
+            </div>
+          </details>
+
+          <details class="faq-card">
+            <summary>
+              <span>Nếu tôi bận một buổi học thì có được học bù không?</span>
+              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
+            </summary>
+            <div class="faq-body">
+              Có. Erasight có chính sách 3 buổi học lại "Yêu lại từ đầu" miễn phí hoàn toàn cho mỗi khoá. Toàn bộ các buổi học đều có record video để bạn xem lại bất cứ lúc nào trong vòng 1 năm.
+            </div>
+          </details>
+
+          <details class="faq-card">
+            <summary>
+              <span>Tiếng Anh của tôi ở mức A2 (cơ bản) thì có theo kịp khoá phỏng vấn không?</span>
+              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
+            </summary>
+            <div class="faq-body">
+              Khoá học thiết kế tối ưu cho học viên ở mức A2–B1. Thay vì học ngữ pháp trừu tượng, bạn được rèn luyện trực tiếp các mẫu câu phỏng vấn thực tế theo khung STAR và sửa bài 1:1 để tự tin phản xạ.
+            </div>
+          </details>
+
+          <details class="faq-card">
+            <summary>
+              <span>Sau khoá học tôi có được cấp chứng nhận tốt nghiệp không?</span>
+              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
+            </summary>
+            <div class="faq-body">
+              Có. Sau buổi báo cáo đồ án tốt nghiệp, học viên hoàn thành sẽ được cấp Chứng nhận tốt nghiệp chuẩn nhận diện Erasight Edu (có mã số xác thực trực tuyến để gắn vào CV và LinkedIn).
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       SITE FOOTER (REUSABLE COMPONENT)
+       ====================================================================== -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="footer-container">
+      <div class="footer-main-row">
+        <!-- Cột nhận diện thương hiệu -->
+        <div class="footer-brand-col">
+          <a href="#top" class="footer-brand-logo" aria-label="Erasight Academy">
+            <img src="assets/logos/erasight-logo-ngang-mono-trang-1600w.png" alt="Erasight Edu" width="140" height="28" />
+          </a>
+          <div class="footer-slogan">Skills for what's next.</div>
+          <p class="footer-brand-desc">
+            Học viện đào tạo kỹ năng thực chiến cho người trẻ đi làm. Tự động hoá marketing bằng AI và Tiếng Anh phỏng vấn xin việc.
+          </p>
+        </div>
+
+        <!-- Nhóm cột liên kết -->
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h4>Khoá học</h4>
+            <ul>
+              <li><a href="#khoa-hoc">01. AI Marketing thực chiến</a></li>
+              <li><a href="#khoa-hoc">02. Tiếng Anh phỏng vấn &amp; đi làm</a></li>
+              <li><a href="#lo-trinh">Lộ trình 4 chặng</a></li>
+              <li><a href="#san-pham">Sản phẩm học viên</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Thông tin &amp; Hỗ trợ</h4>
+            <ul>
+              <li><a href="#giang-vien">Đội ngũ giảng viên</a></li>
+              <li><a href="#difference">Điểm khác biệt</a></li>
+              <li><a href="#pricing">Chính sách học phí</a></li>
+              <li><a href="#faq">Câu hỏi thường gặp</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>Liên hệ ghi danh</h4>
+            <ul>
+              <li>Hotline / Zalo: <strong>0912 345 678</strong></li>
+              <li>Email: <strong>edu@erasight.vn</strong></li>
+              <li>Hình thức: Live Zoom &amp; Kèm 1:1</li>
+              <li>Quy mô: Tối đa 12 người / lớp</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hàng bản quyền dưới cùng -->
+      <div class="footer-bottom-row">
+        <div>© 2026 Erasight Academy. Tuân thủ Brand Guideline v2.0.</div>
+        <div class="footer-mono-badge">Skills for what's next.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
