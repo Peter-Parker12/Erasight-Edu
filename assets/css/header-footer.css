@@ -596,6 +596,8 @@ footer,
   align-items: center;
   z-index: 3;
   flex-shrink: 0;
+  padding-left: 28px;
+  transform: translateY(2px);
 }
 
 .footer-notch-brand img {
@@ -611,7 +613,7 @@ footer,
   transform: translateX(-50%);
   top: 0;
   height: 54px;
-  width: 550px;
+  width: 480px;
   max-width: calc(100% - 64px);
   z-index: 1;
   pointer-events: none;
@@ -629,6 +631,8 @@ footer,
   gap: 12px;
   z-index: 3;
   flex-shrink: 0;
+  padding-right: 8px;
+  transform: translateY(2px);
 }
 
 .footer-notch-social-title {
@@ -765,21 +769,6 @@ footer,
 
 .footer-company-info p {
   margin-bottom: 7px;
-}
-
-.footer-contact-card {
-  margin-top: 16px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  font-size: 13px;
-  color: #8E9CA4;
-  line-height: 1.6;
-}
-
-.footer-contact-card a {
-  display: inline;
 }
 
 /* 2.4 Bottom Copyright Bar */
