@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+  <title>Đội ngũ Giảng viên &amp; Mentor Thực chiến — Erasight Academy</title>
+  <meta name="description" content="Gặp gỡ đội ngũ giảng viên và mentor thực chiến tại Erasight Academy: Anh Hồ Hoàng Tiến (AI Marketing) và Cô Nguyễn Mai Trâm (Tiếng Anh phỏng vấn & hướng nghiệp)." />
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN & Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary": "#ffffff",
+            "on-surface-variant": "#3d4947",
+            "navy": "#0C2A3A",
+            "on-primary-fixed-variant": "#00504b",
+            "secondary-fixed": "#cae6fc",
+            "on-tertiary-container": "#fffbff",
+            "surface-container-low": "#e7f6ff",
+            "on-secondary-fixed": "#001e2d",
+            "primary-fixed": "#81f6ea",
+            "outline-variant": "#bcc9c7",
+            "panel-text-muted": "#B9CBD2",
+            "tertiary-container": "#c74e00",
+            "secondary-fixed-dim": "#aecadf",
+            "surface-teal": "#E8F6F5",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#f3fffc",
+            "surface-variant": "#cae7f6",
+            "surface-tint": "#006a63",
+            "on-error-container": "#93000a",
+            "on-error": "#ffffff",
+            "teal": "#0DA096",
+            "slate": "#4A6572",
+            "surface-sand": "#F6F8F9",
+            "surface-dim": "#c2deee",
+            "surface": "#f4faff",
+            "error-container": "#ffdad6",
+            "on-secondary-container": "#4d687a",
+            "surface-container-highest": "#cae7f6",
+            "white": "#FFFFFF",
+            "line": "#DCE5E8",
+            "on-background": "#001f2a",
+            "on-surface": "#001f2a",
+            "panel-teal-accent": "#7FE0D8",
+            "on-tertiary-fixed-variant": "#7c2e00",
+            "inverse-primary": "#62d9ce",
+            "inverse-on-surface": "#e0f4ff",
+            "background": "#f4faff",
+            "tertiary-fixed-dim": "#ffb596",
+            "orange-hover": "#CF5003",
+            "surface-container": "#d9f2ff",
+            "on-secondary-fixed-variant": "#2f4a5b",
+            "on-primary-fixed": "#00201d",
+            "secondary-container": "#cae6fc",
+            "surface-bright": "#f4faff",
+            "tertiary-fixed": "#ffdbcd",
+            "inverse-surface": "#18343f",
+            "tertiary": "#9f3d00",
+            "surface-container-high": "#d0edfc",
+            "surface-container-lowest": "#ffffff",
+            "primary-container": "#00837a",
+            "on-tertiary-fixed": "#360f00",
+            "on-primary": "#ffffff",
+            "primary": "#006861",
+            "error": "#ba1a1a",
+            "primary-fixed-dim": "#62d9ce",
+            "orange": "#E85D04",
+            "outline": "#6d7a77",
+            "secondary": "#476274"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "margin-mobile": "1rem",
+            "space-xl": "2.5rem",
+            "margin": "1.5rem",
+            "space-2xl": "3.5rem",
+            "space-3xl": "5rem",
+            "gutter-sm": "1rem",
+            "space-xs": "0.25rem",
+            "gutter-lg": "2.5rem",
+            "gutter": "1.5rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "display-hero": ["Be Vietnam Pro", "sans-serif"],
+            "body-default": ["Be Vietnam Pro", "sans-serif"],
+            "headline-sm": ["Be Vietnam Pro", "sans-serif"],
+            "label-counter": ["Be Vietnam Pro", "sans-serif"],
+            "stat-metric": ["Be Vietnam Pro", "sans-serif"],
+            "headline-lg": ["Be Vietnam Pro", "sans-serif"],
+            "headline-lg-mobile": ["Be Vietnam Pro", "sans-serif"],
+            "eyebrow": ["Be Vietnam Pro", "sans-serif"],
+            "button-text": ["Be Vietnam Pro", "sans-serif"],
+            "display-hero-mobile": ["Be Vietnam Pro", "sans-serif"],
+            "lead": ["Be Vietnam Pro", "sans-serif"],
+            "headline-md": ["Be Vietnam Pro", "sans-serif"],
+            "body-muted": ["Be Vietnam Pro", "sans-serif"]
+          },
+          "fontSize": {
+            "display-hero": ["56px", { "lineHeight": "1.15", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-default": ["16px", { "lineHeight": "1.65", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "1.3", "fontWeight": "800" }],
+            "label-counter": ["15px", { "lineHeight": "1", "letterSpacing": "0.04em", "fontWeight": "800" }],
+            "stat-metric": ["44px", { "lineHeight": "1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "headline-lg": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "eyebrow": ["13px", { "lineHeight": "1.2", "letterSpacing": "0.08em", "fontWeight": "700" }],
+            "button-text": ["15px", { "lineHeight": "1", "fontWeight": "700" }],
+            "display-hero-mobile": ["34px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "lead": ["19px", { "lineHeight": "1.65", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "body-muted": ["15px", { "lineHeight": "1.6", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 76px;
+      }
+      body {
+        font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+        color: #0C2A3A;
+        background-color: #FFFFFF;
+        -webkit-font-smoothing: antialiased;
+      }
+    }
+  </style>
+
+  <!-- Reusable Header & Footer CSS -->
+  <link rel="stylesheet" href="assets/css/header-footer.css?v=2.2" />
+</head>
+<body class="bg-white text-navy font-body-default min-h-screen flex flex-col">
+
+  <!-- ======================================================================
+       HEADER CHUẨN DÙNG CHUNG CỦA DỰ ÁN
+       ====================================================================== -->
+  <div id="site-header"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow" id="top">
+    <div class="flex flex-col w-full">
+      <!-- HERO INTRO SECTION -->
+      <section class="w-full bg-white py-12 md:py-20">
+        <div class="max-w-[1120px] mx-auto px-6">
+          <!-- Erasight 3-Bar Motif -->
+          <div aria-hidden="true" class="flex flex-col gap-[5px] mb-8">
+            <span class="w-[36px] h-[6px] bg-teal rounded-full inline-block"></span>
+            <span class="w-[36px] h-[6px] bg-orange rounded-full inline-block"></span>
+            <span class="w-[36px] h-[6px] bg-teal rounded-full inline-block"></span>
+          </div>
+
+          <!-- Eyebrow & Meta -->
+          <div class="flex items-center gap-3 mb-4">
+            <span class="font-eyebrow text-eyebrow uppercase tracking-widest text-teal">01 / ĐỘI NGŨ ĐỒNG HÀNH</span>
+            <span class="w-2 h-2 rounded-full bg-teal inline-block"></span>
+            <span class="font-body-muted text-body-muted text-slate">Thực chiến • Trực diện • Đồng hành 1:1</span>
+          </div>
+
+          <!-- Hero Heading -->
+          <h1 class="font-display-hero text-display-hero text-navy max-w-4xl tracking-tight mb-6">
+            Những người trực tiếp <span class="text-orange">thực chiến</span>, không chỉ dạy lý thuyết.
+          </h1>
+
+          <!-- Lead paragraph -->
+          <p class="font-lead text-lead text-slate max-w-3xl leading-relaxed mb-10">
+            Giảng viên và mentor tại Erasight là các chuyên gia đang trực tiếp vận hành hệ thống marketing automation và phụ trách tuyển dụng nhân sự mỗi ngày. Chúng tôi loại bỏ giáo án hàn lâm để trao cho bạn công thức thực chiến có thể ứng dụng tạo kết quả ngay trong 24 giờ.
+          </p>
+
+          <!-- Key Metric Highlights -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+            <div class="bg-surface-sand p-6 rounded-xl flex flex-col justify-between">
+              <span class="font-label-counter text-label-counter text-teal">01. KINH NGHIỆM</span>
+              <div class="font-stat-metric text-stat-metric text-navy my-2">7+ <span class="text-xl font-headline-sm text-slate">Năm</span></div>
+              <span class="font-body-muted text-body-muted text-slate">Vận hành thực tế tại các doanh nghiệp &amp; tập đoàn</span>
+            </div>
+            <div class="bg-surface-sand p-6 rounded-xl flex flex-col justify-between">
+              <span class="font-label-counter text-label-counter text-teal">02. ỨNG VIÊN ĐÁNH GIÁ</span>
+              <div class="font-stat-metric text-stat-metric text-navy my-2">3.000+</div>
+              <span class="font-body-muted text-body-muted text-slate">Hồ sơ ứng viên thực tế đã qua vòng phỏng vấn chọn lọc</span>
+            </div>
+            <div class="bg-surface-sand p-6 rounded-xl flex flex-col justify-between">
+              <span class="font-label-counter text-label-counter text-teal">03. PHẢN HỒI BÀI TẬP</span>
+              <div class="font-stat-metric text-stat-metric text-navy my-2">24h</div>
+              <span class="font-body-muted text-body-muted text-slate">Cam kết review chi tiết từng workflow &amp; CV cá nhân</span>
+            </div>
+            <div class="bg-surface-sand p-6 rounded-xl flex flex-col justify-between">
+              <span class="font-label-counter text-label-counter text-teal">04. QUY MÔ LỚP HỌC</span>
+              <div class="font-stat-metric text-stat-metric text-navy my-2">15-20</div>
+              <span class="font-body-muted text-body-muted text-slate">Học viên tối đa mỗi đợt để bảo đảm kèm sát 1:1</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTER & MENTOR DIRECTORY SECTION -->
+      <section class="w-full bg-surface-sand py-16 md:py-24">
+        <div class="max-w-[1120px] mx-auto px-6">
+          <!-- Section Header & Filter Switcher -->
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <span class="font-eyebrow text-eyebrow uppercase text-teal tracking-wider block mb-2">DANH MỤC CHUYÊN GIA</span>
+              <h2 class="font-headline-lg text-headline-lg text-navy tracking-tight">Hồ sơ Giảng viên phụ trách</h2>
+            </div>
+
+            <!-- Filter Tags -->
+            <div class="inline-flex p-1.5 bg-white rounded-xl gap-2 self-start md:self-auto shadow-sm">
+              <button class="mentor-filter-btn px-4 py-2 rounded-lg font-button-text text-button-text bg-navy text-white transition-colors min-h-[44px]" id="btn-filter-all" onclick="filterMentors('all')" type="button">
+                Tất cả mentor (02)
+              </button>
+              <button class="mentor-filter-btn px-4 py-2 rounded-lg font-button-text text-button-text text-slate hover:text-navy transition-colors min-h-[44px]" id="btn-filter-ai" onclick="filterMentors('ai-marketing')" type="button">
+                AI Marketing (01)
+              </button>
+              <button class="mentor-filter-btn px-4 py-2 rounded-lg font-button-text text-button-text text-slate hover:text-navy transition-colors min-h-[44px]" id="btn-filter-en" onclick="filterMentors('career-english')" type="button">
+                Hướng nghiệp &amp; Phỏng vấn (01)
+              </button>
+            </div>
+          </div>
+
+          <!-- MENTOR LISTING -->
+          <div class="flex flex-col gap-12">
+            <!-- PROFILE 1: Hồ Hoàng Tiến -->
+            <article class="mentor-card bg-white rounded-2xl p-8 md:p-12 shadow-sm transition-all" data-category="ai-marketing" style="border-top: 5px solid #0DA096;">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                <!-- Left Column: Portrait & Key Info -->
+                <div class="lg:col-span-4 flex flex-col justify-between">
+                  <div>
+                    <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-surface-teal mb-6 shadow-sm">
+                      <img class="w-full h-full object-cover" src="assets/images/instructor_tien.png" alt="Chân dung Hồ Hoàng Tiến - Automation Architect & AI Practitioner" />
+                      <span class="absolute top-4 left-4 bg-white/95 backdrop-blur text-navy font-button-text text-xs uppercase px-3 py-1.5 rounded-full shadow-sm font-bold">
+                        CHỦ NHIỆM CHƯƠNG TRÌNH
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="font-label-counter text-teal font-bold">01</span>
+                      <span class="font-eyebrow text-xs uppercase text-slate tracking-wider font-bold">AI WORKFLOW &amp; GROWTH AUTOMATION</span>
+                    </div>
+
+                    <h3 class="font-headline-md text-headline-md text-navy mb-2 font-bold">Hồ Hoàng Tiến</h3>
+                    <p class="font-body-default text-slate mb-4 font-medium">
+                      Automation Architect &amp; AI Practitioner
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 mb-6">
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">40+ Dự án số</span>
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">Đánh giá 4.1 / 5</span>
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">7+ Năm thực tế</span>
+                    </div>
+                  </div>
+
+                  <!-- Action Link With 3px Orange Underline -->
+                  <div class="pt-4">
+                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#khoa-hoc">
+                      Xem chi tiết lộ trình khoá AI Marketing →
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Right Column: Biography, Competencies & Commitment -->
+                <div class="lg:col-span-8 flex flex-col justify-between">
+                  <div>
+                    <!-- Experience Summary -->
+                    <div class="mb-8">
+                      <h4 class="font-headline-sm text-headline-sm text-navy mb-3 font-bold">Kinh nghiệm &amp; Vai trò thực tế</h4>
+                      <p class="font-body-default text-slate leading-relaxed mb-4">
+                        Hơn 7 năm kinh nghiệm thiết kế hệ thống tự động hoá quy trình và tối ưu hóa vận hành nội dung cho các thương hiệu lớn tại Việt Nam. Anh là người tiên phong đưa các mô hình ngôn ngữ lớn (LLMs), Generative AI và workflow automation (Make, n8n, API chains) vào chuỗi sản xuất media đa kênh quy mô lớn.
+                      </p>
+                      <p class="font-body-default text-slate leading-relaxed">
+                        Tác giả phương pháp <span class="font-semibold text-navy">Seeding Automation Flow</span> và kiến trúc sư trực tiếp thiết kế hệ sinh thái tự động hoá cho hơn 40+ dự án số, giúp tinh gọn 70% thời gian sản xuất và giải phóng nguồn lực nhân sự khỏi các tác vụ thủ công lặp lại.
+                      </p>
+                    </div>
+
+                    <!-- Teaching Modules Grid -->
+                    <div class="mb-8">
+                      <h4 class="font-headline-sm text-headline-sm text-navy mb-4 font-bold">Các chuyên đề trực tiếp đào tạo</h4>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Kỹ nghệ Prompt Media Đa Kênh</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Xây dựng master prompt tạo ảnh, kịch bản video viral và đồng bộ visual identity trên nhiều nền tảng.</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Tối ưu Hoá SEO / GEO Content</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Phương pháp đưa nội dung xuất hiện tự nhiên trên các công cụ tìm kiếm trí tuệ nhân tạo (SearchGPT, Perplexity).</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Workflow Tự Động Phân Phối</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Thiết lập chuỗi tự động lên lịch, kiểm duyệt và đăng tải bài viết qua webhook và API liên kết mạng xã hội.</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Humanize &amp; Loại trừ AI Detection</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Kỹ thuật biên tập giọng điệu sắc sảo, tự nhiên, vượt qua các thuật toán lọc nội dung tự động.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mentor Commitment Box -->
+                  <div class="bg-surface-teal p-6 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-4">
+                    <div>
+                      <span class="font-eyebrow text-xs uppercase text-teal tracking-wider block mb-1 font-bold">CAM KẾT CỦA MENTOR</span>
+                      <p class="font-body-default text-navy font-semibold">
+                        “Tôi trực tiếp sửa và tối ưu hóa workflow tự động hoá của từng học viên trong từng buổi thực hành trên máy.”
+                      </p>
+                    </div>
+                    <a class="shrink-0 inline-flex items-center min-h-[44px] font-button-text text-sm text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#san-pham">
+                      Xem sản phẩm học viên →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- PROFILE 2: Nguyễn Mai Trâm -->
+            <article class="mentor-card bg-white rounded-2xl p-8 md:p-12 shadow-sm transition-all" data-category="career-english" style="border-top: 5px solid #E85D04;">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                <!-- Left Column: Portrait & Key Info -->
+                <div class="lg:col-span-4 flex flex-col justify-between">
+                  <div>
+                    <div class="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-surface-teal mb-6 shadow-sm">
+                      <img class="w-full h-full object-cover" src="assets/images/instructor_tram.png" alt="Chân dung Nguyễn Mai Trâm - Senior Talent Acquisition Partner & Career Coach" />
+                      <span class="absolute top-4 left-4 bg-white/95 backdrop-blur text-navy font-button-text text-xs uppercase px-3 py-1.5 rounded-full shadow-sm font-bold">
+                        CỐ VẤN NGHỀ NGHIỆP &amp; PHỎNG VẤN
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="font-label-counter text-teal font-bold">02</span>
+                      <span class="font-eyebrow text-xs uppercase text-slate tracking-wider font-bold">TALENT ACQUISITION &amp; BUSINESS ENGLISH</span>
+                    </div>
+
+                    <h3 class="font-headline-md text-headline-md text-navy mb-2 font-bold">Nguyễn Mai Trâm</h3>
+                    <p class="font-body-default text-slate mb-4 font-medium">
+                      Senior Talent Acquisition Partner &amp; Career Coach
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 mb-6">
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">3.000+ Ứng viên</span>
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">100% Review CV</span>
+                      <span class="bg-surface-teal text-navy font-button-text text-xs px-3 py-1 rounded-full font-semibold">8+ Năm tập đoàn MNC</span>
+                    </div>
+                  </div>
+
+                  <!-- Action Link With 3px Orange Underline -->
+                  <div class="pt-4">
+                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#khoa-hoc">
+                      Xem lộ trình phỏng vấn cùng cô Trâm →
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Right Column: Biography, Competencies & Commitment -->
+                <div class="lg:col-span-8 flex flex-col justify-between">
+                  <div>
+                    <!-- Experience Summary -->
+                    <div class="mb-8">
+                      <h4 class="font-headline-sm text-headline-sm text-navy mb-3 font-bold">Kinh nghiệm &amp; Vai trò thực tế</h4>
+                      <p class="font-body-default text-slate leading-relaxed mb-4">
+                        Hơn 8 năm phụ trách tuyển dụng nhân tài quốc tế và cố vấn nghề nghiệp tại các tập đoàn đa quốc gia và các công ty công nghệ phát triển nhanh tại Đông Nam Á. Cô đã trực tiếp thẩm định và phỏng vấn hơn 3.000 hồ sơ ứng viên chuyên ngành Marketing, Data, Tech và E-commerce.
+                      </p>
+                      <p class="font-body-default text-slate leading-relaxed">
+                        Sở hữu chứng chỉ chuyên sâu về <span class="font-semibold text-navy">Business Communication</span> và am hiểu tường tận cơ chế quét từ khóa của các hệ thống lọc hồ sơ tự động ATS (Applicant Tracking System), cô giúp học viên phá bỏ rào cản sợ nói tiếng Anh và tự tin thương lượng mức thu nhập xứng đáng.
+                      </p>
+                    </div>
+
+                    <!-- Teaching Modules Grid -->
+                    <div class="mb-8">
+                      <h4 class="font-headline-sm text-headline-sm text-navy mb-4 font-bold">Các chuyên đề trực tiếp huấn luyện</h4>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Giải mã JD &amp; CV Chuẩn ATS</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Kỹ thuật bẻ khóa bản mô tả công việc, tái cấu trúc CV tiếng Anh 1 trang làm nổi bật thành tựu định lượng.</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Khung STAR &amp; Phản Xạ HR Interview</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Phương pháp kể câu chuyện kinh nghiệm theo mô hình Tình huống - Nhiệm vụ - Hành động - Kết quả sắc bén.</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Mock Interview 1:1 Giả Lập</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Phỏng vấn giả định áp lực cao với câu hỏi tình huống chuyên sâu, chỉnh sửa ngữ điệu và ngôn ngữ cơ thể.</p>
+                        </div>
+
+                        <div class="p-4 bg-surface-sand rounded-xl">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-teal"></span>
+                            <span class="font-button-text text-sm text-navy font-bold">Chiến Lược Offer &amp; Thăng Tiến</span>
+                          </div>
+                          <p class="font-body-muted text-body-muted text-slate text-sm">Kỹ năng thảo luận package phúc lợi, giao tiếp chuyên nghiệp với sếp quốc tế và định hướng 3 năm tiếp theo.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mentor Commitment Box -->
+                  <div class="bg-surface-teal p-6 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-4">
+                    <div>
+                      <span class="font-eyebrow text-xs uppercase text-teal tracking-wider block mb-1 font-bold">CAM KẾT CỦA MENTOR</span>
+                      <p class="font-body-default text-navy font-semibold">
+                        “100% học viên được tôi review và sửa trực tiếp từng dòng trong CV trước khi gửi cho nhà tuyển dụng.”
+                      </p>
+                    </div>
+                    <a class="shrink-0 inline-flex items-center min-h-[44px] font-button-text text-sm text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#khoa-hoc">
+                      Xem lịch khai giảng khoá mới →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVY BLOCK: ERASIGHT MENTOR STANDARDS -->
+      <section class="w-full bg-navy text-white py-16 md:py-24">
+        <div class="max-w-[1120px] mx-auto px-6">
+          <!-- Section Header Inside Navy -->
+          <div class="max-w-3xl mb-16">
+            <span class="font-eyebrow text-eyebrow uppercase text-panel-teal-accent tracking-widest block mb-3 font-bold">TRIẾT LÝ VÀ NGUYÊN TẮC GIẢNG DẠY</span>
+            <h2 class="font-headline-lg text-headline-lg text-white mb-6 font-bold">
+              Tiêu chuẩn Mentor tại Erasight Academy
+            </h2>
+            <p class="font-lead text-lead text-panel-text-muted leading-relaxed">
+              Chúng tôi từ chối mô hình trung tâm truyền thống nơi người dạy chỉ đọc lại slide. Mọi người hướng dẫn tại Erasight phải đáp ứng trọn vẹn 3 nguyên tắc bất di bất dịch:
+            </p>
+          </div>
+
+          <!-- 3 Pillars Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white/5 backdrop-blur rounded-xl p-8 flex flex-col justify-between">
+              <div>
+                <span class="font-label-counter text-panel-teal-accent block mb-4 font-bold">NGUYÊN TẮC 01</span>
+                <h3 class="font-headline-sm text-headline-sm text-white mb-3 font-bold">100% Đang Làm Nghề Thực Tế</h3>
+                <p class="font-body-default text-panel-text-muted leading-relaxed">
+                  Không tuyển dụng giảng viên chỉ có bằng cấp sư phạm thuần túy nhưng thiếu va chạm thương trường. Mọi mentor đều đang quản lý ngân sách, điều hành team hoặc phỏng vấn nhân sự mỗi tuần.
+                </p>
+              </div>
+              <div class="pt-6 mt-6 border-t border-white/10">
+                <span class="font-eyebrow text-xs uppercase text-panel-teal-accent tracking-wider font-bold">Cập nhật xu hướng • Thời gian thực</span>
+              </div>
+            </div>
+
+            <div class="bg-white/5 backdrop-blur rounded-xl p-8 flex flex-col justify-between">
+              <div>
+                <span class="font-label-counter text-panel-teal-accent block mb-4 font-bold">NGUYÊN TẮC 02</span>
+                <h3 class="font-headline-sm text-headline-sm text-white mb-3 font-bold">Sửa Bài Tận Tay • Phản Hồi Trong 24h</h3>
+                <p class="font-body-default text-panel-text-muted leading-relaxed">
+                  Học viên không bao giờ bị bỏ rơi với những bài tập chung chung. Mỗi quy trình tạo ra đều được mentor mổ xẻ, phát hiện lỗi prompt, tối ưu API và căn chỉnh từng từ ngữ trước khi triển khai.
+                </p>
+              </div>
+              <div class="pt-6 mt-6 border-t border-white/10">
+                <span class="font-eyebrow text-xs uppercase text-panel-teal-accent tracking-wider font-bold">Trách nhiệm cá nhân • Minh bạch</span>
+              </div>
+            </div>
+
+            <div class="bg-white/5 backdrop-blur rounded-xl p-8 flex flex-col justify-between">
+              <div>
+                <span class="font-label-counter text-panel-teal-accent block mb-4 font-bold">NGUYÊN TẮC 03</span>
+                <h3 class="font-headline-sm text-headline-sm text-white mb-3 font-bold">Giới Hạn Sĩ Số • Tương Tác 1:1</h3>
+                <p class="font-body-default text-panel-text-muted leading-relaxed">
+                  Mỗi đợt tuyển sinh chỉ tiếp nhận tối đa 15-20 học viên. Chúng tôi từ chối lớp học đông người nhằm đảm bảo thời lượng thực hành và giải đáp thắc mắc chuyên sâu cho từng cá nhân.
+                </p>
+              </div>
+              <div class="pt-6 mt-6 border-t border-white/10">
+                <span class="font-eyebrow text-xs uppercase text-panel-teal-accent tracking-wider font-bold">Chất lượng cao cấp • Cá nhân hoá</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session Guarantee Text Badge -->
+          <div class="mt-12 p-6 rounded-xl bg-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+              <span class="w-3 h-3 rounded-full bg-orange shrink-0"></span>
+              <p class="font-body-default text-white">
+                <span class="font-bold">Chính sách bảo chứng:</span> Nếu sau 03 buổi học đầu tiên bạn nhận thấy kiến thức không thực chiến hoặc mentor không tương thích với phong cách của bạn, Erasight hoàn lại 100% học phí không cần điều kiện phức tạp.
+              </p>
+            </div>
+            <a class="shrink-0 inline-flex items-center min-h-[44px] font-button-text text-panel-teal-accent hover:text-white transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#faq">
+              Xem điều kiện hoàn tiền →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENTOR FAQ SECTION -->
+      <section class="w-full bg-white py-16 md:py-24">
+        <div class="max-w-[1120px] mx-auto px-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- FAQ Title -->
+            <div class="lg:col-span-4">
+              <span class="font-eyebrow text-eyebrow uppercase text-teal tracking-wider block mb-2 font-bold">HỖ TRỢ &amp; ĐỒNG HÀNH</span>
+              <h2 class="font-headline-lg text-headline-lg text-navy mb-4 font-bold">Hỏi đáp cùng Mentor</h2>
+              <p class="font-body-default text-slate mb-6">
+                Giải đáp các thắc mắc phổ biến nhất về cách thức tương tác, trao đổi riêng ngoài giờ học và hỗ trợ sau khi kết thúc chương trình.
+              </p>
+              <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#faq">
+                Xem toàn bộ hỏi đáp chung →
+              </a>
+            </div>
+
+            <!-- FAQ Accordion Details List -->
+            <div class="lg:col-span-8 flex flex-col gap-4">
+              <details class="group bg-surface-sand rounded-xl p-5 open:bg-surface-teal transition-colors" open>
+                <summary class="flex items-center justify-between cursor-pointer list-none min-h-[44px]">
+                  <span class="font-headline-sm text-sm md:text-base text-navy font-bold">1. Tôi có được mentor hỗ trợ ngoài giờ lên lớp không?</span>
+                  <span class="text-orange font-bold text-xl group-open:rotate-45 transition-transform duration-200">+</span>
+                </summary>
+                <div class="pt-4 font-body-default text-slate text-sm leading-relaxed border-t border-line mt-3">
+                  Có. Mỗi lớp đều có kênh trao đổi nội bộ riêng (Zalo VIP / Discord). Mentor và đội ngũ trợ giảng hỗ trợ giải đáp trực tiếp các vướng mắc kỹ thuật, lỗi prompt hoặc thắc mắc phỏng vấn trong khung giờ 08:30 – 21:30 hàng ngày.
+                </div>
+              </details>
+
+              <details class="group bg-surface-sand rounded-xl p-5 open:bg-surface-teal transition-colors">
+                <summary class="flex items-center justify-between cursor-pointer list-none min-h-[44px]">
+                  <span class="font-headline-sm text-sm md:text-base text-navy font-bold">2. Ai là người chấm bài và sửa đồ án tốt nghiệp của tôi?</span>
+                  <span class="text-orange font-bold text-xl group-open:rotate-45 transition-transform duration-200">+</span>
+                </summary>
+                <div class="pt-4 font-body-default text-slate text-sm leading-relaxed border-t border-line mt-3">
+                  Chính thầy Hồ Hoàng Tiến (khoá AI Marketing) và cô Nguyễn Mai Trâm (khoá Tiếng Anh/Phỏng vấn) sẽ trực tiếp nhận xét, chấm điểm và góp ý chi tiết cho từng bài tập và đồ án cuối khoá của bạn, không giao lại cho trợ giảng chấm thay.
+                </div>
+              </details>
+
+              <details class="group bg-surface-sand rounded-xl p-5 open:bg-surface-teal transition-colors">
+                <summary class="flex items-center justify-between cursor-pointer list-none min-h-[44px]">
+                  <span class="font-headline-sm text-sm md:text-base text-navy font-bold">3. Sau khi kết thúc khoá học, tôi có thể hỏi mentor nữa không?</span>
+                  <span class="text-orange font-bold text-xl group-open:rotate-45 transition-transform duration-200">+</span>
+                </summary>
+                <div class="pt-4 font-body-default text-slate text-sm leading-relaxed border-t border-line mt-3">
+                  Mọi học viên tốt nghiệp đều được gia nhập Alumni Network của Erasight. Bạn vẫn có thể đặt câu hỏi về các dự án thực tế bạn đang làm tại công ty hoặc gửi lời mời kết nối nghề nghiệp trực tiếp với mentor trên LinkedIn.
+                </div>
+              </details>
+
+              <details class="group bg-surface-sand rounded-xl p-5 open:bg-surface-teal transition-colors">
+                <summary class="flex items-center justify-between cursor-pointer list-none min-h-[44px]">
+                  <span class="font-headline-sm text-sm md:text-base text-navy font-bold">4. Tôi chưa có nền tảng công nghệ hoặc tiếng Anh tốt thì có theo kịp không?</span>
+                  <span class="text-orange font-bold text-xl group-open:rotate-45 transition-transform duration-200">+</span>
+                </summary>
+                <div class="pt-4 font-body-default text-slate text-sm leading-relaxed border-t border-line mt-3">
+                  Chương trình được thiết kế theo dạng modular từ bước cơ bản nhất. Trước khi vào khoá chính, mentor cung cấp bộ tài liệu pre-course và có buổi định hướng cá nhân hoá để đảm bảo mọi thành viên xuất phát đồng đều.
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTTOM CALL-TO-ACTION SECTION -->
+      <section class="w-full bg-surface-sand py-16 md:py-20 border-t border-line">
+        <div class="max-w-[1120px] mx-auto px-6 text-center flex flex-col items-center">
+          <!-- Brand 3-Bar Motif -->
+          <div aria-hidden="true" class="flex flex-col gap-[5px] mb-6">
+            <span class="w-[36px] h-[6px] bg-teal rounded-full inline-block"></span>
+            <span class="w-[36px] h-[6px] bg-orange rounded-full inline-block"></span>
+            <span class="w-[36px] h-[6px] bg-teal rounded-full inline-block"></span>
+          </div>
+
+          <span class="font-eyebrow text-eyebrow uppercase text-teal tracking-wider mb-2 font-bold">ĐỒNG HÀNH NGAY HÔM NAY</span>
+          <h2 class="font-headline-lg text-headline-lg text-navy mb-4 max-w-2xl font-bold">
+            Sẵn sàng làm chủ kỹ năng cùng những chuyên gia hàng đầu?
+          </h2>
+          <p class="font-body-default text-slate max-w-xl mb-8 leading-relaxed">
+            Lớp học giới hạn tối đa 12-15 thành viên để duy trì chất lượng review từng bài tập. Nhận tư vấn trực tiếp về lộ trình phù hợp với vị trí công việc của bạn.
+          </p>
+
+          <!-- Action Links -->
+          <div class="flex flex-col sm:flex-row items-center gap-6">
+            <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange text-base font-bold" href="index.html#pricing">
+              Đăng ký nhận tư vấn lộ trình học cùng Mentor →
+            </a>
+            <a class="inline-flex items-center min-h-[44px] font-button-text text-slate hover:text-navy transition-colors pb-1 border-b-[3px] border-teal text-base font-semibold" href="index.html#san-pham">
+              Xem các sản phẩm học viên đã thực hiện →
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       FOOTER CHUẨN DÙNG CHUNG CỦA DỰ ÁN
+       ====================================================================== -->
+  <div id="site-footer"></div>
+
+  <!-- Interactive Filter Script -->
+  <script>
+    function filterMentors(category) {
+      const cards = document.querySelectorAll('.mentor-card');
+      const buttons = document.querySelectorAll('.mentor-filter-btn');
+      
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-navy', 'text-white');
+        btn.classList.add('text-slate');
+      });
+
+      if (category === 'all') {
+        document.getElementById('btn-filter-all')?.classList.add('bg-navy', 'text-white');
+        document.getElementById('btn-filter-all')?.classList.remove('text-slate');
+      } else if (category === 'ai-marketing') {
+        document.getElementById('btn-filter-ai')?.classList.add('bg-navy', 'text-white');
+        document.getElementById('btn-filter-ai')?.classList.remove('text-slate');
+      } else if (category === 'career-english') {
+        document.getElementById('btn-filter-en')?.classList.add('bg-navy', 'text-white');
+        document.getElementById('btn-filter-en')?.classList.remove('text-slate');
+      }
+
+      cards.forEach(card => {
+        const itemCategory = card.getAttribute('data-category');
+        if (category === 'all' || itemCategory === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+
+  <!-- Script nạp Header & Footer dùng chung -->
+  <script src="assets/js/components.js"></script>
+</body>
+</html>

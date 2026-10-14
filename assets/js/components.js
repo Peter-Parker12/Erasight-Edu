@@ -60,7 +60,7 @@
             </div>
           </div>
 
-          <a href="${rootPath}index.html#giang-vien" class="nav-link">Giảng viên</a>
+          <a href="${rootPath}giang-vien.html" class="nav-link" data-nav="giang-vien">Giảng viên</a>
           <a href="${rootPath}index.html#san-pham" class="nav-link">Sản phẩm học viên</a>
           <a href="${rootPath}index.html#faq" class="nav-link">Hỏi đáp</a>
         </nav>
@@ -93,7 +93,7 @@
               <a href="${rootPath}index.html#khoa-hoc" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
             </div>
           </div>
-          <a href="${rootPath}index.html#giang-vien" class="mobile-nav-item">Giảng viên</a>
+          <a href="${rootPath}giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
           <a href="${rootPath}index.html#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
           <a href="${rootPath}index.html#faq" class="mobile-nav-item">Hỏi đáp</a>
         </div>
@@ -137,7 +137,7 @@
             <div class="footer-col">
               <h4>Thông tin &amp; Hỗ trợ</h4>
               <ul>
-                <li><a href="${rootPath}index.html#giang-vien">Đội ngũ giảng viên</a></li>
+                <li><a href="${rootPath}giang-vien.html">Đội ngũ giảng viên</a></li>
                 <li><a href="${rootPath}index.html#difference">Điểm khác biệt</a></li>
                 <li><a href="${rootPath}index.html#pricing">Chính sách học phí</a></li>
                 <li><a href="${rootPath}index.html#faq">Câu hỏi thường gặp</a></li>
@@ -286,6 +286,13 @@
           dropdown.classList.toggle('is-open');
         }
       });
+    }
+
+    // D. Tự động đánh dấu active theo trang hiện tại
+    const currentPath = window.location.pathname.toLowerCase();
+    if (currentPath.includes('giang-vien')) {
+      const gvLinks = document.querySelectorAll('[data-nav="giang-vien"]');
+      gvLinks.forEach(l => l.classList.add('active'));
     }
   }
 
