@@ -593,7 +593,7 @@ footer,
 
 /* Logo di dời theo hướng mũi tên và căn chính giữa cánh trái (lấy center) */
 .footer-notch-brand {
-  width: calc(50% - 300px);
+  width: calc(50% - 430px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -628,7 +628,7 @@ footer,
 
 /* Cụm theo dõi di dời theo hướng mũi tên và căn chính giữa cánh phải (lấy center) */
 .footer-notch-social {
-  width: calc(50% - 300px);
+  width: calc(50% - 430px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -720,9 +720,15 @@ footer,
 
 .footer-grid-5col {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1.2fr 1fr;
-  gap: 56px;
+  grid-template-columns: 1.35fr 1fr 1fr 1.3fr auto;
+  gap: 52px;
   align-items: start;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.footer-col:last-child {
+  justify-self: end;
 }
 
 @media (max-width: 1080px) {
@@ -791,6 +797,9 @@ footer,
   color: #5F6F79;
   flex-wrap: wrap;
   gap: 12px;
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .footer-mono-badge {
