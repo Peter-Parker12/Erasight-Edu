@@ -1800,10 +1800,58 @@ section.blk {
 }
 
 /* ==========================================================================
-   WEDGE (COMPARISON TABLE)
+   WEDGE (COMPARISON TABLE) WITH B7 BACKGROUND
    ========================================================================== */
 .wedge {
-  background: var(--cloud);
+  background: url('../images/B7.png') no-repeat center center / cover;
+  position: relative;
+  overflow: hidden;
+}
+
+.wedge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.15) 50%, rgba(255, 255, 255, 0.08) 100%);
+  pointer-events: none;
+}
+
+.wedge .wrap {
+  position: relative;
+  z-index: 2;
+}
+
+.wedge-grid > div:first-child h2 {
+  color: #ffffff;
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.wedge-grid > div:first-child h2 span {
+  color: #fb923c !important;
+  text-shadow: 0 0 20px rgba(251, 146, 60, 0.35);
+}
+
+.wedge-grid > div:first-child .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+}
+
+.wedge-grid > div:first-child p {
+  color: rgba(241, 245, 249, 0.95);
+  font-size: 16px;
+  line-height: 1.68;
 }
 
 .wedge-grid {
@@ -1816,16 +1864,18 @@ section.blk {
 @media(max-width: 860px) {
   .wedge-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 36px;
   }
 }
 
 .compare {
-  background: #fff;
-  border: 1px solid var(--line);
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: var(--r);
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(12, 42, 58, 0.04);
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.25), 0 8px 24px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .compare-row {
@@ -1844,36 +1894,65 @@ section.blk {
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 14px 22px;
+  padding: 16px 22px;
 }
 
+/* Ô vuông màu đỏ (Guide): CÁCH HỌC THÔNG THƯỜNG */
+.compare-cell.head.them {
+  background: #fff5f5;
+  color: #dc2626; /* Màu đỏ đúng theo ô guide của user */
+  border-right: 1px solid #fee2e2;
+  border-bottom: 2px solid #fca5a5;
+}
+
+.compare-cell.head.them::before {
+  content: "✕ ";
+  color: #dc2626;
+  font-weight: 800;
+}
+
+/* Ô vuông màu xanh lá (Guide): TẠI ERASIGHT ACADEMY */
+.compare-cell.head.us {
+  background: #f0fdf4;
+  color: #059669; /* Màu xanh lá đúng theo ô guide của user */
+  border-left: 3px solid #10b981;
+  border-bottom: 2px solid #86efac;
+}
+
+.compare-cell.head.us::before {
+  content: "✓ ";
+  color: #059669;
+  font-weight: 800;
+}
+
+/* Các hàng nội dung bên dưới */
 .compare-cell.them {
   background: #fafafc;
-  color: var(--slate);
+  color: #64748b;
   border-right: 1px solid var(--line);
 }
 
+.compare-cell.them:not(.head)::before {
+  content: "✕ ";
+  color: #f87171;
+  font-weight: 800;
+}
+
 .compare-cell.us {
-  background: #fff;
+  background: #ffffff;
   color: var(--ink);
   font-weight: 600;
-  border-left: 3px solid var(--p);
+  border-left: 3px solid #10b981;
+}
+
+.compare-cell.us:not(.head)::before {
+  content: "✓ ";
+  color: #10b981;
+  font-weight: 800;
 }
 
 .compare-row + .compare-row {
   border-top: 1px solid var(--line);
-}
-
-.compare-cell.us::before {
-  content: "✓ ";
-  color: var(--td);
-  font-weight: 800;
-}
-
-.compare-cell.them::before {
-  content: "✕ ";
-  color: #cbd0da;
-  font-weight: 800;
 }
 
 /* ==========================================================================
