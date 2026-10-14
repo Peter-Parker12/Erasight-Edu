@@ -581,7 +581,7 @@ footer,
 }
 
 .footer-notch-bar {
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -596,7 +596,7 @@ footer,
   align-items: center;
   z-index: 3;
   flex-shrink: 0;
-  padding-left: 28px;
+  padding-left: 32px;
   transform: translateY(2px);
 }
 
@@ -606,15 +606,15 @@ footer,
   display: block;
 }
 
-/* Phần hõm căn chính giữa 50% hoàn hảo khớp với 2 nút Newsletter */
+/* Phần màu xanh kéo dài ra thêm (620px) căn giữa hoàn hảo */
 .footer-notch-center {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   top: 0;
   height: 54px;
-  width: 480px;
-  max-width: calc(100% - 64px);
+  width: 620px;
+  max-width: calc(100% - 48px);
   z-index: 1;
   pointer-events: none;
 }
@@ -631,7 +631,7 @@ footer,
   gap: 12px;
   z-index: 3;
   flex-shrink: 0;
-  padding-right: 8px;
+  padding-right: 12px;
   transform: translateY(2px);
 }
 
@@ -700,27 +700,27 @@ footer,
 
 /* 2.3 5-Column Modern Footer Grid (Centered & Balanced Spacing) */
 .footer-body {
-  padding: 48px 0 40px;
+  padding: 52px 0 44px;
   background: #06111A;
 }
 
 .footer-container {
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 32px;
 }
 
 .footer-grid-5col {
   display: grid;
-  grid-template-columns: 1.35fr 1fr 1fr 1.15fr 1.05fr;
-  gap: 36px;
+  grid-template-columns: 1.35fr 1fr 1fr 1.15fr 0.95fr;
+  gap: 48px;
   align-items: start;
 }
 
 @media (max-width: 1080px) {
   .footer-grid-5col {
     grid-template-columns: 1.5fr 1fr 1fr;
-    gap: 32px;
+    gap: 36px;
   }
 }
 
@@ -736,7 +736,7 @@ footer,
   font-size: 15px;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   letter-spacing: -0.01em;
 }
 
@@ -746,7 +746,7 @@ footer,
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .footer-col a {
