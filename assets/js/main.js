@@ -189,4 +189,76 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // 5. GSAP Typewriter Animation for Statement Section
+  // "học xong phải mang về sản phẩm dùng được ngay vào sáng thứ Hai."
+  const statementSec = document.querySelector('.statement');
+  const typingContainer = document.getElementById('statementTypewriter');
+  const typingTextEl = document.getElementById('statementTypingText');
+  const cursorEl = document.getElementById('statementCursor');
+  const fullText = "học xong phải mang về sản phẩm dùng được ngay vào sáng thứ Hai.";
+
+  if (statementSec && typingContainer && typingTextEl) {
+    // Clear initial text for clean typing effect on scroll
+    typingTextEl.textContent = "";
+
+    const runTypewriter = () => {
+      if (typingContainer.dataset.typed === "true") return;
+      typingContainer.dataset.typed = "true";
+
+      const state = { count: 0 };
+      if (window.gsap) {
+        gsap.to(state, {
+          count: fullText.length,
+          duration: 3,
+          ease: "none",
+          onUpdate: () => {
+            const currentCount = Math.round(state.count);
+            typingTextEl.textContent = fullText.slice(0, currentCount);
+          },
+          onComplete: () => {
+            typingTextEl.textContent = fullText;
+            setTimeout(() => {
+              cursorEl?.classList.add('is-done');
+            }, 1200);
+          }
+        });
+      } else {
+        // Fallback smooth typewriter
+        let idx = 0;
+        const interval = 3000 / fullText.length;
+        const timer = setInterval(() => {
+          idx++;
+          typingTextEl.textContent = fullText.slice(0, idx);
+          if (idx >= fullText.length) {
+            clearInterval(timer);
+            setTimeout(() => {
+              cursorEl?.classList.add('is-done');
+            }, 1200);
+          }
+        }, interval);
+      }
+    };
+
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.create({
+        trigger: statementSec,
+        start: "top 78%",
+        once: true,
+        onEnter: runTypewriter
+      });
+    } else {
+      // IntersectionObserver fallback
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            runTypewriter();
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.25 });
+      observer.observe(statementSec);
+    }
+  }
 });
