@@ -1,59 +1,189 @@
 <!-- ==========================================================================
-     ERASIGHT ACADEMY — REUSABLE FOOTER COMPONENT
-     Được thiết kế đồng bộ với nhận diện Erasight Course v2.0
+     ERASIGHT ACADEMY — REUSABLE MODERN FOOTER COMPONENT
+     Layout hiện đại: Newsletter Banner + Cutout Notch Ribbon + Grid 5 Cột
      ========================================================================== -->
 <footer class="site-footer" id="siteFooter">
-  <div class="footer-container">
-    <div class="footer-main-row">
-      <!-- Cột nhận diện thương hiệu -->
-      <div class="footer-brand-col">
-        <a href="index.html#top" class="footer-brand-logo" aria-label="Erasight Academy">
-          <img src="assets/logos/erasight-logo-ngang-mono-trang-1600w.png" alt="Erasight Edu" width="140" height="28" />
+  <!-- 1. Top Newsletter Section -->
+  <div class="footer-newsletter-wrap">
+    <div class="footer-newsletter-inner">
+      <h3 class="footer-newsletter-title">
+        Tổng hợp kiến thức AI<br />
+        vào hộp thư của bạn
+      </h3>
+      <p class="footer-newsletter-desc">
+        Erasight Academy chọn lọc những cập nhật đáng chú ý và gửi đến bạn những kiến thức thực sự hữu ích cho công việc.
+      </p>
+      <form class="footer-newsletter-form" id="newsletterForm" onsubmit="event.preventDefault(); alert('✓ Cảm ơn bạn! Erasight sẽ gửi cẩm nang cập nhật AI mới nhất vào email của bạn hàng tuần.'); this.reset();">
+        <input type="email" class="footer-newsletter-input" placeholder="Email của bạn" required aria-label="Email của bạn" />
+        <button type="submit" class="footer-nl-btn footer-newsletter-btn">Đăng ký</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Geometric Cutout Notch Ribbon -->
+  <div class="footer-notch-wrap">
+    <div class="footer-notch-bar">
+      <!-- Brand Logo on Left (Black Wing) -->
+      <div class="footer-notch-brand">
+        <a href="index.html#top" aria-label="Erasight Academy Homepage">
+          <img src="assets/logos/erasight-logo-ngang-mono-trang-1600w.png" alt="Erasight Academy" width="138" height="28" />
         </a>
-        <div class="footer-slogan">Skills for what's next.</div>
-        <p class="footer-brand-desc">
-          Học viện đào tạo kỹ năng thực chiến cho người trẻ đi làm. Tự động hoá marketing bằng AI và Tiếng Anh phỏng vấn xin việc.
-        </p>
       </div>
 
-      <!-- Nhóm cột liên kết -->
-      <div class="footer-links-group">
+      <!-- Center Geometric Notch with Glowing Cyan Line -->
+      <div class="footer-notch-center">
+        <svg class="footer-notch-svg" viewBox="0 0 800 54" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="footerCyanNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00E5D4" />
+              <stop offset="50%" stop-color="#0DA096" />
+              <stop offset="100%" stop-color="#00E5D4" />
+            </linearGradient>
+            <filter id="neonGlowFilter" x="-10%" y="-30%" width="120%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <!-- Tầng nền tối #06111A lấp bên dưới đường cắt -->
+          <path d="M 0,0 L 45,46 L 755,46 L 800,0 L 800,54 L 0,54 Z" fill="#06111A" />
+          <!-- Đường line viền neon xanh ngọc phát sáng -->
+          <path d="M 0,2 L 45,46 L 755,46 L 800,2" stroke="url(#footerCyanNeon)" stroke-width="2.5" fill="none" filter="url(#neonGlowFilter)" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <!-- Social Media on Right (Black Wing) -->
+      <div class="footer-notch-social">
+        <span class="footer-notch-social-title">Theo dõi Erasight Academy tại</span>
+        <div class="footer-notch-social-icons">
+          <!-- Facebook -->
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Facebook">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+            </svg>
+          </a>
+          <!-- YouTube -->
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="YouTube">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+          <!-- TikTok -->
+          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="TikTok">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            </svg>
+          </a>
+          <!-- LinkedIn -->
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="LinkedIn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Main Footer Body with 5 Columns Grid -->
+  <div class="footer-body">
+    <div class="footer-container">
+      <div class="footer-grid-5col">
+        <!-- Cột 1: Thông tin pháp nhân công ty & Bộ Công Thương -->
         <div class="footer-col">
-          <h4>Khoá học</h4>
+          <div class="footer-company-info">
+            <h4 style="font-size:14px; margin-bottom:12px; color:#FFFFFF;">CÔNG TY TNHH ERASIGHT ACADEMY</h4>
+            <p>Ngày cấp GCNĐKDN: 26/07/2022</p>
+            <p>Nơi cấp: Sở KH&amp;ĐT TP. HCM (nay là Sở Tài chính TP. HCM)</p>
+            <p>MST: 0317402205</p>
+            <p>Địa chỉ: Tầng lửng, Toà nhà Fideco Riverview, Số 14 Đường Thảo Điền, Phường An Khánh, TP. Thủ Đức, TP. Hồ Chí Minh</p>
+            
+            <!-- Huy hiệu Đã thông báo Bộ Công Thương -->
+            <a href="http://online.gov.vn" target="_blank" rel="noopener noreferrer" class="bct-badge" title="Website đã đăng ký và thông báo chính thức với Bộ Công Thương">
+              <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="17" fill="#005BAA" stroke="#00A3FF" stroke-width="1.5"/>
+                <path d="M18 5L20.8 13.5H29.7L22.5 18.7L25.3 27.2L18 22L10.7 27.2L13.5 18.7L6.3 13.5H15.2L18 5Z" fill="#FFCC00"/>
+                <path d="M12 25L18 20L24 25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div>
+                <div class="bct-badge-text">ĐÃ THÔNG BÁO</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.7); font-weight:700;">BỘ CÔNG THƯƠNG</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Cột 2: Nội dung -->
+        <div class="footer-col">
+          <h4>Nội dung</h4>
           <ul>
-            <li><a href="index.html#khoa-hoc">01. AI Marketing thực chiến</a></li>
-            <li><a href="index.html#khoa-hoc">02. Tiếng Anh phỏng vấn &amp; đi làm</a></li>
-            <li><a href="index.html#lo-trinh">Lộ trình 4 chặng</a></li>
+            <li><a href="index.html#khoa-hoc">Bài viết &amp; Cẩm nang AI</a></li>
+            <li><a href="index.html#khoa-hoc">Khoá học AI Marketing</a></li>
+            <li><a href="index.html#khoa-hoc">Khoá Tiếng Anh phỏng vấn</a></li>
+            <li><a href="index.html#lo-trinh">Hướng dẫn thực hành</a></li>
             <li><a href="index.html#san-pham">Sản phẩm học viên</a></li>
           </ul>
         </div>
 
+        <!-- Cột 3: Học tập -->
         <div class="footer-col">
-          <h4>Thông tin &amp; Hỗ trợ</h4>
+          <h4>Học tập</h4>
           <ul>
-            <li><a href="giang-vien.html">Đội ngũ giảng viên</a></li>
-            <li><a href="index.html#difference">Điểm khác biệt</a></li>
-            <li><a href="index.html#pricing">Chính sách học phí</a></li>
-            <li><a href="index.html#faq">Câu hỏi thường gặp</a></li>
+            <li><a href="index.html#khoa-hoc">Khoá học đang mở</a></li>
+            <li><a href="index.html#lo-trinh">Bộ công cụ No-code &amp; AI</a></li>
+            <li><a href="index.html#pricing">Đào tạo doanh nghiệp</a></li>
+            <li><a href="#dang-nhap" class="login-trigger-link">Đăng nhập khoá học</a></li>
           </ul>
         </div>
 
+        <!-- Cột 4: Điều khoản và Chính sách -->
         <div class="footer-col">
-          <h4>Liên hệ ghi danh</h4>
+          <h4>Điều khoản và Chính sách</h4>
           <ul>
-            <li>Hotline / Zalo: <strong>0912 345 678</strong></li>
-            <li>Email: <strong>edu@erasight.vn</strong></li>
-            <li>Hình thức: Live Zoom &amp; Kèm 1:1</li>
-            <li>Quy mô: Tối đa 12 người / lớp</li>
+            <li><a href="index.html#faq">Điều khoản sử dụng và Điều kiện chung</a></li>
+            <li><a href="index.html#pricing">Chính sách thanh toán</a></li>
+            <li><a href="index.html#faq">Chính sách học lại "Yêu lại từ đầu"</a></li>
+            <li><a href="index.html#faq">Chính sách bảo chứng hoàn tiền</a></li>
+            <li><a href="index.html#faq">Chính sách quyền riêng tư</a></li>
+            <li><a href="index.html#pricing">Quy định xuất VAT</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 5: Erasight Academy -->
+        <div class="footer-col">
+          <h4>Erasight Academy</h4>
+          <ul>
+            <li><a href="index.html#top">Về chúng tôi</a></li>
+            <li><a href="giang-vien.html">Đội ngũ giảng viên</a></li>
+            <li><a href="index.html#pricing">Liên hệ ghi danh</a></li>
+            <li>Email: <a href="mailto:edu@erasight.vn">edu@erasight.vn</a></li>
+            <li>
+              Tư vấn khách hàng:<br />
+              <strong style="color:#FFFFFF; font-size:15px; display:inline-block; margin-top:3px;">0912 345 678</strong>
+            </li>
           </ul>
         </div>
       </div>
-    </div>
 
-    <!-- Hàng bản quyền dưới cùng -->
-    <div class="footer-bottom-row">
-      <div>© 2026 Erasight Academy. Tuân thủ Brand Guideline v2.0.</div>
-      <div class="footer-mono-badge">Skills for what's next.</div>
+      <!-- 4. Hàng bản quyền dưới cùng -->
+      <div class="footer-bottom-bar">
+        <div>© 2026 Erasight Academy. All rights reserved. Tuân thủ Brand Guideline v2.0.</div>
+        <div class="footer-mono-badge">Skills for what's next.</div>
+      </div>
     </div>
   </div>
+
+  <!-- 5. Floating Zalo Consultation Widget (Góc trái) -->
+  <a href="https://zalo.me" target="_blank" rel="noopener noreferrer" class="floating-zalo-btn" aria-label="Tư vấn trực tiếp qua Zalo" title="Chat Zalo cùng ban giáo vụ Erasight">
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+      <path d="M24 4C12.95 4 4 12.95 4 24C4 28.1 5.25 31.9 7.4 35.1L5 44L14.2 41.7C17.2 43.2 20.5 44 24 44C35.05 44 44 35.05 44 24C44 12.95 35.05 4 24 4Z" fill="#FFFFFF"/>
+      <path d="M24 6C14.06 6 6 14.06 6 24C6 27.75 7.15 31.2 9.15 34.1L7.5 40.5L14.1 38.8C16.9 40.7 20.35 42 24 42C33.94 42 42 33.94 42 24C42 14.06 33.94 6 24 6Z" fill="#0068FF"/>
+      <path d="M15 19H22L17.5 26.5H23V29H15V26.5L20.5 19H15V19Z" fill="#FFFFFF"/>
+      <path d="M26 19H28.5V29H26V19Z" fill="#FFFFFF"/>
+      <path d="M31 23.5C31 21 32.5 19 35.5 19C38.5 19 40 21 40 23.5V29H37.5V24C37.5 22.8 37 21.5 35.5 21.5C34 21.5 33.5 22.8 33.5 24V29H31V23.5Z" fill="#FFFFFF"/>
+    </svg>
+    <span class="floating-zalo-badge">3</span>
+  </a>
 </footer>

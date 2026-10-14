@@ -455,124 +455,336 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. SITE FOOTER (NAVY THEME)
+   2. MODERN SITE FOOTER (TECH NEWSLETTER BANNER + NOTCH + 5-COLUMN GRID)
+   Được thiết kế đồng bộ theo layout hiện đại chuẩn EdTech
    -------------------------------------------------------------------------- */
 .site-footer {
-  background: var(--hf-dark);
-  color: rgba(255, 255, 255, 0.7);
-  padding: 68px 0 36px;
+  background: #06111A;
+  color: #8E9CA4;
   font-family: var(--hf-font-main);
   font-size: 14px;
   line-height: 1.6;
+  position: relative;
+}
+
+/* 2.1 Newsletter Banner */
+.footer-newsletter-wrap {
+  position: relative;
+  background-color: #063732;
+  background-image: 
+    radial-gradient(ellipse at 50% 30%, #0d5f57 0%, rgba(6, 45, 41, 0.95) 75%),
+    radial-gradient(rgba(255, 255, 255, 0.22) 1.2px, transparent 1.2px);
+  background-size: 100% 100%, 14px 14px;
+  padding: 68px 24px 64px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.footer-newsletter-inner {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.footer-newsletter-title {
+  font-family: var(--hf-font-display);
+  font-style: italic;
+  font-size: 38px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .footer-newsletter-title {
+    font-size: 27px;
+  }
+}
+
+.footer-newsletter-desc {
+  font-style: italic;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  max-width: 650px;
+  margin: 0 auto 30px;
+}
+
+.footer-newsletter-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+@media (max-width: 520px) {
+  .footer-newsletter-form {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+.footer-newsletter-input {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 13px 20px;
+  font-size: 15px;
+  color: #0C2A3A;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.footer-newsletter-input:focus {
+  border-color: #00E5D4;
+  box-shadow: 0 0 0 3px rgba(0, 229, 212, 0.25);
+}
+
+.footer-newsletter-btn {
+  background: #FFFFFF;
+  color: #0C2A3A;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.footer-newsletter-btn:hover {
+  background: #00E5D4;
+  color: #06111A;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 229, 212, 0.35);
+}
+
+/* 2.2 Modern Notch Ribbon Bar with Cyan Outline */
+.footer-notch-wrap {
+  position: relative;
+  background: #063732;
+  margin-top: -1px;
+}
+
+.footer-notch-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  position: relative;
+  height: 54px;
+}
+
+@media (max-width: 860px) {
+  .footer-notch-bar {
+    height: auto;
+    flex-direction: column;
+    background: #06111A;
+    padding: 20px 24px;
+    gap: 18px;
+  }
+}
+
+.footer-notch-brand {
+  display: flex;
+  align-items: center;
+  background: #06111A;
+  padding: 0 32px 0 24px;
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+.footer-notch-brand img {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+.footer-notch-center {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  height: 54px;
+}
+
+.footer-notch-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .footer-notch-center {
+    display: none;
+  }
+}
+
+.footer-notch-social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #06111A;
+  padding: 0 24px 0 32px;
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+.footer-notch-social-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.footer-notch-social-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.social-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.social-icon-btn:hover {
+  background: #00E5D4;
+  color: #06111A;
+  transform: translateY(-2px);
+}
+
+/* 2.3 5-Column Modern Footer Grid */
+.footer-body {
+  padding: 48px 0 36px;
+  background: #06111A;
 }
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 24px;
 }
 
-@media (max-width: 768px) {
-  .footer-container {
-    padding: 0 20px;
+.footer-grid-5col {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr 1fr 1.25fr 1fr;
+  gap: 36px;
+}
+
+@media (max-width: 1080px) {
+  .footer-grid-5col {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 32px;
   }
 }
 
-.footer-main-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 44px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-wrap: wrap;
-  gap: 40px;
-}
-
-.footer-brand-col {
-  max-width: 380px;
-}
-
-.footer-brand-logo {
-  display: block;
-  margin-bottom: 14px;
-}
-
-.footer-brand-logo img {
-  height: 28px;
-  width: auto;
-}
-
-.footer-slogan {
-  font-family: var(--hf-font-mono);
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #7FE0D8;
-  margin-bottom: 12px;
-  letter-spacing: 0.5px;
-}
-
-.footer-brand-desc {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.footer-links-group {
-  display: flex;
-  gap: 56px;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 580px) {
-  .footer-links-group {
+@media (max-width: 768px) {
+  .footer-grid-5col {
+    grid-template-columns: 1fr;
     gap: 32px;
-    width: 100%;
-    justify-content: space-between;
   }
 }
 
 .footer-col h4 {
   font-family: var(--hf-font-display);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
 }
 
 .footer-col ul {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 12px;
 }
 
 .footer-col a {
-  color: rgba(255, 255, 255, 0.65);
+  color: #8E9CA4;
   text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
+  font-size: 14px;
+  transition: color 0.2s ease;
   display: inline-block;
 }
 
 .footer-col a:hover {
   color: #FFFFFF;
-  transform: translateX(2px);
 }
 
-.footer-col li {
-  color: rgba(255, 255, 255, 0.65);
+.footer-company-info {
+  font-size: 13px;
+  color: #7B8B95;
+  line-height: 1.7;
 }
 
-.footer-bottom-row {
-  padding-top: 26px;
+.footer-company-info p {
+  margin-bottom: 7px;
+}
+
+.bct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 91, 170, 0.16);
+  border: 1px solid rgba(0, 140, 255, 0.4);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-top: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.bct-badge:hover {
+  transform: translateY(-1px);
+  border-color: #00E5D4;
+  background: rgba(0, 229, 212, 0.12);
+}
+
+.bct-badge svg {
+  flex-shrink: 0;
+}
+
+.bct-badge-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7FE0D8;
+  letter-spacing: 0.5px;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+/* 2.4 Bottom Copyright Bar */
+.footer-bottom-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+  margin-top: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 12.5px;
+  color: #5F6F79;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -580,5 +792,45 @@
 .footer-mono-badge {
   font-family: var(--hf-font-mono);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* 2.5 Floating Zalo Consultation Widget */
+.floating-zalo-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #0068FF;
+  box-shadow: 0 8px 24px rgba(0, 104, 255, 0.4);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-decoration: none;
+}
+
+.floating-zalo-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 104, 255, 0.55);
+}
+
+.floating-zalo-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #FF3B30;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #FFFFFF;
 }
