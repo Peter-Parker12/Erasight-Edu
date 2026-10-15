@@ -102,11 +102,11 @@ h1, h2, h3, h4 {
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 2px;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--td);
 }
@@ -114,9 +114,10 @@ h1, h2, h3, h4 {
 .eyebrow::before {
   content: "";
   display: inline-block;
-  width: 2px;
-  height: 12px;
-  background: var(--p);
+  width: 4px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--td);
 }
 
 .eyebrow.pur {
@@ -2024,31 +2025,64 @@ section.blk {
 
 .card-code-pill {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   color: var(--slate);
-  background: var(--cloud);
-  padding: 3px 8px;
-  border-radius: 4px;
+  background: #F1F5F9;
+  padding: 4px 10px;
+  border-radius: 6px;
   border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .card-tag {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .card-tag.orange {
-  background: var(--orange-light);
+  background: #FFF2EB;
   color: var(--orange);
+  border: 1px solid rgba(232, 93, 4, 0.15);
 }
 
 .card-tag.blue {
-  background: var(--blue-light);
+  background: #EDF5FD;
+  color: var(--blue);
+  border: 1px solid rgba(33, 118, 199, 0.15);
+}
+
+.card-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.card-check.mkt {
+  background: #FFF2EB;
+  color: var(--orange);
+}
+
+.card-check.eng {
+  background: #EDF5FD;
   color: var(--blue);
 }
 
