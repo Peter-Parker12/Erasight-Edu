@@ -1,7 +1,7 @@
 FROM node:22-alpine
 
 WORKDIR /app
-COPY server.js index.html demo-page.html ./
+COPY server.js *.html ./
 COPY assets ./assets
 COPY components ./components
 

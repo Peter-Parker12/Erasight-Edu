@@ -9,7 +9,7 @@ const ROOT = __dirname;
 const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
 
-const STATIC_ALLOW = /^\/(index\.html|demo-page\.html|assets\/|components\/)/;
+const STATIC_ALLOW = /^\/([a-zA-Z0-9_.-]+\.html|assets\/|components\/|2\.\s*Official\s*Logos[^/]*\/|favicon\.ico)/;
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8', '.json': 'application/json',
@@ -132,6 +132,7 @@ async function handleEnroll(req, res) {
 function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p === '/') p = '/index.html';
+  else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
   const file = path.join(ROOT, p);
   if (!STATIC_ALLOW.test(p) || !file.startsWith(ROOT + path.sep)) { res.writeHead(404); return res.end('Not found'); }
   fs.readFile(file, (err, buf) => {

@@ -41,7 +41,7 @@
 
           <!-- Dropdown Content Panel -->
           <div class="dropdown-panel" role="menu">
-            <a href="#khoa-hoc" class="dropdown-item" role="menuitem">
+            <a href="#khoa-mkt" class="dropdown-item" role="menuitem">
               <span class="dropdown-badge badge-orange">MKT_001</span>
               <div class="dropdown-info">
                 <span class="dropdown-title">AI Marketing thực chiến</span>
@@ -49,7 +49,7 @@
               </div>
             </a>
 
-            <a href="#khoa-hoc" class="dropdown-item" role="menuitem">
+            <a href="#khoa-eng" class="dropdown-item" role="menuitem">
               <span class="dropdown-badge badge-blue">ENG_002</span>
               <div class="dropdown-info">
                 <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
@@ -95,8 +95,8 @@
             <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 khoá</span>
           </a>
           <div class="mobile-nav-sublist">
-            <a href="#khoa-hoc" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
-            <a href="#khoa-hoc" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+            <a href="#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+            <a href="#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
           </div>
         </div>
         <a href="giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
@@ -517,7 +517,7 @@
 
         <div class="courses-deck-grid">
           <!-- Khoá 01: AI Marketing -->
-          <div class="course-presentation-card mkt">
+          <div class="course-presentation-card mkt" id="khoa-mkt">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
               <span class="card-code-pill">MÃ: MKT_001</span>
               <span class="card-tag orange">AI Marketing</span>
@@ -555,12 +555,12 @@
                 </div>
                 <div style="font-size:12px; color:var(--slate);">11 buổi chính + 3 buổi học lại · Tối Thứ 3</div>
               </div>
-              <a href="#lo-trinh" class="btn btn-ghost btn-sm">Xem lộ trình →</a>
+              <a href="#lo-trinh" class="btn btn-ghost btn-sm" onclick="switchLoTrinh('mkt', true)">Xem lộ trình →</a>
             </div>
           </div>
 
           <!-- Khoá 02: Tiếng Anh phỏng vấn -->
-          <div class="course-presentation-card eng">
+          <div class="course-presentation-card eng" id="khoa-eng">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
               <span class="card-code-pill">MÃ: ENG_002</span>
               <span class="card-tag blue">English Track</span>
@@ -585,38 +585,28 @@
                 <span>Cách nói về điểm yếu, thất bại và xử lý câu hỏi tình huống hóc búa</span>
               </li>
               <li style="font-size:14px; display:flex; gap:10px; align-items:flex-start;">
-                <span style="color:var(--blue); font-weight:800;">✓</span>
-                <span>Buổi mock interview mô phỏng 25–30 phút chấm theo chuẩn Pearson</span>
-              </li>
-            </ul>
-
-            <div style="padding-top:18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:2px;">
-                  <span style="font-family:var(--font-mono); font-size:24px; font-weight:800; color:var(--orange);">4.000.000₫</span>
-                  <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; text-decoration:line-through; color:var(--slate);">7.500.000₫</span>
-                </div>
-                <div style="font-size:12px; color:var(--slate);">15 buổi (4 module) · Kèm 1:1 · Tối Thứ 5</div>
-              </div>
-              <a href="#lo-trinh" class="btn btn-ghost btn-sm">Xem lộ trình →</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         TIMELINE (4 CHẶNG HỌC TẬP & CAM KẾT HỌC LẠI)
-         ====================================================================== -->
-    <section class="blk" id="lo-trinh" style="background:var(--cloud);">
-      <div class="wrap">
-        <div class="sec-head center">
-          <span class="eyebrow pur" style="margin:0 auto;">Lộ trình 4 chặng</span>
-          <h2>Bốn chặng học tập — Ra sản phẩm từng bước</h2>
+                   <div class="sec-head center">
+          <span class="eyebrow pur" style="margin:0 auto;">Lộ trình đào tạo</span>
+          <h2>Lộ trình thực chiến — Ra sản phẩm từng bước</h2>
           <p>Mỗi chặng kết thúc bằng một kết quả có thể đo lường và đưa vào hồ sơ năng lực ngay.</p>
         </div>
 
-        <div class="timeline">
+        <!-- Course Roadmap Tabs Switcher -->
+        <div class="lotrinh-tabs-wrap" style="display:flex; justify-content:center; margin-bottom:32px;">
+          <div class="lotrinh-nav-pills" style="display:inline-flex; background:var(--white); padding:6px; border-radius:12px; border:1px solid var(--line); box-shadow:0 2px 8px rgba(0,0,0,0.04); gap:6px;">
+            <button type="button" class="lotrinh-tab-btn active" id="tab-btn-mkt" onclick="switchLoTrinh('mkt', true)" style="display:flex; align-items:center; gap:8px; padding:10px 20px; border-radius:8px; border:none; font-family:var(--font-heading); font-size:14.5px; font-weight:700; cursor:pointer; transition:all 0.25s ease; background:var(--navy); color:var(--white);">
+              <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--orange);"></span>
+              <span>Khoá 01: AI Marketing (11 buổi)</span>
+            </button>
+            <button type="button" class="lotrinh-tab-btn" id="tab-btn-eng" onclick="switchLoTrinh('eng', true)" style="display:flex; align-items:center; gap:8px; padding:10px 20px; border-radius:8px; border:none; font-family:var(--font-heading); font-size:14.5px; font-weight:700; cursor:pointer; transition:all 0.25s ease; background:transparent; color:var(--slate);">
+              <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--blue);"></span>
+              <span>Khoá 02: Tiếng Anh phỏng vấn (15 buổi)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline Khoá 01: AI Marketing -->
+        <div class="timeline" id="lotrinh-content-mkt">
           <!-- Step 1 -->
           <div class="tl-step">
             <div class="tl-num">1</div>
@@ -651,6 +641,45 @@
             <h3>Portfolio &amp; Tốt nghiệp</h3>
             <p>Tự dựng website portfolio cá nhân tích hợp công cụ tự động đăng bài và báo cáo đồ án tốt nghiệp trước hội đồng.</p>
             <div class="out">Đầu ra: Web portfolio live &amp; Bằng tốt nghiệp</div>
+          </div>
+        </div>
+
+        <!-- Timeline Khoá 02: Tiếng Anh phỏng vấn & đi làm -->
+        <div class="timeline" id="lotrinh-content-eng" style="display:none;">
+          <!-- Step 1 -->
+          <div class="tl-step">
+            <div class="tl-num" style="background:var(--blue); color:var(--white);">1</div>
+            <span class="tl-day">Module 1 · Khởi động</span>
+            <h3>Giải mã JD &amp; CV ATS</h3>
+            <p>Bẻ khoá bản mô tả công việc (JD), tái cấu trúc CV tiếng Anh 1 trang làm nổi bật thành tựu định lượng lọt qua bộ lọc tự động.</p>
+            <div class="out" style="color:var(--blue);">Đầu ra: Bản CV tiếng Anh 90+ điểm ATS</div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="tl-step">
+            <div class="tl-num" style="background:var(--blue); color:var(--white);">2</div>
+            <span class="tl-day">Module 2 · Thực chiến</span>
+            <h3>Khung STAR &amp; Phản xạ</h3>
+            <p>Cấu trúc câu trả lời phỏng vấn theo mô hình STAR (Situation, Task, Action, Result) có số liệu định lượng thuyết phục người nghe.</p>
+            <div class="out" style="color:var(--blue);">Đầu ra: Bộ 10 câu trả lời STAR tiêu chuẩn</div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="tl-step">
+            <div class="tl-num" style="background:var(--blue); color:var(--white);">3</div>
+            <span class="tl-day">Module 3 · Nâng cao</span>
+            <h3>Điểm yếu &amp; Câu hỏi bẫy</h3>
+            <p>Chiến lược biến điểm yếu thành lợi thế, xử lý câu hỏi tình huống hóc búa từ hội đồng tuyển dụng và nghệ thuật đàm phán lương.</p>
+            <div class="out" style="color:var(--blue);">Đầu ra: Kịch bản ứng biến &amp; đàm phán đãi ngộ</div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="tl-step">
+            <div class="tl-num" style="background:var(--blue); color:var(--white);">4</div>
+            <span class="tl-day">Module 4 · Về đích</span>
+            <h3>Mock Interview 1:1</h3>
+            <p>Phỏng vấn mô phỏng 1:1 thời lượng 30 phút cùng Senior HR Partner, ghi hình và trả kết quả chấm theo rubric chuẩn quốc tế Pearson.</p>
+            <div class="out" style="color:var(--blue);">Đầu ra: Video Mock Interview &amp; Rubric Pearson</div>
           </div>
         </div>
 
@@ -741,7 +770,11 @@
             <div>
               <h3>Hồ Hoàng Tiến</h3>
               <div class="faculty-role">Chủ nhiệm khoá AI Marketing · Automation Architect</div>
-              <p>Hơn 7 năm kinh nghiệm triển khai tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Trực tiếp thiết kế hệ thống tự động hoá cho hơn 40 dự án. Đánh giá mức độ hiểu bài trung bình 4.1/5 từ học viên.</p>
+              <p style="margin-bottom:12px;">Hơn 7 năm kinh nghiệm triển khai tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Trực tiếp thiết kế hệ thống tự động hoá cho hơn 40 dự án. Đánh giá mức độ hiểu bài trung bình 4.1/5 từ học viên.</p>
+              <a href="giang-vien.html#ai-marketing" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--td); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+                <span>Xem chi tiết hồ sơ &amp; cam kết</span>
+                <span>→</span>
+              </a>
             </div>
           </div>
 
@@ -750,9 +783,19 @@
             <div>
               <h3>Nguyễn Mai Trâm</h3>
               <div class="faculty-role blue">Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner</div>
-              <p>8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.</p>
+              <p style="margin-bottom:12px;">8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.</p>
+              <a href="giang-vien.html#career-english" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+                <span>Xem chi tiết hồ sơ &amp; cam kết</span>
+                <span>→</span>
+              </a>
             </div>
           </div>
+        </div>
+
+        <div style="text-align:center; margin-top:36px;">
+          <a href="giang-vien.html" class="btn btn-ghost" style="padding:12px 28px; font-size:15px;">
+            Xem toàn bộ hồ sơ chuyên gia &amp; triết lý giảng dạy →
+          </a>
         </div>
       </div>
     </section>

@@ -273,7 +273,7 @@
 
                   <!-- Action Link With 3px Orange Underline -->
                   <div class="pt-4">
-                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#khoa-hoc">
+                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#lo-trinh-mkt">
                       Xem chi tiết lộ trình khoá AI Marketing →
                     </a>
                   </div>
@@ -380,7 +380,7 @@
 
                   <!-- Action Link With 3px Orange Underline -->
                   <div class="pt-4">
-                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#khoa-hoc">
+                    <a class="inline-flex items-center min-h-[44px] font-button-text text-navy hover:text-orange transition-colors pb-1 border-b-[3px] border-orange font-bold" href="index.html#lo-trinh-eng">
                       Xem lộ trình phỏng vấn cùng cô Trâm →
                     </a>
                   </div>
@@ -628,9 +628,9 @@
        ====================================================================== -->
   <div id="site-footer"></div>
 
-  <!-- Interactive Filter Script -->
+  <!-- Interactive Filter Script with URL Tab Sync -->
   <script>
-    function filterMentors(category) {
+    function filterMentors(category, updateHash = false) {
       const cards = document.querySelectorAll('.mentor-card');
       const buttons = document.querySelectorAll('.mentor-filter-btn');
       
@@ -658,7 +658,30 @@
           card.style.display = 'none';
         }
       });
+
+      if (updateHash && history.replaceState) {
+        const newHash = category === 'all' ? '' : '#' + category;
+        history.replaceState(null, '', window.location.pathname + window.location.search + newHash);
+      }
     }
+
+    function syncFilterFromURL() {
+      const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const queryTab = params.get('tab') || params.get('filter') || params.get('khoa') || '';
+      const key = queryTab || hash;
+
+      if (key === 'ai-marketing' || key === 'ai' || key === 'mkt' || key === 'khoa-01') {
+        filterMentors('ai-marketing', false);
+      } else if (key === 'career-english' || key === 'tieng-anh' || key === 'english' || key === 'eng' || key === 'khoa-02') {
+        filterMentors('career-english', false);
+      } else {
+        filterMentors('all', false);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', syncFilterFromURL);
+    window.addEventListener('hashchange', syncFilterFromURL);
   </script>
 
   <!-- Script nạp Header & Footer dùng chung -->

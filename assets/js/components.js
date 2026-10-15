@@ -35,7 +35,7 @@
 
             <!-- Dropdown Content Panel -->
             <div class="dropdown-panel" role="menu">
-              <a href="${rootPath}index.html#khoa-hoc" class="dropdown-item" role="menuitem">
+              <a href="${rootPath}index.html#khoa-mkt" class="dropdown-item" role="menuitem">
                 <span class="dropdown-badge badge-orange">MKT_001</span>
                 <div class="dropdown-info">
                   <span class="dropdown-title">AI Marketing thực chiến</span>
@@ -43,7 +43,7 @@
                 </div>
               </a>
 
-              <a href="${rootPath}index.html#khoa-hoc" class="dropdown-item" role="menuitem">
+              <a href="${rootPath}index.html#khoa-eng" class="dropdown-item" role="menuitem">
                 <span class="dropdown-badge badge-blue">ENG_002</span>
                 <div class="dropdown-info">
                   <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
@@ -89,8 +89,8 @@
               <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 khoá</span>
             </a>
             <div class="mobile-nav-sublist">
-              <a href="${rootPath}index.html#khoa-hoc" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
-              <a href="${rootPath}index.html#khoa-hoc" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+              <a href="${rootPath}index.html#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+              <a href="${rootPath}index.html#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
             </div>
           </div>
           <a href="${rootPath}giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>

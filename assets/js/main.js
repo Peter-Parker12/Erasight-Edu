@@ -285,4 +285,50 @@ document.addEventListener('DOMContentLoaded', () => {
       observer.observe(statementSec);
     }
   }
+
+  // 12. Điều hướng & Chuyển Tab Lộ Trình (AI Marketing vs Tiếng Anh phỏng vấn)
+  window.switchLoTrinh = function (course, updateHash = false) {
+    const btnMkt = document.getElementById('tab-btn-mkt');
+    const btnEng = document.getElementById('tab-btn-eng');
+    const contentMkt = document.getElementById('lotrinh-content-mkt');
+    const contentEng = document.getElementById('lotrinh-content-eng');
+
+    if (!btnMkt || !btnEng || !contentMkt || !contentEng) return;
+
+    if (course === 'eng') {
+      btnEng.style.background = 'var(--navy)';
+      btnEng.style.color = 'var(--white)';
+      btnMkt.style.background = 'transparent';
+      btnMkt.style.color = 'var(--slate)';
+      contentMkt.style.display = 'none';
+      contentEng.style.display = 'grid';
+    } else {
+      btnMkt.style.background = 'var(--navy)';
+      btnMkt.style.color = 'var(--white)';
+      btnEng.style.background = 'transparent';
+      btnEng.style.color = 'var(--slate)';
+      contentMkt.style.display = 'grid';
+      contentEng.style.display = 'none';
+    }
+
+    if (updateHash && history.replaceState) {
+      history.replaceState(null, '', window.location.pathname + window.location.search + (course === 'eng' ? '#lo-trinh-eng' : '#lo-trinh-mkt'));
+    }
+  };
+
+  function syncLoTrinhFromHash() {
+    const hash = (window.location.hash || '').toLowerCase();
+    if (hash === '#lo-trinh-eng' || hash === '#khoa-eng') {
+      window.switchLoTrinh('eng', false);
+      const target = document.getElementById(hash.replace('#', '')) || document.getElementById('lo-trinh');
+      target?.scrollIntoView({ behavior: 'smooth' });
+    } else if (hash === '#lo-trinh-mkt' || hash === '#khoa-mkt') {
+      window.switchLoTrinh('mkt', false);
+      const target = document.getElementById(hash.replace('#', '')) || document.getElementById('lo-trinh');
+      target?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  syncLoTrinhFromHash();
+  window.addEventListener('hashchange', syncLoTrinhFromHash);
 });
