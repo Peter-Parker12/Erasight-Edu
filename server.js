@@ -129,6 +129,28 @@ async function handleEnroll(req, res) {
   }
 }
 
+// Cache-busting: rewrite local CSS/JS URLs in served HTML to ?v=<content hash>, so an edited file
+// always gets a new URL and a stale copy in Cloudflare/the browser can never be reused.
+const crypto = require('crypto');
+const hashCache = new Map(); // file -> { mtimeMs, hash }
+function assetHash(rel) {
+  const file = path.join(ROOT, rel);
+  try {
+    const { mtimeMs } = fs.statSync(file);
+    const hit = hashCache.get(file);
+    if (hit && hit.mtimeMs === mtimeMs) return hit.hash;
+    const hash = crypto.createHash('sha1').update(fs.readFileSync(file)).digest('hex').slice(0, 10);
+    hashCache.set(file, { mtimeMs, hash });
+    return hash;
+  } catch { return null; }
+}
+function stampAssets(html) {
+  return html.replace(/(["'])(assets\/(?:css|js)\/[\w.-]+\.(?:css|js))(?:\?v=[^"']*)?\1/g, (m, q, rel) => {
+    const h = assetHash(rel);
+    return h ? `${q}${rel}?v=${h}${q}` : m;
+  });
+}
+
 function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p === '/') p = '/index.html';
@@ -137,6 +159,7 @@ function serveStatic(req, res) {
   if (!STATIC_ALLOW.test(p) || !file.startsWith(ROOT + path.sep)) { res.writeHead(404); return res.end('Not found'); }
   fs.readFile(file, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('Not found'); }
+    if (p.endsWith('.html')) buf = stampAssets(buf.toString('utf8'));
     res.writeHead(200, {
       'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
       // Code/markup must never be served stale by Cloudflare or browsers; only media is cached long-term.
