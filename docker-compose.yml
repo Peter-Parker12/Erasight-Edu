@@ -5,6 +5,9 @@ services:
     restart: unless-stopped
     ports:
       - "4232:4232"
+    env_file:
+      - .env
     environment:
       TWENTY_URL: ${TWENTY_URL}
       TWENTY_API_KEY: ${TWENTY_API_KEY}
+      WP_API_URL: ${WP_API_URL}
