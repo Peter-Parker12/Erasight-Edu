@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Blog — Erasight Academy</title>
+  <meta name="description" content="Bài viết từ Erasight Academy." />
+
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
+  <link rel="stylesheet" href="assets/css/blog.css" />
+</head>
+<body>
+
+  <!-- ======================================================================
+       SITE HEADER
+       ====================================================================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="site-header-inner">
+      <a href="index.html" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
+        <img src="assets/logos/erasight-logo-slogan-mau-2000w.png" alt="Erasight — Skills for what's next." />
+      </a>
+
+      <nav class="site-nav" aria-label="Điều hướng chính">
+        <div class="nav-dropdown" id="navCoursesDropdown">
+          <a href="index.html#khoa-hoc" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+            <span>Khoá học</span>
+            <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </a>
+          <div class="dropdown-panel" role="menu">
+            <a href="index.html#khoa-mkt" class="dropdown-item" role="menuitem">
+              <span class="dropdown-badge badge-orange">MKT_001</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">AI Marketing thực chiến</span>
+                <span class="dropdown-desc">Tự động hoá quy trình đăng bài đa kênh không cần biết code</span>
+              </div>
+            </a>
+            <a href="index.html#khoa-eng" class="dropdown-item" role="menuitem">
+              <span class="dropdown-badge badge-blue">ENG_002</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
+                <span class="dropdown-desc">CV chuẩn ATS, phản xạ STAR và tự tin đàm phán trước HR</span>
+              </div>
+            </a>
+            <div class="dropdown-footer">
+              <a href="index.html#khoa-hoc" class="dropdown-footer-link">
+                <span>Xem chi tiết lộ trình 2 khoá học</span>
+                <span>&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <a href="giang-vien.html" class="nav-link">Giảng viên</a>
+        <a href="index.html#san-pham" class="nav-link">Sản phẩm học viên</a>
+        <a href="index.html#faq" class="nav-link">Hỏi đáp</a>
+        <a href="blog.html" class="nav-link nav-link--active">Blog</a>
+      </nav>
+
+      <div class="site-actions">
+        <a href="index.html#dang-nhap" class="btn-login">Đăng nhập</a>
+        <a href="index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+      </div>
+
+      <button class="mobile-toggle" id="mobileToggleBtn" aria-label="Mở menu điều hướng" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+      <div class="mobile-nav-list">
+        <div>
+          <a href="index.html#khoa-hoc" class="mobile-nav-item">
+            <span>Khoá học</span>
+            <span style="font-size:12px;color:var(--hf-teal);font-weight:700;">2 khoá</span>
+          </a>
+          <div class="mobile-nav-sublist">
+            <a href="index.html#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+            <a href="index.html#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+          </div>
+        </div>
+        <a href="giang-vien.html" class="mobile-nav-item">Giảng viên</a>
+        <a href="index.html#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
+        <a href="index.html#faq" class="mobile-nav-item">Hỏi đáp</a>
+        <a href="blog.html" class="mobile-nav-item mobile-nav-item--active">Blog</a>
+      </div>
+      <div class="mobile-actions">
+        <a href="index.html#dang-nhap" class="btn-login mobile-login-btn">Đăng nhập</a>
+        <a href="index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       BLOG DETAIL MAIN
+       ====================================================================== -->
+  <main class="blog-detail" id="blogDetailMain">
+    <!-- Loading skeleton shown first -->
+    <div id="blogDetailContent">
+      <div class="blog-detail__image-section">
+        <div class="blog-skeleton" style="height:420px;border-radius:16px;"></div>
+      </div>
+      <div class="blog-detail__container">
+        <div class="blog-skeleton" style="height:18px;width:100px;"></div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:24px;border-bottom:1.5px solid var(--line,#DDE7E7);">
+          <div class="blog-skeleton" style="height:40px;"></div>
+          <div class="blog-skeleton" style="height:40px;width:75%;"></div>
+          <div class="blog-skeleton" style="height:14px;width:140px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="blog-skeleton" style="height:16px;"></div>
+          <div class="blog-skeleton" style="height:16px;width:92%;"></div>
+          <div class="blog-skeleton" style="height:16px;width:85%;"></div>
+          <div class="blog-skeleton" style="height:16px;"></div>
+          <div class="blog-skeleton" style="height:16px;width:60%;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       SITE FOOTER
+       ====================================================================== -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+      <div class="footer-brand-col">
+        <a href="index.html" class="footer-brand">
+          <img src="assets/logos/erasight-logo-slogan-mau-2000w.png" alt="Erasight Academy" />
+        </a>
+        <p class="footer-tagline">Skills for what's next.</p>
+        <p class="footer-desc">Đào tạo thực chiến cho người trẻ đi làm — AI Marketing và Tiếng Anh công việc.</p>
+      </div>
+      <nav class="footer-nav-col" aria-label="Footer navigation">
+        <h3 class="footer-nav-title">Khám phá</h3>
+        <a href="index.html#khoa-hoc" class="footer-nav-link">Khoá học</a>
+        <a href="giang-vien.html" class="footer-nav-link">Giảng viên</a>
+        <a href="blog.html" class="footer-nav-link">Blog</a>
+        <a href="index.html#faq" class="footer-nav-link">Hỏi đáp</a>
+      </nav>
+      <div class="footer-cta-col">
+        <h3 class="footer-nav-title">Bắt đầu học ngay</h3>
+        <a href="index.html#pricing" class="btn-enroll footer-cta-btn">Ghi danh khoá học</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Erasight Academy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================================
+       BLOG DETAIL JAVASCRIPT
+       ====================================================================== -->
+  <script>
+  (function() {
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function stripHtml(html) {
+      return (html || '').replace(/<[^>]*>/g, '').trim();
+    }
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    async function fetchPost(id) {
+      const res = await fetch(`/api/wp/posts/${id}?_embed`);
+      if (!res.ok) throw new Error('Not found');
+      return res.json();
+    }
+
+    function renderNotFound() {
+      document.getElementById('blogDetailContent').innerHTML = `
+        <div class="blog-detail__container" style="text-align:center;padding-top:60px;">
+          <a href="blog.html" class="blog-detail__back">← Về trang Blog</a>
+          <div style="margin-top:40px;">
+            <div style="font-size:4rem;margin-bottom:16px;">🔍</div>
+            <h1 style="font-family:var(--font-display);font-size:1.8rem;color:var(--dark);">Không tìm thấy bài viết</h1>
+            <p style="color:var(--slate);margin-top:8px;">Bài viết có thể đã bị xoá hoặc đường dẫn không đúng.</p>
+          </div>
+        </div>`;
+    }
+
+    async function init() {
+      const id = getParam('id');
+      if (!id) { renderNotFound(); return; }
+
+      try {
+        const post = await fetchPost(id);
+        const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;
+        const title = post.title?.rendered || '';
+        const date = formatDate(post.date);
+        const content = post.content?.rendered || '';
+
+        // Update page title & meta
+        document.title = `${stripHtml(title)} — Erasight Academy`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', stripHtml(post.excerpt?.rendered || '').slice(0, 160));
+
+        const imageHtml = imageUrl ? `
+          <div class="blog-detail__image-section">
+            <div class="blog-detail__image-wrapper">
+              <img src="${imageUrl}" alt="${stripHtml(title).replace(/"/g,'&quot;')}" />
+            </div>
+          </div>` : '';
+
+        document.getElementById('blogDetailContent').innerHTML = `
+          ${imageHtml}
+          <div class="blog-detail__container">
+            <a href="blog.html" class="blog-detail__back">← Về trang Blog</a>
+            <div class="blog-detail__header">
+              <h1 class="blog-detail__title">${title}</h1>
+              <p class="blog-detail__date">${date}</p>
+            </div>
+            <div class="blog-detail__content">${content}</div>
+            <div style="padding-top:32px;border-top:1.5px solid var(--line,#DDE7E7);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <a href="blog.html" class="blog-detail__back">← Tất cả bài viết</a>
+              <a href="index.html#pricing" style="display:inline-block;padding:10px 22px;border-radius:999px;background:var(--orange,#E85D04);color:white;font-weight:700;font-size:0.9rem;text-decoration:none;">Ghi danh khoá học →</a>
+            </div>
+          </div>`;
+      } catch (e) {
+        renderNotFound();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+  <script src="assets/js/components.js"></script>
+
+  <style>
+    .nav-link--active { color: var(--hf-teal, #0DA096) !important; font-weight: 700; }
+    .mobile-nav-item--active { color: var(--hf-teal, #0DA096) !important; font-weight: 700; }
+  </style>
+</body>
+</html>

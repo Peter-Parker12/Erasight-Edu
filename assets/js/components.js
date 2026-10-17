@@ -63,6 +63,7 @@
           <a href="${rootPath}giang-vien.html" class="nav-link" data-nav="giang-vien">Giảng viên</a>
           <a href="${rootPath}index.html#san-pham" class="nav-link">Sản phẩm học viên</a>
           <a href="${rootPath}index.html#faq" class="nav-link">Hỏi đáp</a>
+          <a href="${rootPath}blog.html" class="nav-link" data-nav="blog">Blog</a>
         </nav>
 
         <!-- Right Actions -->
@@ -96,6 +97,7 @@
           <a href="${rootPath}giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
           <a href="${rootPath}index.html#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
           <a href="${rootPath}index.html#faq" class="mobile-nav-item">Hỏi đáp</a>
+          <a href="${rootPath}blog.html" class="mobile-nav-item" data-nav="blog">Blog</a>
         </div>
 
         <div class="mobile-actions">
@@ -398,6 +400,10 @@
     if (currentPath.includes('giang-vien')) {
       const gvLinks = document.querySelectorAll('[data-nav="giang-vien"]');
       gvLinks.forEach(l => l.classList.add('active'));
+    }
+    if (currentPath.includes('blog')) {
+      const blogLinks = document.querySelectorAll('[data-nav="blog"]');
+      blogLinks.forEach(l => l.classList.add('active'));
     }
   }
 

@@ -8,6 +8,8 @@ const PORT = Number(process.env.PORT || 4232);
 const ROOT = __dirname;
 const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
+// WordPress REST API base URL (e.g. https://blog.erasight.vn/wp-json/wp/v2)
+const WP_API_URL = (process.env.WP_API_URL || '').replace(/\/+$/, '');
 
 const STATIC_ALLOW = /^\/([a-zA-Z0-9_.-]+\.html|assets\/|components\/|2\.\s*Official\s*Logos[^/]*\/|favicon\.ico)/;
 const MIME = {
@@ -170,9 +172,38 @@ function serveStatic(req, res) {
   });
 }
 
+// ---- WordPress API Proxy --------------------------------------------------
+async function handleWpProxy(req, res) {
+  if (!WP_API_URL) {
+    res.writeHead(503, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'WP_API_URL not configured' }));
+  }
+  try {
+    // Strip /api/wp prefix and forward the rest to WordPress REST API
+    const wpPath = req.url.replace(/^\/api\/wp/, '');
+    const upstream = `${WP_API_URL}${wpPath}`;
+    const wpRes = await fetch(upstream, {
+      method: req.method,
+      headers: { 'Accept': 'application/json', 'User-Agent': 'ErasightProxy/1.0' },
+    });
+    const body = await wpRes.text();
+    res.writeHead(wpRes.status, {
+      'Content-Type': wpRes.headers.get('content-type') || 'application/json',
+      'Cache-Control': 'public, max-age=120', // cache 2 min
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.end(body);
+  } catch (e) {
+    console.error('WP proxy error:', e.message);
+    res.writeHead(502, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'WordPress upstream error' }));
+  }
+}
+
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
+  if (pathname.startsWith('/api/wp') && (req.method === 'GET' || req.method === 'HEAD')) return handleWpProxy(req, res);
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
   serveStatic(req, res);
 }).listen(PORT, () => console.log(`Listening on :${PORT}`));
