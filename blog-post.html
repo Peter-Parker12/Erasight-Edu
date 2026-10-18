@@ -151,10 +151,18 @@
       return d.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
+    const WP_TAG_SLUG = 'erasight-education'; // Chỉ hiển thị bài có tag này
+
     async function fetchPost(id) {
-      const res = await fetch(`/api/wp/posts/${id}?_embed`);
-      if (!res.ok) throw new Error('Not found');
-      return res.json();
+      const [res, tagRes] = await Promise.all([
+        fetch(`/api/wp/posts/${id}?_embed`),
+        fetch(`/api/wp/tags?slug=${WP_TAG_SLUG}&per_page=1`),
+      ]);
+      if (!res.ok || !tagRes.ok) throw new Error('Not found');
+      const post = await res.json();
+      const tags = await tagRes.json();
+      if (!tags.length || !(post.tags || []).includes(tags[0].id)) throw new Error('Not found');
+      return post;
     }
 
     function renderNotFound() {
