@@ -10,6 +10,10 @@ const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
 // WordPress REST API base URL (e.g. https://blog.erasight.vn/wp-json/wp/v2)
 const WP_API_URL = (process.env.WP_API_URL || '').replace(/\/+$/, '');
+// Only posts carrying this WordPress tag are shown on the blog pages. Accepts the tag's slug or its
+// name ("Erasight Education" -> erasight-education); WordPress slugs are lowercase with hyphens.
+const WP_POST_TAG = (process.env.WP_POST_TAG || 'erasight-education')
+  .trim().toLowerCase().replace(/[\s_]+/g, '-');
 
 const STATIC_ALLOW = /^\/([a-zA-Z0-9_.-]+\.html|assets\/|components\/|2\.\s*Official\s*Logos[^/]*\/|favicon\.ico)/;
 const MIME = {
@@ -203,6 +207,7 @@ async function handleWpProxy(req, res) {
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
+  if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });
   if (pathname.startsWith('/api/wp') && (req.method === 'GET' || req.method === 'HEAD')) return handleWpProxy(req, res);
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
   serveStatic(req, res);

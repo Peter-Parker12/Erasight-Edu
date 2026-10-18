@@ -164,7 +164,6 @@
     // Server.js sẽ proxy /api/wp/* -> WordPress REST API để tránh CORS
     // -----------------------------------------------------------------------
     const WP_API = '/api/wp/posts';
-    const WP_TAG_SLUG = 'erasight-education'; // Slug tag lọc bài blog trên WordPress
     const ITEMS_PER_PAGE = 6;
 
     let allPosts = [];
@@ -201,8 +200,12 @@
     // -----------------------------------------------------------------------
     async function fetchPosts() {
       try {
-        // Resolve the tag id; without the tag we show nothing (never fall back to all posts)
-        const tagRes = await fetch(`/api/wp/tags?slug=${WP_TAG_SLUG}&per_page=1`);
+        // Tag to filter by comes from the server (WP_POST_TAG in .env).
+        // Without the tag we show nothing (never fall back to all posts).
+        const cfgRes = await fetch('/api/blog-config');
+        if (!cfgRes.ok) throw new Error('blog config unavailable');
+        const WP_TAG_SLUG = (await cfgRes.json()).tag;
+        const tagRes = await fetch(`/api/wp/tags?slug=${encodeURIComponent(WP_TAG_SLUG)}&per_page=1`);
         if (!tagRes.ok) throw new Error('tag lookup failed');
         const tags = await tagRes.json();
         if (!tags.length) throw new Error(`tag "${WP_TAG_SLUG}" not found`);
