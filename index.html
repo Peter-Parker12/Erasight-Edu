@@ -737,8 +737,9 @@
         <div class="assets-grid">
           <!-- Card 1 -->
           <div class="asset-card">
-            <div class="asset-thumb">
+            <div class="asset-thumb asset-thumb--video" id="triggerVideoModal" role="button" tabindex="0" aria-label="Nhấn để phóng to xem chi tiết video đồ án của Phương Thanh" title="Nhấn để phóng to xem chi tiết video">
               <video 
+                id="previewVideo"
                 poster="assets/images/A1_frame.jpg" 
                 autoplay 
                 muted 
@@ -753,12 +754,36 @@
               </video>
               <span class="asset-tag-top">Tiết kiệm 14h/tuần</span>
               <span class="asset-badge-live">Live Demo</span>
+
+              <!-- Hover Zoom Hint Overlay -->
+              <div class="asset-zoom-overlay">
+                <span class="asset-zoom-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>Phóng to xem chi tiết</span>
+                </span>
+              </div>
             </div>
             <div class="asset-body">
               <span class="asset-k">AI Marketing · Đồ án tốt nghiệp</span>
               <h3>Auto-Publishing không bị chặn cache Facebook cho dân Marketing</h3>
               <p>Tự động lấy dữ liệu từ CSV file cứng, tự chạy quy trình đăng bài lên Fanpage &amp; Instagram lúc khung thời gian chính xác hằng ngày mà không tốn token AI.</p>
-              <div class="asset-foot">Phương Thanh — Khoá MKT_001</div>
+              <div class="asset-foot" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <span>Phương Thanh — Khoá MKT_001</span>
+                <button type="button" class="btn-text-zoom" onclick="openVideoDetailModal()" aria-label="Phóng to video đồ án">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="11" y1="8" x2="11" y2="14"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                  </svg>
+                  Phóng to video
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1186,5 +1211,120 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="assets/js/components.js"></script>
   <script src="assets/js/main.js"></script>
+  <!-- ======================================================================
+       MODAL PHÓNG TO XEM CHI TIẾT VIDEO ĐỒ ÁN HỌC VIÊN
+       ====================================================================== -->
+  <div id="videoDetailModal" class="video-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle" style="display:none;">
+    <div class="video-modal-container">
+      <!-- Modal Header -->
+      <div class="video-modal-header">
+        <div class="video-modal-info">
+          <div class="video-modal-badge">
+            <span class="video-modal-dot"></span>
+            <span>SHOWCASE ĐỒ ÁN THỰC CHIẾN</span>
+          </div>
+          <h3 id="videoModalTitle" class="video-modal-title">
+            Auto-Publishing không bị chặn cache Facebook cho dân Marketing
+          </h3>
+          <p class="video-modal-meta">
+            Học viên: <strong>Phương Thanh</strong> · Khoá <strong>MKT_001</strong> · Kỹ thuật: <strong>Automation Script (Facebook Login &amp; Scheduled Upload qua CSV)</strong>
+          </p>
+        </div>
+        <button type="button" class="video-modal-close" id="closeVideoModalBtn" aria-label="Đóng video (Esc)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Video Player Wrapper -->
+      <div class="video-modal-player-wrap">
+        <video 
+          id="modalFullVideo" 
+          controls 
+          playsinline 
+          preload="auto"
+          poster="assets/images/A1_frame.jpg"
+        >
+          <source src="assets/videos/A1.mp4" type="video/mp4" />
+          Trình duyệt của bạn không hỗ trợ phát video.
+        </video>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="video-modal-footer">
+        <div class="video-modal-tech-stack">
+          <span class="tech-pill">✦ Đọc CSV cứng</span>
+          <span class="tech-pill">✦ Vượt cache Facebook</span>
+          <span class="tech-pill">✦ Không tốn Token AI</span>
+          <span class="tech-pill">✦ Đăng bài chuẩn giờ</span>
+        </div>
+        <a href="#pricing" class="btn btn-primary btn-sm" onclick="closeVideoDetailModal()">Ghi danh khoá học AI Marketing →</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openVideoDetailModal() {
+      const modal = document.getElementById('videoDetailModal');
+      const modalVid = document.getElementById('modalFullVideo');
+      const prevVid = document.getElementById('previewVideo');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      if (modalVid) {
+        if (prevVid && prevVid.currentTime) {
+          modalVid.currentTime = prevVid.currentTime;
+        }
+        modalVid.play().catch(function() {});
+      }
+    }
+
+    function closeVideoDetailModal() {
+      const modal = document.getElementById('videoDetailModal');
+      const modalVid = document.getElementById('modalFullVideo');
+      if (!modal) return;
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      if (modalVid) {
+        modalVid.pause();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const trigger = document.getElementById('triggerVideoModal');
+      const closeBtn = document.getElementById('closeVideoModalBtn');
+      const modal = document.getElementById('videoDetailModal');
+
+      if (trigger) {
+        trigger.addEventListener('click', openVideoDetailModal);
+        trigger.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openVideoDetailModal();
+          }
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeVideoDetailModal);
+      }
+
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            closeVideoDetailModal();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeVideoDetailModal();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
