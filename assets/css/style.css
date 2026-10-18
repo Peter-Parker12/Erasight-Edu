@@ -2226,10 +2226,41 @@ section.blk {
   position: relative;
 }
 
-.asset-thumb img {
+.asset-thumb img,
+.asset-thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.asset-badge-live {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(12, 42, 58, 0.85);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(127, 224, 216, 0.4);
+  z-index: 2;
+}
+
+.asset-badge-live::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00E5D4;
+  box-shadow: 0 0 8px #00E5D4;
 }
 
 .asset-tag-top {

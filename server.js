@@ -22,6 +22,7 @@ const MIME = {
   '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.webp': 'image/webp', '.gif': 'image/gif', '.ico': 'image/x-icon',
   '.woff': 'font/woff', '.woff2': 'font/woff2',
+  '.mp4': 'video/mp4', '.webm': 'video/webm',
 };
 
 // ---- Twenty CRM -----------------------------------------------------------
