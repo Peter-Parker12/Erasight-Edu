@@ -68,14 +68,14 @@
 }
 
 .site-brand img {
-  height: 38px;
+  height: 42px;
   width: auto;
   display: block;
 }
 
 @media (max-width: 480px) {
   .site-brand img {
-    height: 33px;
+    height: 35px;
   }
 }
 

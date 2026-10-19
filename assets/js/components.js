@@ -19,7 +19,7 @@
       <div class="site-header-inner">
         <!-- Brand / Logo -->
         <a href="${rootPath}index.html#top" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
-          <img src="${rootPath}assets/logos/erasight-logo-slogan-mau-2000w.png" alt="Erasight — Skills for what's next." />
+          <img src="${rootPath}assets/logos/erasight-logo-slogan-mau-1600w.png" alt="Erasight Academy — Skills for what's next." />
         </a>
 
         <!-- Center Navigation -->
