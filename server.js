@@ -4,8 +4,30 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = Number(process.env.PORT || 4232);
 const ROOT = __dirname;
+
+// Load .env if present (when run directly via `node server.js` without Docker)
+try {
+  const envPath = path.join(ROOT, '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx !== -1) {
+        const key = trimmed.slice(0, idx).trim();
+        let val = trimmed.slice(idx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (process.env[key] === undefined) process.env[key] = val;
+      }
+    }
+  }
+} catch {}
+
+const PORT = Number(process.env.PORT || 4232);
 const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
 // WordPress REST API base URL (e.g. https://blog.erasight.vn/wp-json/wp/v2)

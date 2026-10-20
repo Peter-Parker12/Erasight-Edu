@@ -168,9 +168,11 @@
 
     let allPosts = [];
     let currentPage = 1;
+    let selectedCategory = new URLSearchParams(window.location.search).get('cat') || 'all';
 
     // -----------------------------------------------------------------------
-    // CATEGORY MAPPING (giống Workforce logic nhưng cho Erasight)
+    // CATEGORY MAPPING & EXTRACTION
+    // Lấy chuyên mục từ WordPress (_embedded['wp:term'][0]), fallback sang title keyword
     // -----------------------------------------------------------------------
     function resolveCategory(title) {
       const t = title.toLowerCase();
@@ -181,8 +183,21 @@
       return 'Kiến thức';
     }
 
+    function extractCategories(post) {
+      const terms = (post._embedded?.['wp:term']?.[0] || []).filter(t => t.taxonomy === 'category');
+      // Lấy các category thực tế được cấu hình trên WP (bỏ qua 'uncategorized' nếu có category khác)
+      const meaningful = terms.filter(t => t.slug !== 'uncategorized' && t.name.toLowerCase() !== 'uncategorized');
+      if (meaningful.length > 0) {
+        return meaningful.map(t => ({ id: t.id, name: t.name, slug: t.slug }));
+      }
+      // Nếu chỉ có Uncategorized hoặc không có term nào, fallback theo từ khoá tiêu đề
+      const fallbackName = resolveCategory(stripHtml(post.title?.rendered || ''));
+      const fallbackSlug = fallbackName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      return [{ id: terms[0]?.id || null, name: fallbackName, slug: fallbackSlug }];
+    }
+
     function stripHtml(html) {
-      return html.replace(/<[^>]*>/g, '').trim();
+      return (html || '').replace(/<[^>]*>/g, '').trim();
     }
 
     function formatDate(dateStr) {
@@ -200,8 +215,6 @@
     // -----------------------------------------------------------------------
     async function fetchPosts() {
       try {
-        // Tag to filter by comes from the server (WP_POST_TAG in .env).
-        // Without the tag we show nothing (never fall back to all posts).
         const cfgRes = await fetch('/api/blog-config');
         if (!cfgRes.ok) throw new Error('blog config unavailable');
         const WP_TAG_SLUG = (await cfgRes.json()).tag;
@@ -214,19 +227,26 @@
         if (!res.ok) throw new Error('fetch failed');
         const raw = await res.json();
 
-        return raw.map(post => ({
-          id: post.id,
-          slug: post.slug,
-          link: post.link,
-          date: post.date,
-          title: stripHtml(post.title.rendered),
-          excerpt: stripHtml(post.excerpt.rendered),
-          content: post.content?.rendered || '',
-          imageUrl: post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null,
-          category: resolveCategory(stripHtml(post.title.rendered)),
-          readTime: readTime(post.content?.rendered),
-          author: post._embedded?.['author']?.[0]?.name || 'Erasight Academy',
-        }));
+        return raw.map(post => {
+          const cats = extractCategories(post);
+          const primaryCat = cats[0];
+          return {
+            id: post.id,
+            slug: post.slug,
+            link: post.link,
+            date: post.date,
+            title: stripHtml(post.title.rendered),
+            excerpt: stripHtml(post.excerpt.rendered),
+            content: post.content?.rendered || '',
+            imageUrl: post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null,
+            categories: cats,
+            category: primaryCat.name,
+            categorySlug: primaryCat.slug,
+            allCategorySlugs: cats.map(c => c.slug),
+            readTime: readTime(post.content?.rendered),
+            author: post._embedded?.['author']?.[0]?.name || 'Erasight Academy',
+          };
+        });
       } catch (err) {
         console.warn('Blog fetch failed:', err.message);
         return [];
@@ -249,31 +269,57 @@
       return `blog-post.html?id=${post.id}`;
     }
 
-    // Category counts
+    // Category counts gom theo các category từ WordPress
     function buildCategoryCounts(posts) {
-      const m = {};
-      posts.forEach(p => { m[p.category] = (m[p.category] || 0) + 1; });
-      return Object.entries(m).sort((a,b) => b[1]-a[1]);
+      const m = new Map();
+      posts.forEach(p => {
+        (p.categories || [{ name: p.category, slug: p.categorySlug }]).forEach(cat => {
+          if (!m.has(cat.slug)) {
+            m.set(cat.slug, { name: cat.name, slug: cat.slug, count: 0 });
+          }
+          m.get(cat.slug).count += 1;
+        });
+      });
+      return Array.from(m.values()).sort((a, b) => b.count - a.count);
     }
 
     // -----------------------------------------------------------------------
     // RENDER BLOG LAYOUT
     // -----------------------------------------------------------------------
-    function renderBlog(posts, page) {
+    function renderBlog(posts, page, filterCat = 'all') {
       const cats = buildCategoryCounts(posts);
-      const featured = posts[0];
-      const spotlight = posts.slice(1, 5);
-      const feedSource = posts.length > 5 ? posts.slice(5) : posts.slice(1);
-      const totalPages = Math.ceil(feedSource.length / ITEMS_PER_PAGE);
+      const isAll = filterCat === 'all';
+      
+      // Lọc các bài viết theo chuyên mục đang chọn
+      const displayPosts = isAll
+        ? posts
+        : posts.filter(p => p.allCategorySlugs?.includes(filterCat) || p.categorySlug === filterCat);
+
+      const activeCat = cats.find(c => c.slug === filterCat);
+      const activeCatName = activeCat ? activeCat.name : filterCat;
+
+      const featured = isAll ? posts[0] : displayPosts[0];
+      const spotlight = isAll ? posts.slice(1, 5) : displayPosts.slice(1, 5);
+      const feedSource = isAll 
+        ? (posts.length > 5 ? posts.slice(5) : posts.slice(1))
+        : (displayPosts.length > 1 ? displayPosts.slice(1) : displayPosts);
+      
+      const totalPages = Math.max(1, Math.ceil(feedSource.length / ITEMS_PER_PAGE));
       const start = (page - 1) * ITEMS_PER_PAGE;
       const pagePosts = feedSource.slice(start, start + ITEMS_PER_PAGE);
       const topVideos = posts.slice(0, 3);
       const mostRead = posts.slice(0, 6);
 
-      // ---- Ribbon ----
+      // ---- Ribbon (Chủ đề tương tác) ----
       const ribbonHtml = `
         <section class="blog-ribbon" id="blogRibbon">
-          ${cats.map(([name, count]) => `<span class="blog-ribbon__item">${escHtml(name)} <strong>${count}</strong></span>`).join('')}
+          <span class="blog-ribbon__item ${isAll ? 'blog-ribbon__item--active' : ''}" onclick="blogFilterCategory('all')">
+            Tất cả <strong>${posts.length}</strong>
+          </span>
+          ${cats.map(c => `
+            <span class="blog-ribbon__item ${filterCat === c.slug ? 'blog-ribbon__item--active' : ''}" onclick="blogFilterCategory('${escHtml(c.slug)}')">
+              ${escHtml(c.name)} <strong>${c.count}</strong>
+            </span>`).join('')}
         </section>`;
 
       // ---- Video strip ----
@@ -303,45 +349,62 @@
               ${imgEl(featured.imageUrl, featured.title, 'width:100%;height:100%;object-fit:cover;')}
             </div>
             <div class="blog-hero__feature-content">
-              <p class="blog-post__meta">${escHtml(featured.category)} • ${escHtml(featured.readTime)}</p>
+              <p class="blog-post__meta">
+                <span class="blog-post__meta-cat" onclick="event.preventDefault();event.stopPropagation();blogFilterCategory('${escHtml(featured.categorySlug)}')">${escHtml(featured.category)}</span> • ${escHtml(featured.readTime)}
+              </p>
               <h2>${escHtml(featured.title)}</h2>
               <p>${escHtml(featured.excerpt.slice(0, 200))}${featured.excerpt.length > 200 ? '…' : ''}</p>
             </div>
           </a>
           <div class="blog-hero__side">
             <p class="blog-hero__side-title">Bài viết được quan tâm</p>
-            ${spotlight.map(p => `
+            ${spotlight.length ? spotlight.map(p => `
               <a href="${postUrl(p)}" class="blog-hero__side-item">
                 <div class="blog-hero__side-thumb">
                   ${imgEl(p.imageUrl, p.title, 'width:100%;height:100%;object-fit:cover;')}
                 </div>
                 <div>
-                  <p class="blog-post__meta">${escHtml(p.category)} • ${escHtml(p.readTime)}</p>
+                  <p class="blog-post__meta">
+                    <span class="blog-post__meta-cat" onclick="event.preventDefault();event.stopPropagation();blogFilterCategory('${escHtml(p.categorySlug)}')">${escHtml(p.category)}</span> • ${escHtml(p.readTime)}
+                  </p>
                   <h3>${escHtml(p.title)}</h3>
                 </div>
-              </a>`).join('')}
+              </a>`).join('') : '<p style="color:var(--slate);font-size:0.9rem;padding:12px 0;">Không có bài viết phụ.</p>'}
           </div>
         </section>` : '';
 
       // ---- Feed grid ----
+      const feedTitle = isAll ? 'Bài viết mới nhất' : `Chủ đề: ${escHtml(activeCatName)} (${displayPosts.length})`;
       const gridHtml = `
         <section class="blog-content">
           <div class="blog-feed">
-            <h2 class="blog-section-title">Bài viết mới nhất</h2>
-            <div class="blog-grid" id="blogGrid">
-              ${pagePosts.map(p => `
-                <a href="${postUrl(p)}" class="blog-card">
-                  <div class="blog-card__image-wrapper">
-                    ${imgEl(p.imageUrl, p.title, 'width:100%;height:100%;object-fit:cover;')}
-                  </div>
-                  <div class="blog-card__content">
-                    <p class="blog-post__meta">${escHtml(p.category)} • ${escHtml(p.readTime)}</p>
-                    <h3 class="blog-card__title">${escHtml(p.title)}</h3>
-                    <p class="blog-card__excerpt">${escHtml(p.excerpt.slice(0, 140))}${p.excerpt.length > 140 ? '…' : ''}</p>
-                  </div>
-                </a>`).join('')}
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+              <h2 class="blog-section-title" style="margin-bottom:0;">${feedTitle}</h2>
+              ${!isAll ? `<button onclick="blogFilterCategory('all')" style="background:none;border:none;color:var(--p,#0DA096);font-size:0.88rem;cursor:pointer;font-weight:600;padding:4px 8px;">✕ Xem tất cả bài viết</button>` : ''}
             </div>
-            ${totalPages > 1 ? renderPagination(page, totalPages) : ''}
+            ${pagePosts.length ? `
+              <div class="blog-grid" id="blogGrid">
+                ${pagePosts.map(p => `
+                  <a href="${postUrl(p)}" class="blog-card">
+                    <div class="blog-card__image-wrapper">
+                      ${imgEl(p.imageUrl, p.title, 'width:100%;height:100%;object-fit:cover;')}
+                    </div>
+                    <div class="blog-card__content">
+                      <p class="blog-post__meta">
+                        <span class="blog-post__meta-cat" onclick="event.preventDefault();event.stopPropagation();blogFilterCategory('${escHtml(p.categorySlug)}')">${escHtml(p.category)}</span> • ${escHtml(p.readTime)}
+                      </p>
+                      <h3 class="blog-card__title">${escHtml(p.title)}</h3>
+                      <p class="blog-card__excerpt">${escHtml(p.excerpt.slice(0, 140))}${p.excerpt.length > 140 ? '…' : ''}</p>
+                    </div>
+                  </a>`).join('')}
+              </div>
+              ${totalPages > 1 ? renderPagination(page, totalPages) : ''}
+            ` : `
+              <div style="padding:48px 20px;text-align:center;background:var(--pxl,#F6FAFA);border-radius:12px;border:1px dashed var(--line,#DDE7E7);">
+                <p style="color:var(--slate,#4A6572);margin-bottom:12px;">Chưa có thêm bài viết trong chủ đề này.</p>
+                <button onclick="blogFilterCategory('all')" style="padding:8px 18px;border-radius:999px;background:var(--p,#0DA096);color:white;border:none;font-weight:600;cursor:pointer;">Quay lại xem tất cả</button>
+              </div>
+            `}
           </div>
 
           <aside class="blog-sidebar">
@@ -356,9 +419,15 @@
               </div>
             </div>
             <div class="blog-widget">
-              <h3>Chủ đề</h3>
+              <h3>Chủ đề bài viết</h3>
               <div class="blog-category-list">
-                ${cats.map(([name, count]) => `<span class="blog-category-chip">${escHtml(name)} <strong>${count}</strong></span>`).join('')}
+                <span class="blog-category-chip ${isAll ? 'blog-category-chip--active' : ''}" onclick="blogFilterCategory('all')">
+                  Tất cả <strong>${posts.length}</strong>
+                </span>
+                ${cats.map(c => `
+                  <span class="blog-category-chip ${filterCat === c.slug ? 'blog-category-chip--active' : ''}" onclick="blogFilterCategory('${escHtml(c.slug)}')">
+                    ${escHtml(c.name)} <strong>${c.count}</strong>
+                  </span>`).join('')}
               </div>
             </div>
             <div class="blog-widget blog-widget--accent">
@@ -391,13 +460,30 @@
     }
 
     // -----------------------------------------------------------------------
-    // PAGINATION HANDLER (exposed globally for onclick)
+    // INTERACTION HANDLERS (exposed globally for onclick)
     // -----------------------------------------------------------------------
     window.blogGoPage = function(page) {
       currentPage = page;
       const root = document.getElementById('blogRoot');
-      root.innerHTML = renderBlog(allPosts, currentPage);
+      root.innerHTML = renderBlog(allPosts, currentPage, selectedCategory);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.blogFilterCategory = function(catSlug) {
+      selectedCategory = catSlug;
+      currentPage = 1;
+      const root = document.getElementById('blogRoot');
+      root.innerHTML = renderBlog(allPosts, currentPage, selectedCategory);
+
+      // Cập nhật URL không reload
+      const newUrl = catSlug === 'all' ? window.location.pathname : `${window.location.pathname}?cat=${encodeURIComponent(catSlug)}`;
+      window.history.replaceState({}, '', newUrl);
+
+      // Cuộn nhẹ đến phần nội dung nếu người dùng đang ở quá xa
+      const contentEl = document.querySelector('.blog-content');
+      if (contentEl && window.scrollY > 450) {
+        contentEl.scrollIntoView({ behavior: 'smooth' });
+      }
     };
 
     // -----------------------------------------------------------------------
@@ -413,7 +499,7 @@
         return;
       }
 
-      root.innerHTML = renderBlog(allPosts, currentPage);
+      root.innerHTML = renderBlog(allPosts, currentPage, selectedCategory);
     }
 
     // Run when DOM ready
@@ -437,6 +523,51 @@
     .mobile-nav-item--active {
       color: var(--hf-teal, #0DA096) !important;
       font-weight: 700;
+    }
+
+    /* Category interactive chips & ribbon */
+    .blog-ribbon__item, .blog-category-chip {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .blog-ribbon__item:hover {
+      transform: translateY(-1px);
+    }
+    .blog-ribbon__item--active {
+      background: var(--p, #0DA096) !important;
+      color: white !important;
+      border-color: var(--p, #0DA096) !important;
+      box-shadow: 0 4px 12px rgba(13, 160, 150, 0.25);
+    }
+    .blog-ribbon__item--active strong {
+      color: white !important;
+    }
+    .blog-category-chip:hover {
+      background: var(--p, #0DA096);
+      color: white;
+      border-color: var(--p, #0DA096);
+    }
+    .blog-category-chip:hover strong {
+      color: white;
+    }
+    .blog-category-chip--active {
+      background: var(--p, #0DA096) !important;
+      color: white !important;
+      border-color: var(--p, #0DA096) !important;
+    }
+    .blog-category-chip--active strong {
+      color: white !important;
+    }
+    .blog-post__meta-cat {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--p, #0DA096);
+      transition: opacity 0.2s;
+    }
+    .blog-post__meta-cat:hover {
+      text-decoration: underline;
+      opacity: 0.85;
     }
   </style>
 </body>
