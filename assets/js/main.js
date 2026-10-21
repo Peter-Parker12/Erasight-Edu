@@ -296,17 +296,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btnMkt || !btnEng || !contentMkt || !contentEng) return;
 
     if (course === 'eng') {
-      btnEng.style.background = 'var(--navy)';
-      btnEng.style.color = 'var(--white)';
+      btnEng.classList.add('active');
+      btnEng.style.background = 'var(--dark, #0C2A3A)';
+      btnEng.style.color = '#FFFFFF';
+      btnMkt.classList.remove('active');
       btnMkt.style.background = 'transparent';
-      btnMkt.style.color = 'var(--slate)';
+      btnMkt.style.color = 'var(--slate, #4A6572)';
       contentMkt.style.display = 'none';
       contentEng.style.display = 'grid';
     } else {
-      btnMkt.style.background = 'var(--navy)';
-      btnMkt.style.color = 'var(--white)';
+      btnMkt.classList.add('active');
+      btnMkt.style.background = 'var(--dark, #0C2A3A)';
+      btnMkt.style.color = '#FFFFFF';
+      btnEng.classList.remove('active');
       btnEng.style.background = 'transparent';
-      btnEng.style.color = 'var(--slate)';
+      btnEng.style.color = 'var(--slate, #4A6572)';
       contentMkt.style.display = 'grid';
       contentEng.style.display = 'none';
     }
