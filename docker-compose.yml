@@ -12,3 +12,4 @@ services:
       TWENTY_API_KEY: ${TWENTY_API_KEY}
       WP_API_URL: ${WP_API_URL}
       WP_POST_TAG: ${WP_POST_TAG:-erasight-education}
+      SITE_URL: ${SITE_URL:-https://academy.erasight.net}
