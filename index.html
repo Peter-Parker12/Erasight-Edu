@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
   
-  <link rel="stylesheet" href="assets/css/style.css?v=2.1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=2.7" />
   <link rel="stylesheet" href="assets/css/header-footer.css?v=2.2" />
 </head>
 <body>
@@ -178,17 +178,6 @@
       </div>
 
       <div class="wrap">
-        <!-- Top Status Bar -->
-        <div class="hero-top">
-          <div class="hero-tz">
-            <span class="dot"></span>
-            <span>Hình thức: <b>Live Zoom &amp; Kèm 1:1</b> · Khai giảng: <b>Thứ Ba &amp; Thứ Năm</b></span>
-          </div>
-          <div class="hero-rating">
-            <span class="stars">★★★★★</span>
-            <span>Đánh giá hiểu bài: <b>4.1 / 5</b> tại khoá MKT_001</span>
-          </div>
-        </div>
 
         <!-- Hero Content Grid -->
         <div class="hero-grid">
@@ -254,8 +243,7 @@
                         <span class="arr">&rarr;</span>
                         <span class="node">Auto-Post Live</span>
                       </div>
-                      <div class="dt-meta">
-                        <span>✓ 11 Buổi + 3 Buổi kèm lại</span>
+                      <div class="dt-meta" style="justify-content: flex-end;">
                         <b>Tiết kiệm 14h / tuần</b>
                       </div>
                     </div>
@@ -274,8 +262,7 @@
                         <span class="arr">&rarr;</span>
                         <span class="node">Mock Interview</span>
                       </div>
-                      <div class="dt-meta">
-                        <span>✓ CV chuẩn ATS quốc tế</span>
+                      <div class="dt-meta" style="justify-content: flex-end;">
                         <b style="color:var(--blue);">Điểm ATS 96/100</b>
                       </div>
                     </div>
@@ -381,9 +368,6 @@
                 </button>
                 hoặc một bản CV tiếng Anh chuẩn ATS được mentor công ty lớn sửa trực tiếp. Học live qua Zoom, kèm 1:1 và miễn phí 3 buổi học lại nếu bận.
               </p>
-              <div class="upd" style="font-family:var(--font-mono); font-size:12px; color:var(--slate); margin-top:14px; font-weight:700;">
-                Khai giảng đợt gần nhất: Tháng 10/2026 · TP. Hồ Chí Minh &amp; Online
-              </div>
             </div>
           </div>
 
@@ -464,7 +448,6 @@
     <section class="blk wedge" id="difference">
       <div class="wrap wedge-grid">
         <div>
-          <span class="eyebrow pur">Điểm khác biệt</span>
           <h2>Khoá học lý thuyết cho bạn chứng chỉ.<br />Erasight cho bạn <span style="color:var(--orange);">sản phẩm thật</span>.</h2>
           <p style="margin-top:16px;">
             Học lý thuyết không giúp bạn tự động hoá được công việc, cũng không giúp bạn trả lời trôi chảy trước HR. Erasight kết nối toàn bộ lộ trình: công cụ thực chiến, case study thật, mentor sửa bài 1:1 và cam kết học lại miễn phí.
@@ -520,11 +503,6 @@
         <div class="courses-deck-grid">
           <!-- Khoá 01: AI Marketing -->
           <div class="course-presentation-card mkt" id="khoa-mkt">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <span class="card-code-pill">MÃ: MKT_001</span>
-              <span class="card-tag orange">AI MARKETING</span>
-            </div>
-
             <h3 style="font-size:24px; margin-bottom:10px;">AI Marketing thực chiến</h3>
             <p style="color:var(--slate); font-size:15px; line-height:1.6; margin-bottom:20px;">
               Tự dựng được quy trình tự động đăng bài lên các nền tảng online và mạng xã hội, kể cả khi bạn chưa từng viết một dòng code.
@@ -551,11 +529,10 @@
 
             <div style="padding-top:18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:2px;">
+                <div style="display:flex; align-items:baseline; gap:8px;">
                   <span style="font-family:var(--font-display); font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-0.02em;">3.800.000₫</span>
                   <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; text-decoration:line-through; color:var(--slate);">6.000.000₫</span>
                 </div>
-                <div style="font-size:12.5px; color:var(--slate);">11 buổi chính + 3 buổi học lại · Tối Thứ 3</div>
               </div>
               <a href="#lo-trinh" class="btn btn-ghost btn-sm" onclick="switchLoTrinh('mkt', true)">Xem lộ trình →</a>
             </div>
@@ -563,11 +540,6 @@
 
           <!-- Khoá 02: Tiếng Anh phỏng vấn -->
           <div class="course-presentation-card eng" id="khoa-eng">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <span class="card-code-pill">MÃ: ENG_002</span>
-              <span class="card-tag blue">ENGLISH TRACK</span>
-            </div>
-
             <h3 style="font-size:24px; margin-bottom:10px;">Tiếng Anh phỏng vấn &amp; đi làm</h3>
             <p style="color:var(--slate); font-size:15px; line-height:1.6; margin-bottom:20px;">
               Đi hết một vòng tuyển dụng bằng tiếng Anh, từ đọc JD, viết CV tới phỏng vấn vòng cuối, với CV được mentor từ công ty lớn sửa trực tiếp.
@@ -594,11 +566,10 @@
 
             <div style="padding-top:18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
               <div>
-                <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:2px;">
+                <div style="display:flex; align-items:baseline; gap:8px;">
                   <span style="font-family:var(--font-display); font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-0.02em;">4.000.000₫</span>
                   <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; text-decoration:line-through; color:var(--slate);">7.500.000₫</span>
                 </div>
-                <div style="font-size:12.5px; color:var(--slate);">15 buổi (4 module) · Kèm 1:1 · Tối Thứ 5</div>
               </div>
               <a href="#lo-trinh" class="btn btn-ghost btn-sm" onclick="switchLoTrinh('eng', true)">Xem lộ trình →</a>
             </div>
@@ -632,42 +603,134 @@
           </div>
         </div>
 
-        <!-- Timeline Khoá 01: AI Marketing -->
-        <div class="timeline" id="lotrinh-content-mkt">
-          <!-- Step 1 -->
-          <div class="tl-step">
-            <div class="tl-num">1</div>
-            <span class="tl-day">Chặng 1 · Nền tảng</span>
-            <h3>Prompting &amp; Media</h3>
-            <p>Nắm cấu trúc prompt chuẩn, dựng workflow nhận diện gương mặt người mẫu ảnh nhất quán 100% và tạo video ngắn.</p>
-            <div class="out">Đầu ra: 5 post chuẩn nhận diện</div>
+        <!-- Timeline Khoá 01: AI Marketing (Layout Bất đối xứng: Text cách điệu bên trái + 4 Thẻ so le bên phải) -->
+        <div class="ai-lotrinh-layout" id="lotrinh-content-mkt">
+          <!-- CỘT TRÁI: TEXT CÁCH ĐIỆU CHO ĐẸP -->
+          <div class="ai-lotrinh-left">
+            <h2 class="ai-stylized-title">
+              Học AI thực chiến<br />
+              <span class="ai-title-serif">từng bước một,</span><br />
+              <span class="ai-title-grad">ra sản phẩm từng chặng</span>
+            </h2>
+
+            <!-- 4 Cột mốc tương tác kết nối trực tiếp với 4 thẻ bên phải -->
+            <div class="ai-phases-rail">
+              <div class="ai-phase-item" data-target="ai-card-1">
+                <div class="ai-phase-index">1</div>
+                <div class="ai-phase-content">
+                  <h4 class="ai-phase-name">Prompting &amp; Media</h4>
+                  <p class="ai-phase-sub">Khóa nhận diện khuôn mặt người mẫu 100% &amp; tạo video ngắn AI.</p>
+                </div>
+              </div>
+
+              <div class="ai-phase-item" data-target="ai-card-2">
+                <div class="ai-phase-index">2</div>
+                <div class="ai-phase-content">
+                  <h4 class="ai-phase-name">Automation Flow</h4>
+                  <p class="ai-phase-sub">Dựng pipeline Google Sheets → Gemini → Fanpage/IG tự động không code.</p>
+                </div>
+              </div>
+
+              <div class="ai-phase-item" data-target="ai-card-3">
+                <div class="ai-phase-index">3</div>
+                <div class="ai-phase-content">
+                  <h4 class="ai-phase-name">Seeding &amp; Humanize</h4>
+                  <p class="ai-phase-sub">Lập Content Calendar 30 ngày, phễu seeding 3 tầng &amp; xoá dấu vết AI.</p>
+                </div>
+              </div>
+
+              <div class="ai-phase-item" data-target="ai-card-4">
+                <div class="ai-phase-index">4</div>
+                <div class="ai-phase-content">
+                  <h4 class="ai-phase-name">Portfolio &amp; Tốt nghiệp</h4>
+                  <p class="ai-phase-sub">Dựng website portfolio cá nhân chạy live + Bảo vệ đồ án tốt nghiệp.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA Actions -->
+            <div class="ai-left-actions">
+              <a href="#pricing" class="btn btn-primary btn-sm" onclick="selectCoursePackage('mkt')">
+                <span>Đăng ký lộ trình AI ngay</span>
+                <span style="font-size:14px; margin-left:4px;">→</span>
+              </a>
+              <a href="#giang-vien" class="btn btn-ghost btn-sm">
+                <span>Gặp đội ngũ giảng viên</span>
+              </a>
+            </div>
           </div>
 
-          <!-- Step 2 -->
-          <div class="tl-step">
-            <div class="tl-num">2</div>
-            <span class="tl-day">Chặng 2 · Thực chiến</span>
-            <h3>Automation Flow</h3>
-            <p>Dựng workflow tự động đăng bài: kết nối Google Sheets, Gemini API và Webhook tự động đăng Fanpage &amp; Instagram.</p>
-            <div class="out">Đầu ra: Workflow auto-post chạy live</div>
-          </div>
+          <!-- CỘT PHẢI: 4 THẺ BỐ TRÍ SO LE BẤT ĐỐI XỨNG CHUẨN MẪU (ẢNH VUÔNG CẠNH, PHÓNG TO XEM CHI TIẾT) -->
+          <div class="ai-lotrinh-right">
+            <!-- Hàng 1 (Chặng 1 & Chặng 2) - Lùi sang trái -->
+            <div class="ai-cards-row ai-cards-row-1">
+              <!-- Step 1 -->
+              <div class="tl-step-card tl-step-flip" id="ai-card-1" tabindex="0" role="button" aria-label="Chặng 1: Prompting & Media (Bấm để phóng to xem chi tiết)" onclick="openRoadmapDetailModal(1)" title="Bấm để phóng to toàn màn hình">
+                <div class="tl-step-img-wrap">
+                  <img src="assets/images/AI1.png" alt="Chặng 1: Prompting & Media" class="tl-step-img" loading="lazy" />
+                  <div class="tl-zoom-overlay">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="11" y1="8" x2="11" y2="14"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <span>Phóng to xem chi tiết</span>
+                  </div>
+                </div>
+              </div>
 
-          <!-- Step 3 -->
-          <div class="tl-step">
-            <div class="tl-num">3</div>
-            <span class="tl-day">Chặng 3 · Tối ưu</span>
-            <h3>Seeding &amp; Humanize</h3>
-            <p>Chiến lược seeding phễu 3 tầng, lập lịch Content Calendar 30 ngày và kỹ thuật xoá sạch dấu vết AI rập khuôn.</p>
-            <div class="out">Đầu ra: Bảng Seeding Calendar 30 ngày</div>
-          </div>
+              <!-- Step 2 -->
+              <div class="tl-step-card tl-step-flip" id="ai-card-2" tabindex="0" role="button" aria-label="Chặng 2: Automation Flow (Bấm để phóng to xem chi tiết)" onclick="openRoadmapDetailModal(2)" title="Bấm để phóng to toàn màn hình">
+                <div class="tl-step-img-wrap">
+                  <img src="assets/images/AI2.png" alt="Chặng 2: Automation Flow" class="tl-step-img" loading="lazy" />
+                  <div class="tl-zoom-overlay">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="11" y1="8" x2="11" y2="14"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <span>Phóng to xem chi tiết</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <!-- Step 4 -->
-          <div class="tl-step">
-            <div class="tl-num">4</div>
-            <span class="tl-day">Chặng 4 · Đóng gói</span>
-            <h3>Portfolio &amp; Tốt nghiệp</h3>
-            <p>Tự dựng website portfolio cá nhân tích hợp công cụ tự động đăng bài và báo cáo đồ án tốt nghiệp trước hội đồng.</p>
-            <div class="out">Đầu ra: Web portfolio live &amp; Bằng tốt nghiệp</div>
+            <!-- Hàng 2 (Chặng 3 & Chặng 4) - Đẩy so le sang phải -->
+            <div class="ai-cards-row ai-cards-row-2">
+              <!-- Step 3 -->
+              <div class="tl-step-card tl-step-flip" id="ai-card-3" tabindex="0" role="button" aria-label="Chặng 3: Seeding & Humanize (Bấm để phóng to xem chi tiết)" onclick="openRoadmapDetailModal(3)" title="Bấm để phóng to toàn màn hình">
+                <div class="tl-step-img-wrap">
+                  <img src="assets/images/AI3.png" alt="Chặng 3: Seeding & Humanize" class="tl-step-img" loading="lazy" />
+                  <div class="tl-zoom-overlay">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="11" y1="8" x2="11" y2="14"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <span>Phóng to xem chi tiết</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="tl-step-card tl-step-flip" id="ai-card-4" tabindex="0" role="button" aria-label="Chặng 4: Portfolio & Tốt nghiệp (Bấm để phóng to xem chi tiết)" onclick="openRoadmapDetailModal(4)" title="Bấm để phóng to toàn màn hình">
+                <div class="tl-step-img-wrap">
+                  <img src="assets/images/AI4.png" alt="Chặng 4: Portfolio & Tốt nghiệp" class="tl-step-img" loading="lazy" />
+                  <div class="tl-zoom-overlay">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="11" y1="8" x2="11" y2="14"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <span>Phóng to xem chi tiết</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1245,7 +1308,54 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="assets/js/components.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js?v=2.6"></script>
+  <!-- ======================================================================
+       MODAL POP-UP PHÓNG TO XEM CHI TIẾT GIÁO TRÌNH LỘ TRÌNH AI
+       Bên trái: Nội dung thẻ giáo trình · Bên phải: Ảnh poster (cạnh vuông, không bo tròn)
+       ====================================================================== -->
+  <div id="aiRoadmapModal" class="ai-rm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="aiRmModalTitle" onclick="handleAiRmBackdropClick(event)">
+    <div class="ai-rm-modal-container">
+      <!-- Modal Topbar -->
+      <div class="ai-rm-modal-topbar">
+        <div class="ai-rm-phase-tabs" id="aiRmPhaseTabs">
+          <button type="button" class="ai-rm-tab-btn is-active" onclick="openRoadmapDetailModal(1)">Chặng 1: Nền tảng</button>
+          <button type="button" class="ai-rm-tab-btn" onclick="openRoadmapDetailModal(2)">Chặng 2: Thực chiến</button>
+          <button type="button" class="ai-rm-tab-btn" onclick="openRoadmapDetailModal(3)">Chặng 3: Tối ưu</button>
+          <button type="button" class="ai-rm-tab-btn" onclick="openRoadmapDetailModal(4)">Chặng 4: Đóng gói</button>
+        </div>
+        <button type="button" class="ai-rm-modal-close" onclick="closeRoadmapDetailModal()" aria-label="Đóng cửa sổ (Esc)" title="Đóng cửa sổ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (2 Cột: Trái là Nội dung, Phải là Ảnh) -->
+      <div class="ai-rm-modal-body">
+        <!-- CỘT BÊN TRÁI: NỘI DUNG THẺ -->
+        <div class="ai-rm-content-col" id="aiRmContentCol">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- CỘT BÊN PHẢI: ẢNH (CANH VUÔNG, KHÔNG BO TRÒN) -->
+        <div class="ai-rm-image-col">
+          <img id="aiRmModalImg" src="assets/images/AI1.png" alt="Ảnh chi tiết chặng" class="ai-rm-img" />
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="ai-rm-modal-footer">
+        <button type="button" class="ai-rm-nav-btn prev" id="aiRmPrevBtn" onclick="navigateRoadmapModal(-1)">
+          <span>← Chặng trước</span>
+        </button>
+        <button type="button" class="ai-rm-nav-btn next" id="aiRmNextBtn" onclick="navigateRoadmapModal(1)">
+          <span>Chặng tiếp theo →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ======================================================================
        MODAL PHÓNG TO XEM CHI TIẾT VIDEO ĐỒ ÁN HỌC VIÊN
        ====================================================================== -->

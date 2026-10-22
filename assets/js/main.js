@@ -333,6 +333,226 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // 13. AI Course Roadmap Pop-up Modal & Phase Interactions
+  const ROADMAP_PHASES = [
+    {
+      step: 1,
+      tag: 'CHẶNG 01 · NỀN TẢNG',
+      tagClass: 'orange',
+      num: '01',
+      title: 'Prompting & Media',
+      desc: 'Nắm cấu trúc prompt chuẩn quốc tế, dựng workflow nhận diện gương mặt người mẫu ảnh thương hiệu nhất quán 100% và tạo video ngắn AI.',
+      bullets: [
+        'Cấu trúc Prompting chuyên sâu cho Marketing & E-commerce',
+        'Workflow khóa nhận diện khuôn mặt người mẫu nhất quán 100%',
+        'Tự động hóa sản xuất video ngắn với giọng đọc AI truyền cảm'
+      ],
+      output: '5 bộ post chuẩn nhận diện thương hiệu + Workflow video chạy thực tế',
+      duration: 'Buổi 1 – 3 · Kèm thực hành 1:1',
+      image: 'assets/images/AI1.png',
+      alt: 'Chặng 1: Prompting & Media'
+    },
+    {
+      step: 2,
+      tag: 'CHẶNG 02 · THỰC CHIẾN',
+      tagClass: 'orange',
+      num: '02',
+      title: 'Automation Flow',
+      desc: 'Dựng quy trình tự động hoá đăng bài đa nền tảng kết nối Google Sheets, Gemini API và Webhook mà không cần viết code.',
+      bullets: [
+        'Dựng pipeline tự động kết nối Google Sheets và Gemini API',
+        'Thiết lập Webhook tự động đăng bài lên Fanpage & Instagram',
+        'Cơ chế kiểm duyệt nội dung và cảnh báo tự động qua Telegram'
+      ],
+      output: 'Hệ thống Workflow auto-posting đa kênh chạy live thực tế',
+      duration: 'Buổi 4 – 6 · Kèm thực hành 1:1',
+      image: 'assets/images/AI2.png',
+      alt: 'Chặng 2: Automation Flow'
+    },
+    {
+      step: 3,
+      tag: 'CHẶNG 03 · TỐI ƯU',
+      tagClass: 'orange',
+      num: '03',
+      title: 'Seeding & Humanize',
+      desc: 'Chiến lược seeding phễu 3 tầng kéo tương tác tự nhiên, lập lịch Content Calendar 30 ngày và xoá sạch dấu vết AI rập khuôn.',
+      bullets: [
+        'Chiến lược seeding phễu 3 tầng kéo organic traffic & tương tác',
+        'Lập lịch Content Calendar 30 ngày chuẩn định vị thương hiệu',
+        'Kỹ thuật Humanize làm mềm câu chữ, xoá hoàn toàn dấu vết AI'
+      ],
+      output: 'Bảng kế hoạch Seeding Calendar 30 ngày tối ưu chuyển đổi',
+      duration: 'Buổi 7 – 9 · Kèm thực hành 1:1',
+      image: 'assets/images/AI3.png',
+      alt: 'Chặng 3: Seeding & Humanize'
+    },
+    {
+      step: 4,
+      tag: 'CHẶNG 04 · ĐÓNG GÓI',
+      tagClass: 'orange',
+      num: '04',
+      title: 'Portfolio & Tốt nghiệp',
+      desc: 'Tự dựng website portfolio cá nhân tích hợp công cụ đăng bài tự động và bảo vệ đồ án tốt nghiệp trước hội đồng chuyên môn.',
+      bullets: [
+        'Tự dựng website portfolio cá nhân tích hợp công cụ tự động hoá',
+        'Đóng gói toàn bộ sản phẩm thực chiến vào case study ấn tượng',
+        'Báo cáo đồ án tốt nghiệp trước hội đồng chuyên gia Erasight'
+      ],
+      output: 'Website Portfolio cá nhân chạy live + Chứng chỉ tốt nghiệp Erasight',
+      duration: 'Buổi 10 – 11 · Hội đồng phản biện',
+      image: 'assets/images/AI4.png',
+      alt: 'Chặng 4: Portfolio & Tốt nghiệp'
+    }
+  ];
+
+  let currentRoadmapStep = 1;
+
+  function openRoadmapDetailModal(step = 1) {
+    const phase = ROADMAP_PHASES.find(p => p.step === step) || ROADMAP_PHASES[0];
+    currentRoadmapStep = phase.step;
+
+    const modal = document.getElementById('aiRoadmapModal');
+    const contentCol = document.getElementById('aiRmContentCol');
+    const imgElem = document.getElementById('aiRmModalImg');
+    const prevBtn = document.getElementById('aiRmPrevBtn');
+    const nextBtn = document.getElementById('aiRmNextBtn');
+
+    if (!modal || !contentCol || !imgElem) return;
+
+    // Render left column content
+    contentCol.innerHTML = `
+      <div>
+        <div class="ai-rm-head">
+          <span class="ai-rm-tag ${phase.tagClass}">${phase.tag}</span>
+          <span class="ai-rm-num">${phase.num}</span>
+        </div>
+        <h3 class="ai-rm-title" id="aiRmModalTitle">${phase.title}</h3>
+        <p class="ai-rm-desc">${phase.desc}</p>
+      </div>
+
+      <div>
+        <div class="ai-rm-subheading">Nội dung đào tạo trọng tâm:</div>
+        <ul class="ai-rm-list">
+          ${phase.bullets.map(b => `
+            <li>
+              <span class="ai-rm-check">✓</span>
+              <span>${b}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+
+      <div class="ai-rm-output">
+        <div class="ai-rm-out-label">Kết quả đầu ra:</div>
+        <div class="ai-rm-out-val">${phase.output}</div>
+      </div>
+
+      <div class="ai-rm-footer-row">
+        <div class="ai-rm-meta">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>${phase.duration}</span>
+        </div>
+        <a href="#pricing" class="btn btn-primary btn-sm" onclick="closeRoadmapDetailModal(); selectCoursePackage('mkt');">
+          <span>Đăng ký chặng này →</span>
+        </a>
+      </div>
+    `;
+
+    // Render right column image (square)
+    imgElem.src = phase.image;
+    imgElem.alt = phase.alt;
+
+    // Update active tab button in topbar
+    const tabs = document.querySelectorAll('.ai-rm-tab-btn');
+    tabs.forEach((tab, idx) => {
+      if (idx + 1 === phase.step) {
+        tab.classList.add('is-active');
+      } else {
+        tab.classList.remove('is-active');
+      }
+    });
+
+    // Update Prev / Next button state
+    if (prevBtn) prevBtn.disabled = (phase.step === 1);
+    if (nextBtn) nextBtn.disabled = (phase.step === ROADMAP_PHASES.length);
+
+    modal.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRoadmapDetailModal() {
+    const modal = document.getElementById('aiRoadmapModal');
+    if (modal) {
+      modal.classList.remove('is-active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function navigateRoadmapModal(direction) {
+    const newStep = currentRoadmapStep + direction;
+    if (newStep >= 1 && newStep <= ROADMAP_PHASES.length) {
+      openRoadmapDetailModal(newStep);
+    }
+  }
+
+  function handleAiRmBackdropClick(e) {
+    if (e.target && e.target.id === 'aiRoadmapModal') {
+      closeRoadmapDetailModal();
+    }
+  }
+
+  window.openRoadmapDetailModal = openRoadmapDetailModal;
+  window.closeRoadmapDetailModal = closeRoadmapDetailModal;
+  window.navigateRoadmapModal = navigateRoadmapModal;
+  window.handleAiRmBackdropClick = handleAiRmBackdropClick;
+
+  // Keyboard navigation for modal
+  window.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('aiRoadmapModal');
+    if (!modal || !modal.classList.contains('is-active')) return;
+
+    if (e.key === 'Escape') {
+      closeRoadmapDetailModal();
+    } else if (e.key === 'ArrowLeft') {
+      navigateRoadmapModal(-1);
+    } else if (e.key === 'ArrowRight') {
+      navigateRoadmapModal(1);
+    }
+  });
+
+  // 14. Interactive Link Between Left Phase Milestones & Right Cards
+  const phaseItems = document.querySelectorAll('.ai-phase-item');
+  phaseItems.forEach((item, index) => {
+    const targetId = item.getAttribute('data-target');
+    const targetCard = targetId ? document.getElementById(targetId) : null;
+    if (!targetCard) return;
+
+    item.addEventListener('mouseenter', () => {
+      targetCard.classList.add('phase-highlight');
+    });
+    item.addEventListener('mouseleave', () => {
+      targetCard.classList.remove('phase-highlight');
+    });
+    item.addEventListener('click', () => {
+      openRoadmapDetailModal(index + 1);
+    });
+  });
+
+  document.querySelectorAll('.tl-step-card[id], .tl-step-flip[id]').forEach((card, index) => {
+    const cardId = card.id;
+    const matchingPhase = document.querySelector(`.ai-phase-item[data-target="${cardId}"]`);
+    if (matchingPhase) {
+      card.addEventListener('mouseenter', () => matchingPhase.classList.add('is-hovered'));
+      card.addEventListener('mouseleave', () => matchingPhase.classList.remove('is-hovered'));
+    }
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openRoadmapDetailModal(index + 1);
+      }
+    });
+  });
+
   syncLoTrinhFromHash();
   window.addEventListener('hashchange', syncLoTrinhFromHash);
 });
