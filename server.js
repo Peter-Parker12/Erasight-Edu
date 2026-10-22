@@ -184,6 +184,8 @@ function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p === '/') p = '/index.html';
   else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
+  // Pretty post URLs: /blog-<post-slug> -> blog-post.html (the page reads the slug from the URL)
+  else if (/^\/blog-[A-Za-z0-9%_-]+\/?$/.test(p)) p = '/blog-post.html';
   const file = path.join(ROOT, p);
   if (!STATIC_ALLOW.test(p) || !file.startsWith(ROOT + path.sep)) { res.writeHead(404); return res.end('Not found'); }
   fs.readFile(file, (err, buf) => {

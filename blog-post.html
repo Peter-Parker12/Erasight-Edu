@@ -161,16 +161,29 @@
     }
 
     // Only posts carrying the tag configured on the server (WP_POST_TAG in .env) can be opened.
-    async function fetchPost(id) {
+    // Which post is being opened: /blog-<slug> (preferred), ?slug=<slug>, or legacy ?id=<id>.
+    function postRef() {
+      const m = window.location.pathname.match(/^\/blog-([A-Za-z0-9%_-]+)\/?$/);
+      const slug = (m && m[1] !== 'post' ? m[1] : null) || getParam('slug');
+      if (slug && /^[A-Za-z0-9%_-]+$/.test(slug)) return { slug };
+      const id = getParam('id');
+      if (id && /^\d+$/.test(id)) return { id };
+      return null;
+    }
+
+    async function fetchPost(ref) {
       const cfgRes = await fetch('/api/blog-config');
       if (!cfgRes.ok) throw new Error('Not found');
       const tagSlug = (await cfgRes.json()).tag;
+      const postUrl = ref.slug ? `/api/wp/posts?slug=${ref.slug}&_embed` : `/api/wp/posts/${ref.id}?_embed`;
       const [res, tagRes] = await Promise.all([
-        fetch(`/api/wp/posts/${id}?_embed`),
+        fetch(postUrl),
         fetch(`/api/wp/tags?slug=${encodeURIComponent(tagSlug)}&per_page=1`),
       ]);
       if (!res.ok || !tagRes.ok) throw new Error('Not found');
-      const post = await res.json();
+      const found = await res.json();
+      const post = Array.isArray(found) ? found[0] : found; // ?slug= returns an array
+      if (!post) throw new Error('Not found');
       const tags = await tagRes.json();
       if (!tags.length || !(post.tags || []).includes(tags[0].id)) throw new Error('Not found');
       return { post, tagId: tags[0].id };
@@ -205,11 +218,13 @@
     }
 
     async function init() {
-      const id = getParam('id');
-      if (!id) { renderNotFound(); return; }
+      const ref = postRef();
+      if (!ref) { renderNotFound(); return; }
 
       try {
-        const { post, tagId } = await fetchPost(id);
+        const { post, tagId } = await fetchPost(ref);
+        // Old ?id= links: show the slug URL in the address bar
+        if (!ref.slug && post.slug) history.replaceState(null, '', `/blog-${post.slug}`);
         const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;
         const title = post.title?.rendered || '';
         const date = formatDate(post.date);
@@ -230,7 +245,7 @@
           </div>` : '';
 
         // Tải các bài viết cùng chủ đề
-        const related = await fetchRelatedPosts(id, tagId, primaryCat?.id);
+        const related = await fetchRelatedPosts(post.id, tagId, primaryCat?.id);
         const relatedHtml = related.length ? `
           <section style="margin-top:48px;padding-top:36px;border-top:1.5px solid var(--line,#DDE7E7);">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -242,7 +257,7 @@
                 const rThumb = r._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;
                 const rTitle = stripHtml(r.title?.rendered || '');
                 return `
-                  <a href="blog-post.html?id=${r.id}" class="blog-card" style="text-decoration:none;border-radius:12px;overflow:hidden;border:1px solid var(--line,#DDE7E7);background:white;display:flex;flex-direction:column;">
+                  <a href="/blog-${r.slug}" class="blog-card" style="text-decoration:none;border-radius:12px;overflow:hidden;border:1px solid var(--line,#DDE7E7);background:white;display:flex;flex-direction:column;">
                     <div style="width:100%;aspect-ratio:16/10;background:var(--line,#DDE7E7);overflow:hidden;">
                       ${rThumb ? `<img src="${rThumb}" alt="${rTitle}" style="width:100%;height:100%;object-fit:cover;" />` : `<div style="width:100%;height:100%;display:grid;place-items:center;color:var(--slate);">📝</div>`}
                     </div>
