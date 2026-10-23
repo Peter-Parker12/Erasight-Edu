@@ -443,19 +443,45 @@
       });
     }
 
-    // C. Xử lý Dropdown Click trên thiết bị cảm ứng (áp dụng cho mọi .nav-dropdown: Khoá học, Resource...)
+    // C. Xử lý Dropdown: Hover Intent an toàn + Click trên thiết bị cảm ứng
     const dropdowns = document.querySelectorAll('.site-nav .nav-dropdown');
     dropdowns.forEach((dropdown) => {
-      const trigger = dropdown.querySelector('.dropdown-trigger');
-      if (!trigger) return;
-      trigger.addEventListener('click', (e) => {
-        // Nếu ở màn hình desktop có hover, chỉ điều hướng bình thường khi nhấp đôi hoặc giữ hover
-        if (window.innerWidth > 960 && ('ontouchstart' in window)) {
-          e.preventDefault();
-          dropdowns.forEach((d) => { if (d !== dropdown) d.classList.remove('is-open'); });
-          dropdown.classList.toggle('is-open');
+      let closeTimer = null;
+
+      dropdown.addEventListener('mouseenter', () => {
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
         }
+        dropdowns.forEach((d) => { if (d !== dropdown) d.classList.remove('is-open'); });
+        dropdown.classList.add('is-open');
       });
+
+      dropdown.addEventListener('mouseleave', () => {
+        if (closeTimer) clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => {
+          dropdown.classList.remove('is-open');
+        }, 220);
+      });
+
+      const trigger = dropdown.querySelector('.dropdown-trigger');
+      if (trigger) {
+        trigger.addEventListener('click', (e) => {
+          if (window.innerWidth <= 960 || ('ontouchstart' in window)) {
+            e.preventDefault();
+            const isOpen = dropdown.classList.contains('is-open');
+            dropdowns.forEach((d) => d.classList.remove('is-open'));
+            if (!isOpen) dropdown.classList.add('is-open');
+          }
+        });
+      }
+    });
+
+    // Tự động đóng dropdown khi click chuột ra ngoài phạm vi menu
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.site-nav .nav-dropdown')) {
+        dropdowns.forEach((d) => d.classList.remove('is-open'));
+      }
     });
 
     // D. Tự động đánh dấu active theo trang hiện tại

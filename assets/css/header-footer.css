@@ -134,9 +134,12 @@
   fill: currentColor;
 }
 
-/* Dropdown Menu Khoá Học */
+/* Dropdown Menu Khoá Học & Resource */
 .nav-dropdown {
   position: relative;
+  /* Mở rộng nhẹ vùng hover của container */
+  padding-bottom: 6px;
+  margin-bottom: -6px;
 }
 
 .nav-dropdown:hover .nav-link-caret,
@@ -147,9 +150,9 @@
 
 .dropdown-panel {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 4px);
   left: 50%;
-  transform: translateX(-50%) translateY(10px);
+  transform: translateX(-50%) translateY(6px);
   background: #FFFFFF;
   min-width: 330px;
   border-radius: 14px;
@@ -159,8 +162,23 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Đóng êm với độ trễ 200ms: tránh bị tắt đột ngột khi di chuột chéo qua khoảng trống */
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+              visibility 0.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
   z-index: 1010;
+}
+
+/* Vùng đệm vô hình (Hover Bridge) lấp đầy khoảng hở giữa nút trigger và panel menu */
+.dropdown-panel::after {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: -20px;
+  right: -20px;
+  height: 20px;
+  background: transparent;
+  pointer-events: auto;
 }
 
 /* Tam giác chỉ dropdown */
@@ -175,6 +193,7 @@
   background: #FFFFFF;
   border-left: 1px solid var(--hf-line);
   border-top: 1px solid var(--hf-line);
+  z-index: 2;
 }
 
 .nav-dropdown:hover .dropdown-panel,
@@ -184,6 +203,8 @@
   visibility: visible;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
+  /* Mở tức thì khi rê chuột vào */
+  transition-delay: 0s;
 }
 
 .dropdown-item {
