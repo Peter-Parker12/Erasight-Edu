@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sản phẩm học viên — Đồ án thực chiến &amp; nhận xét | Erasight Academy</title>
+  <meta name="description" content="Xem đồ án tốt nghiệp thật của học viên Erasight Academy: hệ thống AI Marketing tự động, video motion graphic, CV chuẩn ATS — kèm nhận xét trực tiếp từ chính học viên." />
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
+  <link rel="stylesheet" href="assets/css/resources.css" />
+</head>
+<body>
+
+  <!-- HEADER DÙNG CHUNG (render bởi components.js) -->
+  <div id="site-header"></div>
+
+  <main id="top">
+    <!-- ======================================================================
+         HERO
+         ====================================================================== -->
+    <section class="res-hero">
+      <div class="wrap">
+        <nav class="res-breadcrumb" aria-label="Breadcrumb">
+          <a href="/Homepage">Trang chủ</a>
+          <span class="sep">/</span>
+          <span>Resource</span>
+          <span class="sep">/</span>
+          <span class="current">Sản phẩm học viên</span>
+        </nav>
+
+        <div class="res-motif" aria-hidden="true"><span></span><span></span><span></span></div>
+        <span class="eyebrow">Resource · Student Showcase</span>
+        <h1>Sản phẩm <span class="hl">thật</span> từ học viên — không phải bài mẫu.</h1>
+        <p class="lead">
+          Mỗi đồ án dưới đây do chính học viên tự xây dựng và bảo vệ ở cuối khoá. Bạn có thể xem demo,
+          đọc stack kỹ thuật và nghe học viên kể lại trải nghiệm sau khi học tại Erasight.
+        </p>
+
+        <div class="res-stats">
+          <div class="res-stat">
+            <div class="k">01 · Đồ án</div>
+            <div class="v" data-count="showcase">03</div>
+            <div class="d">Đồ án nổi bật đang được trưng bày</div>
+          </div>
+          <div class="res-stat">
+            <div class="k">02 · Khoá học</div>
+            <div class="v">02</div>
+            <div class="d">AI Marketing &amp; Tiếng Anh phỏng vấn</div>
+          </div>
+          <div class="res-stat">
+            <div class="k">03 · Đánh giá</div>
+            <div class="v">4.9<small>/5</small></div>
+            <div class="d">Điểm hài lòng trung bình của học viên</div>
+          </div>
+          <div class="res-stat">
+            <div class="k">04 · Review</div>
+            <div class="v">1:1</div>
+            <div class="d">Mentor chấm &amp; góp ý trực tiếp từng đồ án</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SHOWCASE ĐỒ ÁN
+         ====================================================================== -->
+    <section class="blk" id="do-an">
+      <div class="wrap">
+        <div class="res-toolbar-head">
+          <div class="sec-head">
+            <span class="eyebrow">Minh chứng đầu ra</span>
+            <h2>Đồ án tốt nghiệp của học viên</h2>
+            <p>Lọc theo khoá học để xem sản phẩm phù hợp với mục tiêu của bạn.</p>
+          </div>
+
+          <div class="res-filter" role="tablist" aria-label="Lọc đồ án theo khoá học">
+            <button type="button" class="res-filter-btn is-active" data-filter="all" id="filterAll" role="tab" aria-selected="true">
+              Tất cả <span class="count" data-filter-count="all">3</span>
+            </button>
+            <button type="button" class="res-filter-btn" data-filter="mkt" id="filterMkt" role="tab" aria-selected="false">
+              AI Marketing <span class="count" data-filter-count="mkt">2</span>
+            </button>
+            <button type="button" class="res-filter-btn" data-filter="eng" id="filterEng" role="tab" aria-selected="false">
+              Tiếng Anh <span class="count" data-filter-count="eng">1</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="assets-grid showcase-grid" id="showcaseGrid">
+          <!-- Card 1 — Phương Thanh -->
+          <article class="asset-card" data-course="mkt">
+            <div class="asset-thumb asset-thumb--video" data-video="a1" role="button" tabindex="0" aria-label="Phóng to video đồ án của Phương Thanh" title="Nhấn để phóng to xem chi tiết video">
+              <video id="previewVideo" poster="assets/images/A1_frame.jpg" autoplay muted loop playsinline preload="metadata" title="Demo Auto-Publishing - Học viên Phương Thanh">
+                <source src="assets/videos/A1_web.mp4" type="video/mp4" />
+                <source src="assets/videos/A1.mp4" type="video/mp4" />
+              </video>
+              <span class="asset-badge-live">Live Demo</span>
+              <span class="asset-tag-top">MKT_001</span>
+              <div class="asset-zoom-overlay">
+                <span class="asset-zoom-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                  <span>Phóng to xem chi tiết</span>
+                </span>
+              </div>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k">AI Marketing · Đồ án tốt nghiệp</span>
+              <h3>Auto-Publishing không bị chặn cache Facebook cho dân Marketing</h3>
+              <p>Tự động lấy dữ liệu từ CSV, chạy quy trình đăng bài lên Fanpage &amp; Instagram đúng khung giờ mỗi ngày mà không tốn token AI.</p>
+              <div class="asset-chips">
+                <span class="asset-chip">CSV</span><span class="asset-chip">Scheduler</span><span class="asset-chip">0 Token</span>
+              </div>
+              <!-- TODO: thay bằng nhận xét thật của học viên -->
+              <blockquote class="asset-quote">
+                “Trước đây mình mất cả buổi sáng để lên bài. Giờ chỉ cần cập nhật file CSV là hệ thống tự chạy đúng giờ.”
+              </blockquote>
+              <div class="asset-foot asset-foot-row">
+                <span class="asset-author">
+                  <span class="avatar is-orange" aria-hidden="true">PT</span>
+                  <span><span class="name">Phương Thanh</span><span class="role">Khoá MKT_001</span></span>
+                </span>
+                <button type="button" class="btn-text-zoom" data-video="a1" aria-label="Phóng to video đồ án">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  Xem video
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2 — Lương Thị Thủy Tiên -->
+          <article class="asset-card" data-course="mkt">
+            <div class="asset-thumb asset-thumb--video" data-video="q1" role="button" tabindex="0" aria-label="Phóng to video đồ án của Lương Thị Thủy Tiên" title="Nhấn để phóng to xem chi tiết video">
+              <video id="previewVideoQ1" poster="assets/images/Q1_poster.jpg" autoplay muted loop playsinline preload="metadata" title="Video Motion Graphic qua Remotion Skills - Học viên Lương Thị Thủy Tiên">
+                <source src="assets/videos/Q1_web.mp4" type="video/mp4" />
+                <source src="assets/videos/Q1.mp4" type="video/mp4" />
+              </video>
+              <span class="asset-badge-live">Live Demo</span>
+              <span class="asset-tag-top">MKT_001</span>
+              <div class="asset-zoom-overlay">
+                <span class="asset-zoom-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                  <span>Phóng to xem chi tiết</span>
+                </span>
+              </div>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k">AI Marketing · Đồ án tốt nghiệp</span>
+              <h3>Video Motion Graphic dài không tốn token qua Remotion Skills</h3>
+              <p>Xây dựng nhận diện Branding Gemini Spark, kịch bản rõ ràng và quảng cáo công năng sản phẩm, kết hợp AI Agent để tối ưu branding.</p>
+              <div class="asset-chips">
+                <span class="asset-chip">Remotion</span><span class="asset-chip">Gemini Agent</span><span class="asset-chip">Branding</span>
+              </div>
+              <!-- TODO: thay bằng nhận xét thật của học viên -->
+              <blockquote class="asset-quote">
+                “Mình không biết code nhưng vẫn tự dựng được video motion hoàn chỉnh. Phần mentor review kịch bản giúp mình nhiều nhất.”
+              </blockquote>
+              <div class="asset-foot asset-foot-row">
+                <span class="asset-author">
+                  <span class="avatar" aria-hidden="true">TT</span>
+                  <span><span class="name">Lương Thị Thủy Tiên</span><span class="role">Khoá MKT_001</span></span>
+                </span>
+                <button type="button" class="btn-text-zoom" data-video="q1" aria-label="Phóng to video đồ án">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                  Xem video
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3 — Phạm Đức Anh -->
+          <article class="asset-card" data-course="eng">
+            <div class="asset-thumb">
+              <img src="assets/images/project_ats_resume.png" alt="CV ATS &amp; Mock Interview" loading="lazy" />
+              <span class="asset-badge-live">Kết quả thật</span>
+              <span class="asset-tag-top">ENG_002</span>
+            </div>
+            <div class="asset-body">
+              <span class="asset-k" style="color:var(--blue);">English Track · Kết quả học viên</span>
+              <h3>Hồ sơ tuyển dụng ATS &amp; Mock Interview STAR</h3>
+              <p>CV tiếng Anh chuẩn ATS vượt vòng lọc hồ sơ tự động của MNC, cùng bộ câu trả lời phỏng vấn theo khung STAR có số liệu định lượng.</p>
+              <div class="asset-chips">
+                <span class="asset-chip is-blue">ATS CV</span><span class="asset-chip is-blue">STAR</span><span class="asset-chip is-blue">Mock Interview</span>
+              </div>
+              <!-- TODO: thay bằng nhận xét thật của học viên -->
+              <blockquote class="asset-quote is-blue">
+                “Buổi mock interview giống thật đến mức khi vào phỏng vấn MNC mình không còn run nữa.”
+              </blockquote>
+              <div class="asset-foot asset-foot-row">
+                <span class="asset-author">
+                  <span class="avatar is-blue" aria-hidden="true">ĐA</span>
+                  <span><span class="name">Phạm Đức Anh</span><span class="role">Khoá ENG_002</span></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card giữ chỗ — đồ án khoá tiếp theo -->
+          <article class="asset-card asset-card--soon" data-course="all">
+            <div class="soon-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </div>
+            <h3>Đồ án tiếp theo có thể là của bạn</h3>
+            <p>Đồ án của các khoá mới sẽ được cập nhật liên tục tại đây sau mỗi buổi bảo vệ cuối khoá.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         NHẬN XÉT HỌC VIÊN
+         TODO: Toàn bộ nội dung nhận xét dưới đây là NỘI DUNG MẪU — thay bằng
+         phản hồi thật (kèm sự đồng ý của học viên) trước khi public.
+         ====================================================================== -->
+    <section class="blk" id="nhan-xet" style="background:var(--cloud);">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="eyebrow pur">Học viên nói gì</span>
+          <h2>Nhận xét thật sau khi hoàn thành khoá học</h2>
+          <p>Những chia sẻ trực tiếp từ học viên về trải nghiệm học, cách mentor đồng hành và kết quả họ mang về.</p>
+        </div>
+
+        <div class="tm-layout">
+          <article class="tm-feature">
+            <div>
+              <span class="eyebrow on-dark">Câu chuyện nổi bật</span>
+              <blockquote>
+                “Điều mình quý nhất là học xong <span class="hl">có ngay một sản phẩm chạy được</span> để đưa vào portfolio.
+                Mentor không chỉ chấm điểm mà ngồi cùng mình gỡ từng lỗi trong workflow.”
+              </blockquote>
+            </div>
+            <div class="tm-author">
+              <span class="avatar lg is-orange" aria-hidden="true">PT</span>
+              <span><span class="name">Phương Thanh</span><span class="role">Content Executive · Khoá MKT_001</span></span>
+            </div>
+          </article>
+
+          <div class="tm-list">
+            <article class="tm-card">
+              <div class="tm-card-top">
+                <span class="tm-stars" aria-label="5 trên 5 sao">★★★★★</span>
+                <span class="tm-course">MKT_001</span>
+              </div>
+              <p>“Lộ trình đi từ nền tảng đến thực chiến rất rõ ràng. Mỗi buổi đều có bài tập áp dụng ngay vào công việc ở công ty.”</p>
+              <div class="tm-author">
+                <span class="avatar" aria-hidden="true">TT</span>
+                <span><span class="name">Lương Thị Thủy Tiên</span><span class="role">Marketing Intern</span></span>
+              </div>
+            </article>
+
+            <article class="tm-card">
+              <div class="tm-card-top">
+                <span class="tm-stars" aria-label="5 trên 5 sao">★★★★★</span>
+                <span class="tm-course is-blue">ENG_002</span>
+              </div>
+              <p>“Cô sửa CV cho mình đến bản thứ 5 mới cho qua. Kết quả là mình nhận được 3 lời mời phỏng vấn chỉ trong 2 tuần.”</p>
+              <div class="tm-author">
+                <span class="avatar is-blue" aria-hidden="true">ĐA</span>
+                <span><span class="name">Phạm Đức Anh</span><span class="role">Business Analyst</span></span>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tm-grid-3">
+          <article class="tm-card">
+            <div class="tm-card-top">
+              <span class="tm-stars" aria-label="5 trên 5 sao">★★★★★</span>
+              <span class="tm-course">MKT_001</span>
+            </div>
+            <p>“Lớp nhỏ nên được hỏi thoải mái. Mình tự động hoá được báo cáo tuần, tiết kiệm gần 4 tiếng mỗi tuần.”</p>
+            <div class="tm-author">
+              <span class="avatar" aria-hidden="true">MA</span>
+              <span><span class="name">Minh Anh</span><span class="role">Performance Marketer</span></span>
+            </div>
+          </article>
+          <article class="tm-card">
+            <div class="tm-card-top">
+              <span class="tm-stars" aria-label="5 trên 5 sao">★★★★★</span>
+              <span class="tm-course is-blue">ENG_002</span>
+            </div>
+            <p>“Khung STAR giúp mình trả lời có cấu trúc hơn hẳn. Buổi deal lương bằng tiếng Anh là phần mình thấy đáng tiền nhất.”</p>
+            <div class="tm-author">
+              <span class="avatar is-blue" aria-hidden="true">QB</span>
+              <span><span class="name">Quốc Bảo</span><span class="role">Software Engineer</span></span>
+            </div>
+          </article>
+          <article class="tm-card">
+            <div class="tm-card-top">
+              <span class="tm-stars" aria-label="4.5 trên 5 sao">★★★★☆</span>
+              <span class="tm-course">MKT_001</span>
+            </div>
+            <p>“Nội dung dày và thực tế. Mong có thêm buổi bonus về quảng cáo, nhưng nhìn chung vượt kỳ vọng của mình.”</p>
+            <div class="tm-author">
+              <span class="avatar is-orange" aria-hidden="true">HY</span>
+              <span><span class="name">Hoàng Yến</span><span class="role">Chủ shop online</span></span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         CTA
+         ====================================================================== -->
+    <section class="blk" style="border-bottom:none;">
+      <div class="wrap">
+        <div class="res-cta">
+          <div>
+            <span class="eyebrow on-dark">Bắt đầu đồ án của bạn</span>
+            <h2>Sẵn sàng tạo ra sản phẩm thật đầu tiên?</h2>
+            <p>Ghi danh để được mentor định hướng đề tài đồ án phù hợp với công việc hiện tại của bạn ngay từ buổi đầu.</p>
+          </div>
+          <div class="res-cta-actions">
+            <a href="/Homepage#pricing" class="btn btn-primary">Ghi danh ngay →</a>
+            <a href="/tai-lieu-ai" class="btn btn-ghost">Xem Tài liệu AI</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER DÙNG CHUNG -->
+  <div id="site-footer"></div>
+
+  <!-- ======================================================================
+       MODAL PHÓNG TO VIDEO ĐỒ ÁN
+       ====================================================================== -->
+  <div id="videoDetailModal" class="video-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle" style="display:none;">
+    <div class="video-modal-container">
+      <div class="video-modal-header">
+        <div class="video-modal-info">
+          <div class="video-modal-badge">
+            <span class="video-modal-dot"></span>
+            <span>SHOWCASE ĐỒ ÁN THỰC CHIẾN</span>
+          </div>
+          <h3 id="videoModalTitle" class="video-modal-title"></h3>
+          <p id="videoModalMeta" class="video-modal-meta"></p>
+        </div>
+        <button type="button" class="video-modal-close" id="closeVideoModalBtn" aria-label="Đóng video (Esc)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="video-modal-player-wrap">
+        <video id="modalFullVideo" controls playsinline preload="none"></video>
+      </div>
+      <div class="video-modal-footer">
+        <div id="videoModalPills" class="video-modal-tech-stack"></div>
+        <a href="/Homepage#pricing" class="btn btn-primary btn-sm">Ghi danh khoá học AI Marketing →</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/san-pham-hoc-vien.js"></script>
+</body>
+</html>

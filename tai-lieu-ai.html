@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Tài liệu AI — Prompt, Template &amp; Cẩm nang AI | Erasight Academy</title>
+  <meta name="description" content="Thư viện tài liệu AI của Erasight Academy: prompt library, workflow template, ebook, slide bài giảng và checklist AI thực chiến — tìm kiếm, lọc và tải về miễn phí." />
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
+  <link rel="stylesheet" href="assets/css/resources.css" />
+</head>
+<body>
+
+  <!-- HEADER DÙNG CHUNG (render bởi components.js) -->
+  <div id="site-header"></div>
+
+  <main id="top">
+    <!-- ======================================================================
+         HERO + TÌM KIẾM
+         ====================================================================== -->
+    <section class="res-hero">
+      <div class="wrap">
+        <nav class="res-breadcrumb" aria-label="Breadcrumb">
+          <a href="/Homepage">Trang chủ</a>
+          <span class="sep">/</span>
+          <span>Resource</span>
+          <span class="sep">/</span>
+          <span class="current">Tài liệu AI</span>
+        </nav>
+
+        <div class="res-motif" aria-hidden="true"><span></span><span></span><span></span></div>
+        <span class="eyebrow pur">Resource · AI Library</span>
+        <h1>Thư viện <span class="hl">Tài liệu AI</span> cho người đi làm.</h1>
+        <p class="lead">
+          Prompt, workflow template, cẩm nang và slide bài giảng được đội ngũ Erasight chọn lọc &amp; kiểm chứng
+          qua thực chiến. Tìm nhanh, xem trước và tải về để áp dụng ngay.
+        </p>
+
+        <form class="lib-search" id="libSearchForm" role="search" onsubmit="return false;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" id="libSearchInput" placeholder="Tìm tài liệu: prompt content, n8n, ChatGPT, CV..." aria-label="Tìm kiếm tài liệu AI" autocomplete="off" />
+          <kbd>/</kbd>
+          <button type="submit" class="btn btn-primary" id="libSearchBtn">Tìm kiếm</button>
+        </form>
+
+        <div class="lib-popular" id="libPopular">
+          <span>Phổ biến:</span>
+          <button type="button" class="lib-tag" data-q="Prompt">Prompt</button>
+          <button type="button" class="lib-tag" data-q="n8n">n8n</button>
+          <button type="button" class="lib-tag" data-q="ChatGPT">ChatGPT</button>
+          <button type="button" class="lib-tag" data-q="Gemini">Gemini</button>
+          <button type="button" class="lib-tag" data-q="CV">CV &amp; Phỏng vấn</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         THƯ VIỆN: SIDEBAR + DANH SÁCH
+         ====================================================================== -->
+    <section class="blk" id="thu-vien" style="background:#fff;">
+      <div class="wrap">
+        <div class="lib-layout">
+          <!-- SIDEBAR BỘ LỌC -->
+          <aside class="lib-sidebar" aria-label="Bộ lọc tài liệu">
+            <div class="lib-panel">
+              <h4>Danh mục</h4>
+              <div class="lib-cats" id="libCats">
+                <!-- Render bởi tai-lieu-ai.js -->
+              </div>
+            </div>
+
+            <div class="lib-panel">
+              <h4>Định dạng</h4>
+              <div class="lib-types" id="libTypes">
+                <!-- Render bởi tai-lieu-ai.js -->
+              </div>
+            </div>
+
+            <div class="lib-panel">
+              <h4>Quyền truy cập</h4>
+              <div class="lib-access">
+                <label><input type="radio" name="libAccess" value="all" checked /> Tất cả</label>
+                <label><input type="radio" name="libAccess" value="free" /> Miễn phí</label>
+                <label><input type="radio" name="libAccess" value="member" /> Dành cho học viên</label>
+              </div>
+            </div>
+          </aside>
+
+          <!-- NỘI DUNG CHÍNH -->
+          <div class="lib-main">
+            <!-- Tài liệu nổi bật (ghim) -->
+            <div id="libFeatured"></div>
+
+            <div class="lib-toolbar">
+              <div class="lib-result" id="libResult" aria-live="polite">Đang tải tài liệu...</div>
+              <div class="lib-toolbar-right">
+                <label class="sr-only" for="libSort" style="position:absolute;left:-9999px;">Sắp xếp</label>
+                <select class="lib-select" id="libSort" aria-label="Sắp xếp tài liệu">
+                  <option value="newest">Mới nhất</option>
+                  <option value="popular">Tải nhiều nhất</option>
+                  <option value="az">Tên A → Z</option>
+                </select>
+                <div class="lib-view" role="group" aria-label="Kiểu hiển thị">
+                  <button type="button" class="is-active" data-view="grid" id="viewGridBtn" aria-label="Dạng lưới" title="Dạng lưới">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+                  </button>
+                  <button type="button" data-view="list" id="viewListBtn" aria-label="Dạng danh sách" title="Dạng danh sách">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1"></circle><circle cx="3.5" cy="12" r="1"></circle><circle cx="3.5" cy="18" r="1"></circle></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="lib-grid" id="libGrid" aria-live="polite">
+              <!-- Skeleton trong lúc tải -->
+              <div class="doc-skeleton"><div class="sk" style="height:150px;border-radius:0;"></div><div style="padding:18px;"><div class="sk" style="height:10px;width:40%;margin-bottom:12px;"></div><div class="sk" style="height:16px;width:90%;margin-bottom:8px;"></div><div class="sk" style="height:12px;width:70%;"></div></div></div>
+              <div class="doc-skeleton"><div class="sk" style="height:150px;border-radius:0;"></div><div style="padding:18px;"><div class="sk" style="height:10px;width:40%;margin-bottom:12px;"></div><div class="sk" style="height:16px;width:90%;margin-bottom:8px;"></div><div class="sk" style="height:12px;width:70%;"></div></div></div>
+              <div class="doc-skeleton"><div class="sk" style="height:150px;border-radius:0;"></div><div style="padding:18px;"><div class="sk" style="height:10px;width:40%;margin-bottom:12px;"></div><div class="sk" style="height:16px;width:90%;margin-bottom:8px;"></div><div class="sk" style="height:12px;width:70%;"></div></div></div>
+            </div>
+
+            <div class="lib-more">
+              <button type="button" class="btn btn-ghost" id="libMoreBtn" hidden>Xem thêm tài liệu</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         CTA
+         ====================================================================== -->
+    <section class="blk" style="border-bottom:none; padding-top:0;">
+      <div class="wrap">
+        <div class="res-cta">
+          <div>
+            <span class="eyebrow on-dark">Muốn đi sâu hơn?</span>
+            <h2>Tài liệu là điểm bắt đầu — thực chiến mới tạo ra kết quả.</h2>
+            <p>Học viên Erasight được truy cập toàn bộ tài liệu nâng cao, kèm mentor review trực tiếp khi áp dụng vào dự án thật.</p>
+          </div>
+          <div class="res-cta-actions">
+            <a href="/Homepage" class="btn btn-primary">Xem khoá học →</a>
+            <a href="/san-pham-hoc-vien" class="btn btn-ghost">Sản phẩm học viên</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER DÙNG CHUNG -->
+  <div id="site-footer"></div>
+
+  <!-- MODAL XEM TRƯỚC TÀI LIỆU -->
+  <div class="doc-modal" id="docModal" role="dialog" aria-modal="true" aria-labelledby="docModalTitle">
+    <div class="doc-modal-box">
+      <button type="button" class="doc-modal-close" id="docModalClose" aria-label="Đóng">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div id="docModalCover"></div>
+      <div class="doc-modal-body" id="docModalBody"></div>
+    </div>
+  </div>
+
+  <div class="res-toast" id="resToast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/tai-lieu-ai.js"></script>
+</body>
+</html>

@@ -66,10 +66,35 @@
           </div>
         </div>
 
-        <a href="giang-vien.html" class="nav-link" data-nav="giang-vien">Giảng viên</a>
-        <a href="#san-pham" class="nav-link">Sản phẩm học viên</a>
+        <a href="/giang-vien" class="nav-link" data-nav="giang-vien">Giảng viên</a>
+
+        <!-- Dropdown Resource -->
+        <div class="nav-dropdown" id="navResourceDropdown">
+          <a href="/san-pham-hoc-vien" class="nav-link dropdown-trigger" data-nav="resource" aria-haspopup="true" aria-expanded="false">
+            <span>Resource</span>
+            <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </a>
+          <div class="dropdown-panel" role="menu">
+            <a href="/san-pham-hoc-vien" class="dropdown-item" role="menuitem" data-nav="san-pham-hoc-vien">
+              <span class="dropdown-badge badge-teal">SHOWCASE</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Sản phẩm học viên</span>
+                <span class="dropdown-desc">Đồ án thực chiến &amp; nhận xét từ chính học viên Erasight</span>
+              </div>
+            </a>
+            <a href="/tai-lieu-ai" class="dropdown-item" role="menuitem" data-nav="tai-lieu-ai">
+              <span class="dropdown-badge badge-orange">LIBRARY</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Tài liệu AI</span>
+                <span class="dropdown-desc">Prompt, template, cẩm nang &amp; slide AI chọn lọc để tải về</span>
+              </div>
+            </a>
+          </div>
+        </div>
         <a href="#faq" class="nav-link">Hỏi đáp</a>
-        <a href="blog.html" class="nav-link" data-nav="blog">Blog</a>
+        <a href="/blog" class="nav-link" data-nav="blog">Blog</a>
       </nav>
 
       <!-- Right Actions -->
@@ -100,10 +125,19 @@
             <a href="#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
           </div>
         </div>
-        <a href="giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
-        <a href="#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
+        <a href="/giang-vien" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
+        <div>
+          <a href="/san-pham-hoc-vien" class="mobile-nav-item" data-nav="resource">
+            <span>Resource</span>
+            <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 mục</span>
+          </a>
+          <div class="mobile-nav-sublist">
+            <a href="/san-pham-hoc-vien" class="mobile-nav-sublink">✦ Sản phẩm học viên</a>
+            <a href="/tai-lieu-ai" class="mobile-nav-sublink">✦ Tài liệu AI</a>
+          </div>
+        </div>
         <a href="#faq" class="mobile-nav-item">Hỏi đáp</a>
-        <a href="blog.html" class="mobile-nav-item" data-nav="blog">Blog</a>
+        <a href="/blog" class="mobile-nav-item" data-nav="blog">Blog</a>
       </div>
 
       <div class="mobile-actions">
@@ -913,6 +947,10 @@
             </div>
           </div>
         </div>
+
+        <div style="display:flex; justify-content:center; margin-top:36px;">
+          <a href="/san-pham-hoc-vien" class="btn btn-ghost">Xem tất cả sản phẩm &amp; nhận xét học viên →</a>
+        </div>
       </div>
     </section>
 
@@ -934,7 +972,7 @@
               <h3>Hồ Hoàng Tiến</h3>
               <div class="faculty-role">Chủ nhiệm khoá AI Marketing · Automation Architect</div>
               <p style="margin-bottom:12px;">3 năm kinh nghiệm thiết kế hệ thống tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Đã giảng dạy hơn 500 sinh viên và trực tiếp thiết kế hệ sinh thái tự động hoá cho hơn 25+ dự án số tại các SMEs.</p>
-              <a href="giang-vien.html#ai-marketing" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--td); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+              <a href="/giang-vien#ai-marketing" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--td); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
                 <span>Xem chi tiết hồ sơ &amp; cam kết</span>
                 <span>→</span>
               </a>
@@ -947,7 +985,7 @@
               <h3>Nguyễn Mai Trâm</h3>
               <div class="faculty-role blue">Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner</div>
               <p style="margin-bottom:12px;">8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.</p>
-              <a href="giang-vien.html#career-english" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+              <a href="/giang-vien#career-english" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
                 <span>Xem chi tiết hồ sơ &amp; cam kết</span>
                 <span>→</span>
               </a>
@@ -956,7 +994,7 @@
         </div>
 
         <div style="text-align:center; margin-top:36px;">
-          <a href="giang-vien.html" class="btn btn-ghost" style="padding:12px 28px; font-size:15px;">
+          <a href="/giang-vien" class="btn btn-ghost" style="padding:12px 28px; font-size:15px;">
             Xem toàn bộ hồ sơ chuyên gia &amp; triết lý giảng dạy →
           </a>
         </div>
@@ -1245,7 +1283,8 @@
               <li><a href="#khoa-hoc">Khoá học AI Marketing</a></li>
               <li><a href="#khoa-hoc">Khoá Tiếng Anh phỏng vấn</a></li>
               <li><a href="#lo-trinh">Hướng dẫn thực hành</a></li>
-              <li><a href="#san-pham">Sản phẩm học viên</a></li>
+              <li><a href="/san-pham-hoc-vien">Sản phẩm học viên</a></li>
+              <li><a href="/tai-lieu-ai">Tài liệu AI</a></li>
             </ul>
           </div>
 
@@ -1278,7 +1317,7 @@
             <h4>Erasight Academy</h4>
             <ul>
               <li><a href="#top">Về chúng tôi</a></li>
-              <li><a href="giang-vien.html">Đội ngũ giảng viên</a></li>
+              <li><a href="/giang-vien">Đội ngũ giảng viên</a></li>
               <li><a href="#pricing">Liên hệ ghi danh</a></li>
             </ul>
           </div>

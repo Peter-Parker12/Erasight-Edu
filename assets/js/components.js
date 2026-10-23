@@ -6,19 +6,32 @@
 (function () {
   'use strict';
 
-  // Xác định đường dẫn gốc để xử lý đúng tài nguyên ảnh/css khi trang nằm trong thư mục con
+  const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
+  // Xác định đường dẫn gốc để xử lý đúng tài nguyên ảnh/css
   const rootPath = (function () {
     const metaRoot = document.querySelector('meta[name="base-path"]');
     if (metaRoot) return metaRoot.getAttribute('content');
-    return '';
+    if (isFileProtocol) return '';
+    return '/';
   })();
+
+  // Helper sinh URL: trên server dùng clean slug (/Homepage, /giang-vien), khi mở offline file:/// dùng file .html
+  function pageUrl(path, hash = '') {
+    if (isFileProtocol) {
+      if (path === 'Homepage' || path === '/Homepage') return 'index.html' + hash;
+      const clean = path.replace(/^\//, '');
+      return clean + '.html' + hash;
+    }
+    const clean = path.replace(/^\//, '');
+    return `${rootPath}${clean}${hash}`;
+  }
 
   // 1. TEMPLATE HEADER CHUẨN
   const HEADER_TEMPLATE = `
     <header class="site-header" id="siteHeader">
       <div class="site-header-inner">
         <!-- Brand / Logo -->
-        <a href="${rootPath}index.html#top" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
+        <a href="${pageUrl('Homepage')}" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
           <img src="${rootPath}assets/logos/erasight-logo-slogan-mau-1600w.png" alt="Erasight Academy — Skills for what's next." />
         </a>
 
@@ -26,7 +39,7 @@
         <nav class="site-nav" aria-label="Điều hướng chính">
           <!-- Dropdown Khoá học -->
           <div class="nav-dropdown" id="navCoursesDropdown">
-            <a href="${rootPath}index.html#khoa-hoc" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+            <a href="${pageUrl('Homepage')}" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
               <span>Khoá học</span>
               <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
                 <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -35,7 +48,7 @@
 
             <!-- Dropdown Content Panel -->
             <div class="dropdown-panel" role="menu">
-              <a href="${rootPath}index.html#khoa-mkt" class="dropdown-item" role="menuitem">
+              <a href="${pageUrl('Homepage', '#khoa-mkt')}" class="dropdown-item" role="menuitem">
                 <span class="dropdown-badge badge-orange">MKT_001</span>
                 <div class="dropdown-info">
                   <span class="dropdown-title">AI Marketing thực chiến</span>
@@ -43,7 +56,7 @@
                 </div>
               </a>
 
-              <a href="${rootPath}index.html#khoa-eng" class="dropdown-item" role="menuitem">
+              <a href="${pageUrl('Homepage', '#khoa-eng')}" class="dropdown-item" role="menuitem">
                 <span class="dropdown-badge badge-blue">ENG_002</span>
                 <div class="dropdown-info">
                   <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
@@ -52,7 +65,7 @@
               </a>
 
               <div class="dropdown-footer">
-                <a href="${rootPath}index.html#khoa-hoc" class="dropdown-footer-link">
+                <a href="${pageUrl('Homepage')}" class="dropdown-footer-link">
                   <span>Xem chi tiết lộ trình 2 khoá học</span>
                   <span>&rarr;</span>
                 </a>
@@ -60,16 +73,42 @@
             </div>
           </div>
 
-          <a href="${rootPath}giang-vien.html" class="nav-link" data-nav="giang-vien">Giảng viên</a>
-          <a href="${rootPath}index.html#san-pham" class="nav-link">Sản phẩm học viên</a>
-          <a href="${rootPath}index.html#faq" class="nav-link">Hỏi đáp</a>
-          <a href="${rootPath}blog.html" class="nav-link" data-nav="blog">Blog</a>
+          <a href="${pageUrl('giang-vien')}" class="nav-link" data-nav="giang-vien">Giảng viên</a>
+
+          <!-- Dropdown Resource -->
+          <div class="nav-dropdown" id="navResourceDropdown">
+            <a href="${pageUrl('san-pham-hoc-vien')}" class="nav-link dropdown-trigger" data-nav="resource" aria-haspopup="true" aria-expanded="false">
+              <span>Resource</span>
+              <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </a>
+            <div class="dropdown-panel" role="menu">
+              <a href="${pageUrl('san-pham-hoc-vien')}" class="dropdown-item" role="menuitem" data-nav="san-pham-hoc-vien">
+                <span class="dropdown-badge badge-teal">SHOWCASE</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Sản phẩm học viên</span>
+                  <span class="dropdown-desc">Đồ án thực chiến &amp; nhận xét từ chính học viên Erasight</span>
+                </div>
+              </a>
+              <a href="${pageUrl('tai-lieu-ai')}" class="dropdown-item" role="menuitem" data-nav="tai-lieu-ai">
+                <span class="dropdown-badge badge-orange">LIBRARY</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Tài liệu AI</span>
+                  <span class="dropdown-desc">Prompt, template, cẩm nang &amp; slide AI chọn lọc để tải về</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <a href="${pageUrl('Homepage', '#faq')}" class="nav-link">Hỏi đáp</a>
+          <a href="${pageUrl('blog')}" class="nav-link" data-nav="blog">Blog</a>
         </nav>
 
         <!-- Right Actions -->
         <div class="site-actions">
           <a href="#dang-nhap" class="btn-login" id="loginBtnTrigger">Đăng nhập</a>
-          <a href="${rootPath}index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+          <a href="${pageUrl('Homepage', '#pricing')}" class="btn-enroll">Ghi danh ngay</a>
         </div>
 
         <!-- Mobile Menu Burger Button -->
@@ -85,24 +124,33 @@
       <div class="mobile-drawer" id="mobileDrawer">
         <div class="mobile-nav-list">
           <div>
-            <a href="${rootPath}index.html#khoa-hoc" class="mobile-nav-item">
+            <a href="${pageUrl('Homepage')}" class="mobile-nav-item">
               <span>Khoá học</span>
               <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 khoá</span>
             </a>
             <div class="mobile-nav-sublist">
-              <a href="${rootPath}index.html#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
-              <a href="${rootPath}index.html#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+              <a href="${pageUrl('Homepage', '#khoa-mkt')}" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+              <a href="${pageUrl('Homepage', '#khoa-eng')}" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
             </div>
           </div>
-          <a href="${rootPath}giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
-          <a href="${rootPath}index.html#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
-          <a href="${rootPath}index.html#faq" class="mobile-nav-item">Hỏi đáp</a>
-          <a href="${rootPath}blog.html" class="mobile-nav-item" data-nav="blog">Blog</a>
+          <a href="${pageUrl('giang-vien')}" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
+          <div>
+            <a href="${pageUrl('san-pham-hoc-vien')}" class="mobile-nav-item" data-nav="resource">
+              <span>Resource</span>
+              <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 mục</span>
+            </a>
+            <div class="mobile-nav-sublist">
+              <a href="${pageUrl('san-pham-hoc-vien')}" class="mobile-nav-sublink" data-nav="san-pham-hoc-vien">✦ Sản phẩm học viên</a>
+              <a href="${pageUrl('tai-lieu-ai')}" class="mobile-nav-sublink" data-nav="tai-lieu-ai">✦ Tài liệu AI</a>
+            </div>
+          </div>
+          <a href="${pageUrl('Homepage', '#faq')}" class="mobile-nav-item">Hỏi đáp</a>
+          <a href="${pageUrl('blog')}" class="mobile-nav-item" data-nav="blog">Blog</a>
         </div>
 
         <div class="mobile-actions">
           <a href="#dang-nhap" class="btn-login mobile-login-btn">Đăng nhập</a>
-          <a href="${rootPath}index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+          <a href="${pageUrl('Homepage', '#pricing')}" class="btn-enroll">Ghi danh ngay</a>
         </div>
       </div>
     </header>
@@ -133,7 +181,7 @@
         <div class="footer-notch-bar">
           <!-- Brand Logo on Left (Black Wing) -->
           <div class="footer-notch-brand">
-            <a href="${rootPath}index.html#top" aria-label="Erasight Academy Homepage">
+            <a href="${pageUrl('Homepage')}" aria-label="Erasight Academy Homepage">
               <img src="${rootPath}assets/logos/erasight-logo-ngang-mono-trang-1600w.png" alt="Erasight Academy" width="138" height="28" />
             </a>
           </div>
@@ -208,11 +256,12 @@
             <div class="footer-col">
               <h4>Nội dung</h4>
               <ul>
-                <li><a href="${rootPath}index.html#khoa-hoc">Bài viết &amp; Cẩm nang AI</a></li>
-                <li><a href="${rootPath}index.html#khoa-hoc">Khoá học AI Marketing</a></li>
-                <li><a href="${rootPath}index.html#khoa-hoc">Khoá Tiếng Anh phỏng vấn</a></li>
-                <li><a href="${rootPath}index.html#lo-trinh">Hướng dẫn thực hành</a></li>
-                <li><a href="${rootPath}index.html#san-pham">Sản phẩm học viên</a></li>
+                <li><a href="${pageUrl('Homepage')}">Bài viết &amp; Cẩm nang AI</a></li>
+                <li><a href="${pageUrl('Homepage')}">Khoá học AI Marketing</a></li>
+                <li><a href="${pageUrl('Homepage')}">Khoá Tiếng Anh phỏng vấn</a></li>
+                <li><a href="${pageUrl('Homepage', '#lo-trinh')}">Hướng dẫn thực hành</a></li>
+                <li><a href="${pageUrl('san-pham-hoc-vien')}">Sản phẩm học viên</a></li>
+                <li><a href="${pageUrl('tai-lieu-ai')}">Tài liệu AI</a></li>
               </ul>
             </div>
 
@@ -220,9 +269,9 @@
             <div class="footer-col">
               <h4>Học tập</h4>
               <ul>
-                <li><a href="${rootPath}index.html#khoa-hoc">Khoá học đang mở</a></li>
-                <li><a href="${rootPath}index.html#lo-trinh">Bộ công cụ No-code &amp; AI</a></li>
-                <li><a href="${rootPath}index.html#pricing">Đào tạo doanh nghiệp</a></li>
+                <li><a href="${pageUrl('Homepage')}">Khoá học đang mở</a></li>
+                <li><a href="${pageUrl('Homepage', '#lo-trinh')}">Bộ công cụ No-code &amp; AI</a></li>
+                <li><a href="${pageUrl('Homepage', '#pricing')}">Đào tạo doanh nghiệp</a></li>
                 <li><a href="#dang-nhap" class="login-trigger-link">Đăng nhập khoá học</a></li>
               </ul>
             </div>
@@ -231,12 +280,12 @@
             <div class="footer-col">
               <h4>Điều khoản và Chính sách</h4>
               <ul>
-                <li><a href="${rootPath}index.html#faq">Điều khoản sử dụng và Điều kiện chung</a></li>
-                <li><a href="${rootPath}index.html#pricing">Chính sách thanh toán</a></li>
-                <li><a href="${rootPath}index.html#faq">Chính sách học lại "Yêu lại từ đầu"</a></li>
-                <li><a href="${rootPath}index.html#faq">Chính sách bảo chứng hoàn tiền</a></li>
-                <li><a href="${rootPath}index.html#faq">Chính sách quyền riêng tư</a></li>
-                <li><a href="${rootPath}index.html#pricing">Quy định xuất VAT</a></li>
+                <li><a href="${pageUrl('Homepage', '#faq')}">Điều khoản sử dụng và Điều kiện chung</a></li>
+                <li><a href="${pageUrl('Homepage', '#pricing')}">Chính sách thanh toán</a></li>
+                <li><a href="${pageUrl('Homepage', '#faq')}">Chính sách học lại "Yêu lại từ đầu"</a></li>
+                <li><a href="${pageUrl('Homepage', '#faq')}">Chính sách bảo chứng hoàn tiền</a></li>
+                <li><a href="${pageUrl('Homepage', '#faq')}">Chính sách quyền riêng tư</a></li>
+                <li><a href="${pageUrl('Homepage', '#pricing')}">Quy định xuất VAT</a></li>
               </ul>
             </div>
 
@@ -244,9 +293,9 @@
             <div class="footer-col">
               <h4>Erasight Academy</h4>
               <ul>
-                <li><a href="${rootPath}index.html#top">Về chúng tôi</a></li>
-                <li><a href="${rootPath}giang-vien.html">Đội ngũ giảng viên</a></li>
-                <li><a href="${rootPath}index.html#pricing">Liên hệ ghi danh</a></li>
+                <li><a href="${pageUrl('Homepage')}">Về chúng tôi</a></li>
+                <li><a href="${pageUrl('giang-vien')}">Đội ngũ giảng viên</a></li>
+                <li><a href="${pageUrl('Homepage', '#pricing')}">Liên hệ ghi danh</a></li>
               </ul>
             </div>
           </div>
@@ -294,7 +343,7 @@
           <button type="submit" class="btn-enroll" style="width:100%; padding:12px; font-size:15px; border-radius:8px; cursor:pointer;">Đăng nhập ngay</button>
         </form>
         <div style="text-align:center; margin-top:16px; font-size:12.5px; color:var(--hf-slate);">
-          Chưa có tài khoản? <a href="${rootPath}index.html#pricing" style="color:var(--hf-orange); font-weight:600;" onclick="document.getElementById('loginModal').style.display='none';">Ghi danh giữ chỗ</a>
+          Chưa có tài khoản? <a href="${rootPath}Homepage#pricing" style="color:var(--hf-orange); font-weight:600;" onclick="document.getElementById('loginModal').style.display='none';">Ghi danh giữ chỗ</a>
         </div>
       </div>
     </div>
@@ -381,19 +430,20 @@
       });
     }
 
-    // C. Xử lý Dropdown Click trên thiết bị cảm ứng
-    const dropdown = document.getElementById('navCoursesDropdown');
-    const trigger = dropdown ? dropdown.querySelector('.dropdown-trigger') : null;
-
-    if (dropdown && trigger) {
+    // C. Xử lý Dropdown Click trên thiết bị cảm ứng (áp dụng cho mọi .nav-dropdown: Khoá học, Resource...)
+    const dropdowns = document.querySelectorAll('.site-nav .nav-dropdown');
+    dropdowns.forEach((dropdown) => {
+      const trigger = dropdown.querySelector('.dropdown-trigger');
+      if (!trigger) return;
       trigger.addEventListener('click', (e) => {
         // Nếu ở màn hình desktop có hover, chỉ điều hướng bình thường khi nhấp đôi hoặc giữ hover
         if (window.innerWidth > 960 && ('ontouchstart' in window)) {
           e.preventDefault();
+          dropdowns.forEach((d) => { if (d !== dropdown) d.classList.remove('is-open'); });
           dropdown.classList.toggle('is-open');
         }
       });
-    }
+    });
 
     // D. Tự động đánh dấu active theo trang hiện tại
     const currentPath = window.location.pathname.toLowerCase();
@@ -404,6 +454,49 @@
     if (currentPath.includes('blog')) {
       const blogLinks = document.querySelectorAll('[data-nav="blog"]');
       blogLinks.forEach(l => l.classList.add('active'));
+    }
+    ['san-pham-hoc-vien', 'tai-lieu-ai'].forEach((page) => {
+      if (currentPath.includes(page)) {
+        document.querySelectorAll('[data-nav="resource"]').forEach(l => l.classList.add('active'));
+        document.querySelectorAll(`[data-nav="${page}"]`).forEach(l => l.classList.add('is-current'));
+      }
+    });
+
+    // E. Tự động hỗ trợ click chuyển trang khi mở file:/// trực tiếp (Offline preview)
+    if (isFileProtocol) {
+      document.addEventListener('click', function (e) {
+        const a = e.target.closest('a');
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href) return;
+        if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) return;
+        if (href.startsWith('#')) return;
+
+        const [pathPart, hashPart] = href.split('#');
+        const hash = hashPart ? '#' + hashPart : '';
+        const cleanPath = pathPart.replace(/^\//, '');
+
+        if (cleanPath === 'Homepage' || cleanPath === '') {
+          e.preventDefault();
+          window.location.href = 'index.html' + hash;
+        } else if (cleanPath === 'giang-vien') {
+          e.preventDefault();
+          window.location.href = 'giang-vien.html' + hash;
+        } else if (cleanPath === 'san-pham-hoc-vien') {
+          e.preventDefault();
+          window.location.href = 'san-pham-hoc-vien.html' + hash;
+        } else if (cleanPath === 'tai-lieu-ai') {
+          e.preventDefault();
+          window.location.href = 'tai-lieu-ai.html' + hash;
+        } else if (cleanPath === 'blog') {
+          e.preventDefault();
+          window.location.href = 'blog.html' + hash;
+        } else if (cleanPath.startsWith('blog-')) {
+          e.preventDefault();
+          const slug = cleanPath.replace(/^blog-/, '');
+          window.location.href = 'blog-post.html?slug=' + slug + hash;
+        }
+      }, true);
     }
   }
 

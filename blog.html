@@ -25,7 +25,7 @@
   <header class="site-header" id="siteHeader">
     <div class="site-header-inner">
       <!-- Brand / Logo -->
-      <a href="index.html" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
+      <a href="/Homepage" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
         <img src="assets/logos/erasight-logo-slogan-mau-1600w.png" alt="Erasight Academy — Skills for what's next." />
       </a>
 
@@ -33,7 +33,7 @@
       <nav class="site-nav" aria-label="Điều hướng chính">
         <!-- Dropdown Khoá học -->
         <div class="nav-dropdown" id="navCoursesDropdown">
-          <a href="index.html#khoa-hoc" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+          <a href="/Homepage" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
             <span>Khoá học</span>
             <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
               <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -42,7 +42,7 @@
 
           <!-- Dropdown Content Panel -->
           <div class="dropdown-panel" role="menu">
-            <a href="index.html#khoa-mkt" class="dropdown-item" role="menuitem">
+            <a href="/Homepage#khoa-mkt" class="dropdown-item" role="menuitem">
               <span class="dropdown-badge badge-orange">MKT_001</span>
               <div class="dropdown-info">
                 <span class="dropdown-title">AI Marketing thực chiến</span>
@@ -50,7 +50,7 @@
               </div>
             </a>
 
-            <a href="index.html#khoa-eng" class="dropdown-item" role="menuitem">
+            <a href="/Homepage#khoa-eng" class="dropdown-item" role="menuitem">
               <span class="dropdown-badge badge-blue">ENG_002</span>
               <div class="dropdown-info">
                 <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
@@ -59,7 +59,7 @@
             </a>
 
             <div class="dropdown-footer">
-              <a href="index.html#khoa-hoc" class="dropdown-footer-link">
+              <a href="/Homepage" class="dropdown-footer-link">
                 <span>Xem chi tiết lộ trình 2 khoá học</span>
                 <span>&rarr;</span>
               </a>
@@ -67,16 +67,41 @@
           </div>
         </div>
 
-        <a href="giang-vien.html" class="nav-link" data-nav="giang-vien">Giảng viên</a>
-        <a href="index.html#san-pham" class="nav-link">Sản phẩm học viên</a>
-        <a href="index.html#faq" class="nav-link">Hỏi đáp</a>
-        <a href="blog.html" class="nav-link nav-link--active" data-nav="blog" aria-current="page">Blog</a>
+        <a href="/giang-vien" class="nav-link" data-nav="giang-vien">Giảng viên</a>
+
+        <!-- Dropdown Resource -->
+        <div class="nav-dropdown" id="navResourceDropdown">
+          <a href="/san-pham-hoc-vien" class="nav-link dropdown-trigger" data-nav="resource" aria-haspopup="true" aria-expanded="false">
+            <span>Resource</span>
+            <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </a>
+          <div class="dropdown-panel" role="menu">
+            <a href="/san-pham-hoc-vien" class="dropdown-item" role="menuitem" data-nav="san-pham-hoc-vien">
+              <span class="dropdown-badge badge-teal">SHOWCASE</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Sản phẩm học viên</span>
+                <span class="dropdown-desc">Đồ án thực chiến &amp; nhận xét từ chính học viên Erasight</span>
+              </div>
+            </a>
+            <a href="/tai-lieu-ai" class="dropdown-item" role="menuitem" data-nav="tai-lieu-ai">
+              <span class="dropdown-badge badge-orange">LIBRARY</span>
+              <div class="dropdown-info">
+                <span class="dropdown-title">Tài liệu AI</span>
+                <span class="dropdown-desc">Prompt, template, cẩm nang &amp; slide AI chọn lọc để tải về</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        <a href="/Homepage#faq" class="nav-link">Hỏi đáp</a>
+        <a href="/blog" class="nav-link nav-link--active" data-nav="blog" aria-current="page">Blog</a>
       </nav>
 
       <!-- Right Actions -->
       <div class="site-actions">
-        <a href="index.html#dang-nhap" class="btn-login" id="loginBtnTrigger">Đăng nhập</a>
-        <a href="index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+        <a href="/Homepage#dang-nhap" class="btn-login" id="loginBtnTrigger">Đăng nhập</a>
+        <a href="/Homepage#pricing" class="btn-enroll">Ghi danh ngay</a>
       </div>
 
       <!-- Mobile Menu Burger Button -->
@@ -92,24 +117,33 @@
     <div class="mobile-drawer" id="mobileDrawer">
       <div class="mobile-nav-list">
         <div>
-          <a href="index.html#khoa-hoc" class="mobile-nav-item">
+          <a href="/Homepage" class="mobile-nav-item">
             <span>Khoá học</span>
             <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 khoá</span>
           </a>
           <div class="mobile-nav-sublist">
-            <a href="index.html#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
-            <a href="index.html#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
+            <a href="/Homepage#khoa-mkt" class="mobile-nav-sublink">✦ AI Marketing thực chiến</a>
+            <a href="/Homepage#khoa-eng" class="mobile-nav-sublink">✦ Tiếng Anh phỏng vấn &amp; đi làm</a>
           </div>
         </div>
-        <a href="giang-vien.html" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
-        <a href="index.html#san-pham" class="mobile-nav-item">Sản phẩm học viên</a>
-        <a href="index.html#faq" class="mobile-nav-item">Hỏi đáp</a>
-        <a href="blog.html" class="mobile-nav-item mobile-nav-item--active">Blog</a>
+        <a href="/giang-vien" class="mobile-nav-item" data-nav="giang-vien">Giảng viên</a>
+        <div>
+          <a href="/san-pham-hoc-vien" class="mobile-nav-item" data-nav="resource">
+            <span>Resource</span>
+            <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 mục</span>
+          </a>
+          <div class="mobile-nav-sublist">
+            <a href="/san-pham-hoc-vien" class="mobile-nav-sublink">✦ Sản phẩm học viên</a>
+            <a href="/tai-lieu-ai" class="mobile-nav-sublink">✦ Tài liệu AI</a>
+          </div>
+        </div>
+        <a href="/Homepage#faq" class="mobile-nav-item">Hỏi đáp</a>
+        <a href="/blog" class="mobile-nav-item mobile-nav-item--active">Blog</a>
       </div>
 
       <div class="mobile-actions">
-        <a href="index.html#dang-nhap" class="btn-login mobile-login-btn">Đăng nhập</a>
-        <a href="index.html#pricing" class="btn-enroll">Ghi danh ngay</a>
+        <a href="/Homepage#dang-nhap" class="btn-login mobile-login-btn">Đăng nhập</a>
+        <a href="/Homepage#pricing" class="btn-enroll">Ghi danh ngay</a>
       </div>
     </div>
   </header>
@@ -433,7 +467,7 @@
             <div class="blog-widget blog-widget--accent">
               <h3>Sẵn sàng học thực chiến?</h3>
               <p>Khám phá 2 khoá học AI Marketing và Tiếng Anh phỏng vấn — ra lớp là làm được ngay.</p>
-              <a href="index.html#pricing" class="blog-widget__cta">Xem khoá học →</a>
+              <a href="/Homepage#pricing" class="blog-widget__cta">Xem khoá học →</a>
             </div>
           </aside>
         </section>`;

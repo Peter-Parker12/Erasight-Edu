@@ -221,6 +221,23 @@
   color: var(--hf-blue);
 }
 
+.dropdown-badge.badge-teal {
+  background: var(--hf-teal-light);
+  color: var(--hf-teal-dark);
+}
+
+/* Mục dropdown / mobile ứng với trang đang xem */
+.dropdown-item.is-current {
+  background: #F4FAF9;
+  box-shadow: inset 3px 0 0 var(--hf-orange);
+}
+
+.dropdown-item.is-current .dropdown-title,
+.mobile-nav-sublink.is-current {
+  color: var(--hf-teal-dark);
+  font-weight: 700;
+}
+
 .dropdown-info {
   display: flex;
   flex-direction: column;
