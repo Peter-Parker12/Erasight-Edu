@@ -1,632 +1,357 @@
 /**
- * ERASIGHT ACADEMY — THƯ VIỆN TÀI LIỆU AI (AI RESOURCE LIBRARY)
- * Controller giao diện: tìm kiếm, lọc theo danh mục / định dạng / quyền truy cập,
- * sắp xếp, chuyển đổi lưới / danh sách, xem trước tài liệu và thông báo tải.
- * 
- * Lưu ý kiến trúc: Dữ liệu hiện được cấu trúc dạng mảng chuẩn hóa (DOCUMENTS_DATA).
- * Về sau khi tích hợp tài khoản Admin / API upload, chỉ cần thay đổi nguồn fetch
- * từ backend API mà không cần sửa lại logic render giao diện.
+ * ERASIGHT ACADEMY — THƯ VIỆN TÀI LIỆU AI
+ * Danh sách tài liệu lấy từ API (/api/documents), do admin tải lên tại /tai-lieu-ai-admin.
+ * Bấm vào tài liệu -> (lần đầu) popup điền họ tên / email / SĐT -> tải về.
+ * Sau khi điền form, trình duyệt giữ "token truy cập" 7 ngày: tải các tài liệu khác không cần điền lại.
  */
-
 (function () {
   'use strict';
 
-  // 1. DANH MỤC TÀI LIỆU
-  const CATEGORIES = [
-    { id: 'all', name: 'Tất cả tài liệu', icon: '⚡' },
-    { id: 'prompt', name: 'Kỹ nghệ Prompt', icon: '💬' },
-    { id: 'automation', name: 'Workflow Automation', icon: '⚙️' },
-    { id: 'content', name: 'Content & Copywriting', icon: '✍️' },
-    { id: 'career', name: 'CV & Phỏng vấn', icon: '🎯' },
-    { id: 'slide', name: 'Slide & Cẩm nang', icon: '📘' }
-  ];
-
-  // 2. DANH SÁCH ĐỊNH DẠNG HỖ TRỢ
   const FILE_TYPES = [
-    { id: 'pdf', label: 'PDF', class: 'doc-type--pdf' },
-    { id: 'docx', label: 'DOCX', class: 'doc-type--docx' },
-    { id: 'xlsx', label: 'XLSX / CSV', class: 'doc-type--xlsx' },
-    { id: 'pptx', label: 'PPTX', class: 'doc-type--pptx' },
-    { id: 'zip', label: 'ZIP Workflow', class: 'doc-type--zip' },
-    { id: 'link', label: 'NOTION / LINK', class: 'doc-type--link' }
+    { id: 'pdf', label: 'PDF', cls: 'pdf' },
+    { id: 'word', label: 'Word', cls: 'docx' }
   ];
+  const typeGroup = (t) => (t === 'pdf' ? 'pdf' : 'word'); // doc + docx -> "Word"
+  const typeLabel = (t) => ({ pdf: 'PDF', doc: 'DOC', docx: 'DOCX' }[t] || String(t).toUpperCase());
 
-  // 3. DỮ LIỆU TÀI LIỆU MẪU CHUẨN HOÁ
-  const DOCUMENTS_DATA = [
-    {
-      id: 'doc-001',
-      title: 'Bộ 50+ Master Prompt Đa Kênh Cho Dân Marketing Thực Chiến',
-      category: 'prompt',
-      categoryName: 'Kỹ nghệ Prompt',
-      type: 'pdf',
-      typeName: 'PDF',
-      size: '4.8 MB',
-      pages: '42 trang',
-      downloads: 1420,
-      updatedAt: '2026-03-15',
-      access: 'free',
-      isFeatured: true,
-      description: 'Tổng hợp các master prompt chuẩn cấu trúc: Role - Context - Task - Constraints - Output Format. Tối ưu riêng cho ChatGPT, Claude 3.5 Sonnet và Google Gemini.',
-      tags: ['ChatGPT', 'Prompt', 'Marketing', 'Claude'],
-      author: 'Hồ Hoàng Tiến — Erasight',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-002',
-      title: 'Workflow n8n Tự Động Lên Lịch Đăng Bài Fanpage & Instagram từ Google Sheets',
-      category: 'automation',
-      categoryName: 'Workflow Automation',
-      type: 'zip',
-      typeName: 'ZIP',
-      size: '1.2 MB',
-      pages: 'JSON + Hướng dẫn',
-      downloads: 980,
-      updatedAt: '2026-03-20',
-      access: 'free',
-      isFeatured: false,
-      description: 'Bộ file JSON workflow n8n dựng sẵn: đọc hàng từ Sheets, kiểm duyệt trạng thái bài viết, tải ảnh lên Graph API và tự kích hoạt thông báo Telegram khi đăng thành công.',
-      tags: ['n8n', 'Automation', 'Social', 'Facebook API'],
-      author: 'Erasight Tech Team',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-003',
-      title: 'Mẫu CV Tiếng Anh Chuẩn ATS Tối Ưu Cho Ứng Viên Khối Công Nghệ & Doanh Nghiệp',
-      category: 'career',
-      categoryName: 'CV & Phỏng vấn',
-      type: 'docx',
-      typeName: 'DOCX',
-      size: '680 KB',
-      pages: '02 trang',
-      downloads: 1250,
-      updatedAt: '2026-03-10',
-      access: 'free',
-      isFeatured: false,
-      description: 'Template CV định dạng chuẩn ATS (Applicant Tracking System), loại bỏ các lỗi formatting phổ biến khiến hệ thống lọc tự động đánh rớt ứng viên.',
-      tags: ['CV ATS', 'Career', 'Tiếng Anh', 'HR'],
-      author: 'Nguyễn Mai Trâm — Erasight',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-004',
-      title: 'Bảng Kế Hoạch Nội Dung Tự Động Hoá (Content Matrix & Automation Calendar)',
-      category: 'content',
-      categoryName: 'Content & Copywriting',
-      type: 'xlsx',
-      typeName: 'XLSX',
-      size: '850 KB',
-      pages: '6 Sheets',
-      downloads: 870,
-      updatedAt: '2026-03-05',
-      access: 'free',
-      isFeatured: false,
-      description: 'Template Excel phân chia 4 nhóm nội dung (Hero - Hub - Help - Sales), tích hợp sẵn công thức tính điểm tương tác và cột dữ liệu để nạp trực tiếp vào workflow auto-post.',
-      tags: ['Content Calendar', 'Excel', 'Matrix', 'KPI'],
-      author: 'Erasight Academy',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-005',
-      title: 'Slide Bài Giảng: Kỹ Thuật Đàm Phán Lương & Xử Lý Câu Hỏi Khó Theo STAR Framework',
-      category: 'career',
-      categoryName: 'CV & Phỏng vấn',
-      type: 'pptx',
-      typeName: 'PPTX',
-      size: '12.4 MB',
-      pages: '38 Slides',
-      downloads: 640,
-      updatedAt: '2026-02-28',
-      access: 'member',
-      isFeatured: false,
-      description: 'Tài liệu hướng dẫn chuyên sâu: cách phân rã thành tích quá khứ thành Situation - Task - Action - Result với số liệu định lượng, kèm kịch bản đàm phán đãi ngộ thực tế.',
-      tags: ['STAR', 'Phỏng vấn', 'Salary Negotiation'],
-      author: 'Cô Nguyễn Mai Trâm',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-006',
-      title: 'Cẩm Nang Tối Ưu Hoá SEO & GEO (Generative Engine Optimization) Cho Bài Viết AI',
-      category: 'content',
-      categoryName: 'Content & Copywriting',
-      type: 'pdf',
-      typeName: 'PDF',
-      size: '3.6 MB',
-      pages: '28 trang',
-      downloads: 730,
-      updatedAt: '2026-03-18',
-      access: 'free',
-      isFeatured: false,
-      description: 'Phương pháp viết và định dạng bài viết để được các công cụ tìm kiếm AI (SearchGPT, Perplexity, Gemini) trích nguồn tự nhiên, chống phạt duplicate content.',
-      tags: ['GEO', 'SearchGPT', 'Perplexity', 'SEO AI'],
-      author: 'Thầy Hồ Hoàng Tiến',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-007',
-      title: 'Kho Lưu Trữ 100+ Template & Prompts Chuyên Biệt Cho Gemini Spark Branding Agent',
-      category: 'prompt',
-      categoryName: 'Kỹ nghệ Prompt',
-      type: 'link',
-      typeName: 'NOTION',
-      size: 'Trực tuyến',
-      pages: '100+ Items',
-      downloads: 1110,
-      updatedAt: '2026-03-22',
-      access: 'member',
-      isFeatured: false,
-      description: 'Không gian Notion tương tác chứa toàn bộ kịch bản tạo tone-of-voice, visual guidelines và bộ quy tắc sáng tạo nội dung đồng bộ nhận diện thương hiệu.',
-      tags: ['Gemini', 'Notion', 'Branding', 'Prompt'],
-      author: 'Erasight Academy',
-      downloadUrl: '#'
-    },
-    {
-      id: 'doc-008',
-      title: 'Bộ Mã Nguồn Mẫu: Tích Hợp Webhook Phân Phối Bài Viết Bằng Node.js & Meta API',
-      category: 'automation',
-      categoryName: 'Workflow Automation',
-      type: 'zip',
-      typeName: 'ZIP',
-      size: '2.1 MB',
-      pages: 'Full Source Code',
-      downloads: 520,
-      updatedAt: '2026-02-15',
-      access: 'member',
-      isFeatured: false,
-      description: 'Source code module server Node.js nhỏ gọn, hỗ trợ xác thực OAuth 2.0 với Meta for Developers, kèm xử lý queue hạn chế tỷ lệ rate limit khi đăng nhiều tài khoản.',
-      tags: ['Node.js', 'Webhook', 'Meta API', 'Dev'],
-      author: 'Erasight Tech Lab',
-      downloadUrl: '#'
-    }
-  ];
-
-  // 4. TRẠNG THÁI HIỆN TẠI CỦA ỨNG DỤNG
   const state = {
+    docs: [],
+    loaded: false,
+    failed: false,
     search: '',
-    category: 'all',
     types: new Set(),
-    access: 'all',
     sort: 'newest',
     view: 'grid',
-    visibleCount: 8
+    visibleCount: 9,
+    hasAccess: false,
+    pendingDocId: null
   };
 
-  // Toast thông báo nhỏ
+  // ---------- Tiện ích ----------
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+  const fmtViews = (n) => Number(n || 0).toLocaleString('vi-VN');
+  const fmtSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
+  const $ = (id) => document.getElementById(id);
+
   function showToast(message) {
-    const toast = document.getElementById('resToast');
+    const toast = $('resToast');
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('is-show');
     clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => {
-      toast.classList.remove('is-show');
-    }, 2800);
+    toast._timeout = setTimeout(() => toast.classList.remove('is-show'), 3600);
   }
 
-  // Khởi tạo các bộ lọc ở Sidebar
-  function renderSidebarFilters() {
-    // A. Render Categories
-    const catsContainer = document.getElementById('libCats');
-    if (catsContainer) {
-      catsContainer.innerHTML = CATEGORIES.map((cat) => {
-        const count = cat.id === 'all'
-          ? DOCUMENTS_DATA.length
-          : DOCUMENTS_DATA.filter((d) => d.category === cat.id).length;
-        const isActive = state.category === cat.id ? 'is-active' : '';
-        return `
-          <button type="button" class="lib-cat ${isActive}" data-cat="${cat.id}">
-            <span class="ico"><i>${cat.icon}</i><span>${cat.name}</span></span>
-            <span class="n">${count}</span>
-          </button>
-        `;
-      }).join('');
-
-      catsContainer.querySelectorAll('.lib-cat').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          catsContainer.querySelectorAll('.lib-cat').forEach((b) => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          state.category = btn.dataset.cat;
-          applyFiltersAndRender();
-        });
-      });
+  // ---------- Dữ liệu ----------
+  async function loadDocuments() {
+    try {
+      const [docsRes, accessRes] = await Promise.all([
+        fetch('/api/documents', { cache: 'no-store' }),
+        fetch('/api/documents/access', { cache: 'no-store', credentials: 'same-origin' }).catch(() => null)
+      ]);
+      if (!docsRes.ok) throw new Error('HTTP ' + docsRes.status);
+      state.docs = (await docsRes.json()).documents || [];
+      state.hasAccess = !!(accessRes && accessRes.ok && (await accessRes.json()).valid);
+      state.failed = false;
+    } catch (err) {
+      console.warn('Không tải được danh sách tài liệu:', err.message);
+      state.docs = [];
+      state.failed = true;
     }
-
-    // B. Render File Types
-    const typesContainer = document.getElementById('libTypes');
-    if (typesContainer) {
-      typesContainer.innerHTML = FILE_TYPES.map((t) => {
-        return `
-          <label class="lib-type-chip">
-            <input type="checkbox" value="${t.id}" />
-            <span class="dot"></span>
-            <span>${t.label}</span>
-          </label>
-        `;
-      }).join('');
-
-      typesContainer.querySelectorAll('input').forEach((chk) => {
-        chk.addEventListener('change', () => {
-          if (chk.checked) {
-            state.types.add(chk.value);
-          } else {
-            state.types.delete(chk.value);
-          }
-          applyFiltersAndRender();
-        });
-      });
-    }
-
-    // C. Quyền truy cập
-    document.querySelectorAll('input[name="libAccess"]').forEach((radio) => {
-      radio.addEventListener('change', () => {
-        state.access = radio.value;
-        applyFiltersAndRender();
-      });
-    });
-
-    // D. Sắp xếp
-    const sortSelect = document.getElementById('libSort');
-    if (sortSelect) {
-      sortSelect.addEventListener('change', (e) => {
-        state.sort = e.target.value;
-        applyFiltersAndRender();
-      });
-    }
-
-    // E. Chuyển đổi Grid / List
-    const gridBtn = document.getElementById('viewGridBtn');
-    const listBtn = document.getElementById('viewListBtn');
-    const gridContainer = document.getElementById('libGrid');
-
-    if (gridBtn && listBtn && gridContainer) {
-      gridBtn.addEventListener('click', () => {
-        gridBtn.classList.add('is-active');
-        listBtn.classList.remove('is-active');
-        gridContainer.classList.remove('is-list');
-        state.view = 'grid';
-      });
-
-      listBtn.addEventListener('click', () => {
-        listBtn.classList.add('is-active');
-        gridBtn.classList.remove('is-active');
-        gridContainer.classList.add('is-list');
-        state.view = 'list';
-      });
-    }
+    state.loaded = true;
+    render();
   }
 
-  // Khởi tạo thanh tìm kiếm
-  function initSearch() {
-    const input = document.getElementById('libSearchInput');
-    const form = document.getElementById('libSearchForm');
-
-    if (input) {
-      input.addEventListener('input', (e) => {
-        state.search = e.target.value.trim().toLowerCase();
-        applyFiltersAndRender();
-      });
-
-      // Phím tắt "/" để focus nhanh vào ô tìm kiếm
-      document.addEventListener('keydown', (e) => {
-        if (e.key === '/' && document.activeElement !== input) {
-          e.preventDefault();
-          input.focus();
-        }
-      });
-    }
-
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        applyFiltersAndRender();
-      });
-    }
-
-    // Thẻ tìm kiếm nhanh (Popular tags)
-    document.querySelectorAll('#libPopular .lib-tag').forEach((tag) => {
-      tag.addEventListener('click', () => {
-        const query = tag.dataset.q;
-        if (input) {
-          input.value = query;
-          state.search = query.toLowerCase();
-          applyFiltersAndRender();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      });
-    });
-  }
-
-  // Lọc và sắp xếp dữ liệu
   function getFilteredDocuments() {
-    return DOCUMENTS_DATA.filter((doc) => {
-      // 1. Lọc theo Danh mục
-      if (state.category !== 'all' && doc.category !== state.category) {
-        return false;
-      }
-      // 2. Lọc theo Định dạng
-      if (state.types.size > 0 && !state.types.has(doc.type)) {
-        return false;
-      }
-      // 3. Lọc theo Quyền truy cập
-      if (state.access !== 'all' && doc.access !== state.access) {
-        return false;
-      }
-      // 4. Lọc theo Từ khóa tìm kiếm
-      if (state.search) {
-        const haystack = [
-          doc.title,
-          doc.description,
-          doc.categoryName,
-          doc.typeName,
-          doc.author,
-          ...(doc.tags || [])
-        ].join(' ').toLowerCase();
-        if (!haystack.includes(state.search)) {
-          return false;
-        }
-      }
+    const q = state.search;
+    const list = state.docs.filter((d) => {
+      if (q && !(`${d.title} ${d.description}`.toLowerCase().includes(q))) return false;
+      if (state.types.size > 0 && !state.types.has(typeGroup(d.type))) return false;
       return true;
-    }).sort((a, b) => {
-      if (state.sort === 'newest') {
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
-      }
-      if (state.sort === 'popular') {
-        return b.downloads - a.downloads;
-      }
-      if (state.sort === 'az') {
-        return a.title.localeCompare(b.title, 'vi');
-      }
-      return 0;
+    });
+    return list.sort((a, b) => {
+      if (state.sort === 'popular') return b.views - a.views;
+      if (state.sort === 'az') return a.title.localeCompare(b.title, 'vi');
+      return String(b.createdAt).localeCompare(String(a.createdAt));
     });
   }
 
-  // Render tài liệu nổi bật (Ghim)
-  function renderFeaturedDoc() {
-    const container = document.getElementById('libFeatured');
-    if (!container) return;
+  // ---------- Hiển thị ----------
+  function renderTypeFilters() {
+    const box = $('libTypes');
+    if (!box) return;
+    box.innerHTML = FILE_TYPES.map((t) => `
+      <label class="lib-type-chip">
+        <input type="checkbox" value="${t.id}" />
+        <span class="dot"></span>
+        <span>${t.label}</span>
+      </label>`).join('');
+    box.querySelectorAll('input').forEach((chk) => {
+      chk.addEventListener('change', () => {
+        if (chk.checked) state.types.add(chk.value); else state.types.delete(chk.value);
+        state.visibleCount = 9;
+        render();
+      });
+    });
+  }
 
-    // Chỉ hiển thị featured khi ở danh mục Tất cả và không đang tìm kiếm
-    if (state.category !== 'all' || state.search || state.types.size > 0) {
-      container.innerHTML = '';
-      return;
-    }
-
-    const featured = DOCUMENTS_DATA.find((d) => d.isFeatured);
-    if (!featured) {
-      container.innerHTML = '';
-      return;
-    }
-
-    container.innerHTML = `
-      <article class="lib-featured">
-        <div class="doc-cover doc-type--${featured.type}">
-          <span class="sheet"></span>
-          <span class="ext">${featured.typeName}</span>
+  function cardHtml(d) {
+    const cls = FILE_TYPES.find((t) => t.id === typeGroup(d.type)).cls;
+    return `
+      <article class="doc-card" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="Tải về: ${esc(d.title)}">
+        <div class="doc-cover has-img doc-type--${cls}">
+          <img src="${esc(d.coverUrl)}" alt="" loading="lazy" onerror="this.remove()" />
+          <span class="ext">${esc(typeLabel(d.type))}</span>
         </div>
-        <div class="lib-featured-body">
-          <div class="pin-badge">✦ TÀI LIỆU TIÊU BIỂU TRONG THÁNG</div>
-          <h3>${featured.title}</h3>
-          <p>${featured.description}</p>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:auto;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="ErasightLibrary.handleDownload('${featured.id}')">
-              <span>Tải tài liệu ngay</span>
-              <span>↓</span>
-            </button>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="ErasightLibrary.openPreview('${featured.id}')">
-              <span>Xem chi tiết</span>
-            </button>
+        <div class="doc-body">
+          <h3>${esc(d.title)}</h3>
+          <p>${esc(d.description)}</p>
+          <div class="doc-views" title="Lượt xem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span class="doc-views-n">${fmtViews(d.views)}</span> lượt xem
+            <span class="doc-size">· ${fmtSize(d.size)}</span>
+          </div>
+          <div class="doc-actions">
+            <span class="doc-btn doc-btn--primary"><span>Tải về</span><span>↓</span></span>
           </div>
         </div>
-      </article>
-    `;
+      </article>`;
   }
 
-  // Render danh sách tài liệu
-  function applyFiltersAndRender() {
-    const list = getFilteredDocuments();
-    const grid = document.getElementById('libGrid');
-    const resultEl = document.getElementById('libResult');
-    const moreBtn = document.getElementById('libMoreBtn');
+  function render() {
+    const grid = $('libGrid');
+    const resultEl = $('libResult');
+    const moreBtn = $('libMoreBtn');
+    if (!grid) return;
+    if (!state.loaded) return;
 
-    renderFeaturedDoc();
-
-    if (resultEl) {
-      resultEl.innerHTML = `Tìm thấy <b>${list.length}</b> tài liệu phù hợp`;
+    if (state.failed) {
+      if (resultEl) resultEl.textContent = '';
+      grid.innerHTML = `
+        <div class="lib-empty">
+          <div class="big">⚠️</div>
+          <h3>Chưa tải được danh sách tài liệu</h3>
+          <p>Vui lòng thử lại sau ít phút.</p>
+          <button type="button" class="btn btn-ghost btn-sm" id="libRetryBtn">Thử lại</button>
+        </div>`;
+      const retry = $('libRetryBtn');
+      if (retry) retry.addEventListener('click', loadDocuments);
+      if (moreBtn) moreBtn.hidden = true;
+      return;
     }
 
-    if (!grid) return;
+    const list = getFilteredDocuments();
+    if (resultEl) resultEl.innerHTML = `Có <b>${list.length}</b> tài liệu`;
 
+    if (state.docs.length === 0) {
+      grid.innerHTML = `
+        <div class="lib-empty">
+          <div class="big">📚</div>
+          <h3>Thư viện đang được cập nhật</h3>
+          <p>Tài liệu mới sẽ sớm có mặt tại đây. Quay lại sau nhé!</p>
+        </div>`;
+      if (moreBtn) moreBtn.hidden = true;
+      return;
+    }
     if (list.length === 0) {
       grid.innerHTML = `
         <div class="lib-empty">
           <div class="big">🔍</div>
           <h3>Không tìm thấy tài liệu phù hợp</h3>
-          <p>Thử tìm kiếm với từ khóa khác hoặc bỏ bớt các bộ lọc đang chọn.</p>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="ErasightLibrary.resetFilters()">
-            Đặt lại bộ lọc
-          </button>
-        </div>
-      `;
+          <p>Thử tìm với từ khoá khác hoặc bỏ bớt bộ lọc đang chọn.</p>
+          <button type="button" class="btn btn-ghost btn-sm" id="libResetBtn">Đặt lại bộ lọc</button>
+        </div>`;
+      const reset = $('libResetBtn');
+      if (reset) reset.addEventListener('click', resetFilters);
       if (moreBtn) moreBtn.hidden = true;
       return;
     }
 
-    const visibleDocs = list.slice(0, state.visibleCount);
-
-    grid.innerHTML = visibleDocs.map((doc) => {
-      const isMemberOnly = doc.access === 'member';
-      const actionBtn = isMemberOnly
-        ? `
-          <button type="button" class="doc-btn doc-btn--locked" onclick="ErasightLibrary.handleMemberAccess('${doc.id}')">
-            <span>Mở khoá</span>
-          </button>
-        `
-        : `
-          <button type="button" class="doc-btn doc-btn--primary" onclick="ErasightLibrary.handleDownload('${doc.id}')">
-            <span>Tải về</span>
-            <span>↓</span>
-          </button>
-        `;
-
-      const tagsHtml = (doc.tags || [])
-        .map((t) => `<span>#${t}</span>`)
-        .join('');
-
-      return `
-        <article class="doc-card" id="${doc.id}">
-          <div class="doc-cover doc-type--${doc.type}">
-            <span class="sheet"></span>
-            <span class="ext">${doc.typeName}</span>
-          </div>
-          <div class="doc-body">
-            <span class="doc-cat">${doc.categoryName}</span>
-            <h3>${doc.title}</h3>
-            <p>${doc.description}</p>
-            <div class="doc-tags">${tagsHtml}</div>
-            <div class="doc-actions">
-              <button type="button" class="doc-btn doc-btn--ghost" onclick="ErasightLibrary.openPreview('${doc.id}')">
-                Chi tiết
-              </button>
-              ${actionBtn}
-            </div>
-          </div>
-        </article>
-      `;
-    }).join('');
-
+    grid.innerHTML = list.slice(0, state.visibleCount).map(cardHtml).join('');
     if (moreBtn) {
       moreBtn.hidden = list.length <= state.visibleCount;
-      moreBtn.onclick = () => {
-        state.visibleCount += 8;
-        applyFiltersAndRender();
-      };
-    }
-  }
-
-  // Modal Xem Trước Tài Liệu
-  function initPreviewModal() {
-    const modal = document.getElementById('docModal');
-    const closeBtn = document.getElementById('docModalClose');
-    if (!modal) return;
-
-    function close() {
-      modal.classList.remove('is-open');
-      document.body.style.overflow = '';
-    }
-
-    if (closeBtn) closeBtn.addEventListener('click', close);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) close();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
-    });
-  }
-
-  function openPreview(docId) {
-    const doc = DOCUMENTS_DATA.find((d) => d.id === docId);
-    const modal = document.getElementById('docModal');
-    const coverEl = document.getElementById('docModalCover');
-    const bodyEl = document.getElementById('docModalBody');
-
-    if (!doc || !modal || !coverEl || !bodyEl) return;
-
-    coverEl.innerHTML = `
-      <div class="doc-cover doc-type--${doc.type}" style="border-radius:20px 0 0 20px;">
-        <span class="sheet"></span>
-        <span class="ext">${doc.typeName}</span>
-      </div>
-    `;
-
-    const isMemberOnly = doc.access === 'member';
-    const mainActionBtn = isMemberOnly
-      ? `
-        <button type="button" class="btn btn-primary" onclick="ErasightLibrary.handleMemberAccess('${doc.id}')">
-          Đăng nhập học viên để mở khoá →
-        </button>
-      `
-      : `
-        <button type="button" class="btn btn-primary" onclick="ErasightLibrary.handleDownload('${doc.id}')">
-          Tải tài liệu ngay (${doc.size}) ↓
-        </button>
-      `;
-
-    bodyEl.innerHTML = `
-      <div class="doc-cat">${doc.categoryName}</div>
-      <h3 id="docModalTitle">${doc.title}</h3>
-      <p>${doc.description}</p>
-      
-      <dl class="doc-spec">
-        <div><dt>Định dạng</dt><dd>${doc.typeName}</dd></div>
-        <div><dt>Dung lượng</dt><dd>${doc.size}</dd></div>
-        <div><dt>Quy mô</dt><dd>${doc.pages}</dd></div>
-        <div><dt>Tác giả</dt><dd>${doc.author}</dd></div>
-        <div><dt>Lượt tải</dt><dd>${doc.downloads.toLocaleString()}</dd></div>
-        <div><dt>Cập nhật</dt><dd>${doc.updatedAt}</dd></div>
-      </dl>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
-        ${mainActionBtn}
-        <a href="/Homepage" class="btn btn-ghost">Xem khoá học liên quan</a>
-      </div>
-    `;
-
-    modal.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // Tải file mô phỏng (sẽ liên kết file thực hoặc backend upload về sau)
-  function handleDownload(docId) {
-    const doc = DOCUMENTS_DATA.find((d) => d.id === docId);
-    if (!doc) return;
-    doc.downloads += 1;
-    showToast(`✓ Đang chuẩn bị tải: "${doc.title}" (${doc.size})`);
-    applyFiltersAndRender();
-  }
-
-  function handleMemberAccess(docId) {
-    const doc = DOCUMENTS_DATA.find((d) => d.id === docId);
-    showToast(`🔒 Tài liệu "${doc ? doc.title : ''}" yêu cầu tài khoản học viên.`);
-    // Tự động mở modal đăng nhập dùng chung nếu có
-    const loginModal = document.getElementById('loginModal');
-    if (loginModal) {
-      loginModal.style.display = 'flex';
+      moreBtn.onclick = () => { state.visibleCount += 9; render(); };
     }
   }
 
   function resetFilters() {
     state.search = '';
-    state.category = 'all';
     state.types.clear();
-    state.access = 'all';
     state.sort = 'newest';
-
-    const input = document.getElementById('libSearchInput');
+    const input = $('libSearchInput');
     if (input) input.value = '';
-
-    const allCatBtn = document.querySelector('.lib-cat[data-cat="all"]');
-    if (allCatBtn) allCatBtn.click();
-
+    const sort = $('libSort');
+    if (sort) sort.value = 'newest';
     document.querySelectorAll('#libTypes input').forEach((c) => { c.checked = false; });
-    const allRadio = document.querySelector('input[name="libAccess"][value="all"]');
-    if (allRadio) allRadio.checked = true;
-
-    applyFiltersAndRender();
+    render();
   }
 
-  // Khởi chạy khi DOM sẵn sàng
+  // ---------- Bấm vào tài liệu ----------
+  async function openDocument(id) {
+    const doc = state.docs.find((d) => d.id === id);
+    if (!doc) return;
+
+    // +1 lượt xem cho mỗi lần bấm (server chặn bấm lặp lại từ cùng một người trong 30 phút)
+    fetch(`/api/documents/${encodeURIComponent(id)}/view`, { method: 'POST' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data || typeof data.views !== 'number') return;
+        doc.views = data.views;
+        const el = document.querySelector(`.doc-card[data-id="${CSS.escape(id)}"] .doc-views-n`);
+        if (el) el.textContent = fmtViews(doc.views);
+      })
+      .catch(() => {});
+
+    // Token 7 ngày còn hạn -> tải luôn, không hỏi lại. Kiểm tra lại với server phòng khi vừa hết hạn.
+    if (state.hasAccess) {
+      try {
+        const r = await fetch('/api/documents/access', { cache: 'no-store', credentials: 'same-origin' });
+        state.hasAccess = r.ok && (await r.json()).valid === true;
+      } catch (e) { /* giữ trạng thái cũ */ }
+    }
+    if (state.hasAccess) return startDownload(doc);
+    openModal(doc);
+  }
+
+  function startDownload(doc) {
+    const a = document.createElement('a');
+    a.href = `/api/documents/${encodeURIComponent(doc.id)}/download`;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('Đang tải: ' + doc.title);
+  }
+
+  // ---------- Popup điền thông tin ----------
+  function openModal(doc) {
+    state.pendingDocId = doc.id;
+    $('dlTitle').textContent = doc.title;
+    $('dlError').hidden = true;
+    $('dlModal').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => $('dlName').focus(), 60);
+  }
+
+  function closeModal() {
+    $('dlModal').classList.remove('is-open');
+    document.body.style.overflow = '';
+    state.pendingDocId = null;
+  }
+
+  function showError(msg) {
+    const el = $('dlError');
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  function initModal() {
+    const modal = $('dlModal');
+    if (!modal) return;
+    $('dlClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
+
+    $('dlForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('dlName').value.trim();
+      const email = $('dlEmail').value.trim();
+      const phone = $('dlPhone').value.trim();
+      if (!name) return showError('Vui lòng nhập họ và tên.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showError('Email chưa đúng định dạng.');
+      if (!/^\+?[\d\s().-]{8,18}$/.test(phone)) return showError('Số điện thoại chưa đúng (8–18 chữ số).');
+
+      const doc = state.docs.find((d) => d.id === state.pendingDocId);
+      if (!doc) return closeModal();
+      const btn = $('dlSubmit');
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Đang xử lý...';
+      $('dlError').hidden = true;
+
+      try {
+        const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}/request`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, website: $('dlWebsite').value })
+        });
+        if (res.status === 429) throw new Error('Bạn thao tác hơi nhanh, vui lòng thử lại sau ít phút.');
+        if (!res.ok) throw new Error('Thông tin chưa hợp lệ hoặc có lỗi hệ thống. Vui lòng kiểm tra lại và thử lần nữa.');
+        const data = await res.json();
+        state.hasAccess = !!data.downloadUrl; // honeypot trả về ok nhưng không có downloadUrl
+        $('dlForm').reset();
+        closeModal();
+        if (state.hasAccess) {
+          startDownload(doc);
+          showToast('Cảm ơn bạn! Bạn có thể tải thêm các tài liệu khác trong 7 ngày.');
+        }
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  }
+
+  // ---------- Tìm kiếm, sắp xếp, chế độ xem ----------
+  function initToolbar() {
+    const input = $('libSearchInput');
+    const form = $('libSearchForm');
+    if (input) {
+      input.addEventListener('input', (e) => { state.search = e.target.value.trim().toLowerCase(); state.visibleCount = 9; render(); });
+      document.addEventListener('keydown', (e) => {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag)) { e.preventDefault(); input.focus(); }
+      });
+    }
+    if (form) form.addEventListener('submit', (e) => { e.preventDefault(); render(); });
+
+    document.querySelectorAll('#libPopular .lib-tag').forEach((tag) => {
+      tag.addEventListener('click', () => {
+        if (!input) return;
+        input.value = tag.dataset.q;
+        state.search = tag.dataset.q.toLowerCase();
+        state.visibleCount = 9;
+        render();
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+
+    const sort = $('libSort');
+    if (sort) sort.addEventListener('change', (e) => { state.sort = e.target.value; render(); });
+
+    const gridBtn = $('viewGridBtn');
+    const listBtn = $('viewListBtn');
+    const grid = $('libGrid');
+    if (gridBtn && listBtn && grid) {
+      gridBtn.addEventListener('click', () => { gridBtn.classList.add('is-active'); listBtn.classList.remove('is-active'); grid.classList.remove('is-list'); state.view = 'grid'; });
+      listBtn.addEventListener('click', () => { listBtn.classList.add('is-active'); gridBtn.classList.remove('is-active'); grid.classList.add('is-list'); state.view = 'list'; });
+    }
+
+    // Bấm cả thẻ tài liệu (hoặc Enter / Space khi đang focus) để tải
+    if (grid) {
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.doc-card');
+        if (card) openDocument(card.dataset.id);
+      });
+      grid.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const card = e.target.closest('.doc-card');
+        if (card) { e.preventDefault(); openDocument(card.dataset.id); }
+      });
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
-    renderSidebarFilters();
-    initSearch();
-    initPreviewModal();
-    applyFiltersAndRender();
+    renderTypeFilters();
+    initToolbar();
+    initModal();
+    loadDocuments();
   });
 
-  // Public API
-  window.ErasightLibrary = {
-    openPreview: openPreview,
-    handleDownload: handleDownload,
-    handleMemberAccess: handleMemberAccess,
-    resetFilters: resetFilters,
-    DOCUMENTS_DATA: DOCUMENTS_DATA
-  };
+  window.ErasightLibrary = { reload: loadDocuments, resetFilters };
 })();

@@ -69,41 +69,22 @@
           <!-- SIDEBAR BỘ LỌC -->
           <aside class="lib-sidebar" aria-label="Bộ lọc tài liệu">
             <div class="lib-panel">
-              <h4>Danh mục</h4>
-              <div class="lib-cats" id="libCats">
-                <!-- Render bởi tai-lieu-ai.js -->
-              </div>
-            </div>
-
-            <div class="lib-panel">
               <h4>Định dạng</h4>
               <div class="lib-types" id="libTypes">
                 <!-- Render bởi tai-lieu-ai.js -->
-              </div>
-            </div>
-
-            <div class="lib-panel">
-              <h4>Quyền truy cập</h4>
-              <div class="lib-access">
-                <label><input type="radio" name="libAccess" value="all" checked /> Tất cả</label>
-                <label><input type="radio" name="libAccess" value="free" /> Miễn phí</label>
-                <label><input type="radio" name="libAccess" value="member" /> Dành cho học viên</label>
               </div>
             </div>
           </aside>
 
           <!-- NỘI DUNG CHÍNH -->
           <div class="lib-main">
-            <!-- Tài liệu nổi bật (ghim) -->
-            <div id="libFeatured"></div>
-
             <div class="lib-toolbar">
               <div class="lib-result" id="libResult" aria-live="polite">Đang tải tài liệu...</div>
               <div class="lib-toolbar-right">
                 <label class="sr-only" for="libSort" style="position:absolute;left:-9999px;">Sắp xếp</label>
                 <select class="lib-select" id="libSort" aria-label="Sắp xếp tài liệu">
                   <option value="newest">Mới nhất</option>
-                  <option value="popular">Tải nhiều nhất</option>
+                  <option value="popular">Xem nhiều nhất</option>
                   <option value="az">Tên A → Z</option>
                 </select>
                 <div class="lib-view" role="group" aria-label="Kiểu hiển thị">
@@ -155,14 +136,34 @@
   <!-- FOOTER DÙNG CHUNG -->
   <div id="site-footer"></div>
 
-  <!-- MODAL XEM TRƯỚC TÀI LIỆU -->
-  <div class="doc-modal" id="docModal" role="dialog" aria-modal="true" aria-labelledby="docModalTitle">
-    <div class="doc-modal-box">
-      <button type="button" class="doc-modal-close" id="docModalClose" aria-label="Đóng">
+  <!-- POPUP NHẬP THÔNG TIN TRƯỚC KHI TẢI TÀI LIỆU -->
+  <div class="doc-modal" id="dlModal" role="dialog" aria-modal="true" aria-labelledby="dlTitle">
+    <div class="dl-box">
+      <button type="button" class="doc-modal-close" id="dlClose" aria-label="Đóng">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
-      <div id="docModalCover"></div>
-      <div class="doc-modal-body" id="docModalBody"></div>
+      <span class="eyebrow pur">Tải tài liệu miễn phí</span>
+      <h3 id="dlTitle">Tên tài liệu</h3>
+      <p class="dl-sub">Để lại thông tin để tải về. Bạn chỉ cần điền một lần — sau đó tải thêm các tài liệu khác trong 7 ngày.</p>
+      <form id="dlForm" novalidate>
+        <div class="form-group-clean">
+          <label for="dlName">Họ và tên *</label>
+          <input type="text" id="dlName" name="name" placeholder="Ví dụ: Nguyễn Văn An" autocomplete="name" maxlength="120" required />
+        </div>
+        <div class="form-group-clean">
+          <label for="dlEmail">Email *</label>
+          <input type="email" id="dlEmail" name="email" placeholder="Ví dụ: an.nguyen@gmail.com" autocomplete="email" maxlength="200" required />
+        </div>
+        <div class="form-group-clean">
+          <label for="dlPhone">Số điện thoại / Zalo *</label>
+          <input type="tel" id="dlPhone" name="phone" placeholder="Ví dụ: 0912 345 678" autocomplete="tel" maxlength="30" required />
+        </div>
+        <!-- Honeypot: ẩn với người dùng, bot thường điền vào -->
+        <input type="text" id="dlWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; opacity:0; height:0;" />
+        <div class="dl-error" id="dlError" role="alert" hidden></div>
+        <button type="submit" class="btn btn-primary dl-submit" id="dlSubmit">Tải tài liệu ↓</button>
+        <p class="dl-note">Erasight chỉ dùng thông tin này để gửi tài liệu và tư vấn khoá học phù hợp.</p>
+      </form>
     </div>
   </div>
 

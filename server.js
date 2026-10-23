@@ -112,14 +112,16 @@ async function enroll({ name, phone, email, courses }) {
 }
 
 // ---- HTTP -----------------------------------------------------------------
-const hits = new Map(); // ip -> [timestamps]
-function rateLimited(ip) {
+const hits = new Map(); // "bucket|ip" -> [timestamps]
+function rateLimited(ip, bucket = 'enroll', limit = 5, windowMs = 60_000) {
+  const key = `${bucket}|${ip}`;
   const now = Date.now();
-  const recent = (hits.get(ip) || []).filter((t) => now - t < 60_000);
+  const recent = (hits.get(key) || []).filter((t) => now - t < windowMs);
   recent.push(now);
-  hits.set(ip, recent);
-  return recent.length > 5;
+  hits.set(key, recent);
+  return recent.length > limit;
 }
+setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (!v.some((t) => now - t < 120_000)) hits.delete(k); }, 10 * 60_000).unref();
 
 function readJson(req, limit = 16 * 1024) {
   return new Promise((resolve, reject) => {
@@ -235,8 +237,15 @@ async function handleWpProxy(req, res) {
   }
 }
 
+// ---- Document library (admin uploads, gallery, gated downloads) -----------
+const documents = require('./documents')({
+  twenty, normalizePhone, send, readJson, rateLimited,
+  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY),
+});
+
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
+  if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
   if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });
   if (pathname.startsWith('/api/wp') && (req.method === 'GET' || req.method === 'HEAD')) return handleWpProxy(req, res);

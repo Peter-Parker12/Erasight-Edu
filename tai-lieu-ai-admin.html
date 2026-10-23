@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Quản trị tài liệu AI | Erasight Academy</title>
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <style>
+    body { background: var(--cloud, #F3F8F8); min-height: 100vh; }
+    .adm-top { background: #fff; border-bottom: 1px solid var(--line); }
+    .adm-top .in { max-width: 1080px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+    .adm-top img { height: 30px; width: auto; }
+    .adm-top h1 { font-size: 17px; margin: 0; flex: 1; color: var(--ink); }
+    .adm-wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+    .adm-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .adm-card h2 { font-size: 18px; margin: 0 0 16px; color: var(--ink); }
+    .adm-login { max-width: 400px; margin: 70px auto; }
+    .adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+    @media (max-width: 720px) { .adm-grid { grid-template-columns: 1fr; } }
+    .adm-card .form-group-clean textarea, .adm-card .form-group-clean input[type=file] {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--line); border-radius: var(--rr); font-family: inherit; font-size: 14px; background: #fff;
+    }
+    .adm-card .form-group-clean textarea { min-height: 84px; resize: vertical; outline: none; }
+    .adm-card .form-group-clean textarea:focus { border-color: var(--p); }
+    .adm-hint { font-size: 12px; color: #6b8590; margin-top: 5px; }
+    .adm-msg { margin: 12px 0 0; padding: 10px 14px; border-radius: 8px; font-size: 13.5px; line-height: 1.5; }
+    .adm-msg.err { background: #FDECEC; color: #8A1F1F; }
+    .adm-msg.ok { background: var(--pl, #E6F6F4); color: var(--pd, #07736C); }
+    .adm-msg[hidden] { display: none; }
+    .adm-row { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
+    .adm-row:first-child { border-top: 0; }
+    .adm-thumb { width: 96px; height: 120px; border-radius: 10px; background: var(--cloud); border: 1px solid var(--line); object-fit: cover; display: block; }
+    .adm-thumb.none { display: grid; place-items: center; font-size: 11px; color: #8aa0a8; text-align: center; padding: 6px; }
+    .adm-fields { display: grid; grid-template-columns: 1fr 120px; gap: 10px 12px; }
+    .adm-fields input, .adm-fields textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 9px; font: inherit; font-size: 13.5px; outline: none; }
+    .adm-fields input:focus, .adm-fields textarea:focus { border-color: var(--p); }
+    .adm-fields textarea { grid-column: 1 / -1; min-height: 60px; resize: vertical; }
+    .adm-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 12.5px; color: #5d7681; }
+    .adm-badge { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--ink); color: #fff; }
+    .adm-badge.draft { background: var(--orange); }
+    .adm-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+    .adm-btn { font: inherit; font-size: 12.5px; font-weight: 700; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+    .adm-btn:hover { border-color: var(--p); color: var(--pd); }
+    .adm-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
+    .adm-btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .adm-btn:disabled { opacity: .55; cursor: wait; }
+    .adm-empty { text-align: center; color: #6b8590; padding: 26px 0 8px; }
+    .adm-progress { height: 6px; border-radius: 3px; background: var(--line); margin-top: 12px; overflow: hidden; }
+    .adm-progress i { display: block; height: 100%; width: 0; background: var(--p); transition: width .15s; }
+    @media (max-width: 560px) { .adm-row { grid-template-columns: 1fr; } .adm-thumb { width: 100%; height: 160px; } .adm-fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="adm-top">
+    <div class="in">
+      <img src="assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight" onerror="this.remove()" />
+      <h1>Quản trị thư viện tài liệu AI</h1>
+      <a class="adm-btn" href="/tai-lieu-ai" target="_blank" rel="noopener">Xem trang ↗</a>
+      <button type="button" class="adm-btn" id="admLogout" hidden>Đăng xuất</button>
+    </div>
+  </div>
+
+  <main class="adm-wrap">
+    <!-- Đăng nhập quản trị (khác với popup đăng nhập khoá học của học viên) -->
+    <section class="adm-card adm-login" id="admLoginBox" hidden>
+      <h2>Đăng nhập quản trị</h2>
+      <form id="admLoginForm" novalidate>
+        <div class="form-group-clean">
+          <label for="admPassword">Mật khẩu quản trị</label>
+          <input type="password" id="admPassword" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;height:46px;">Đăng nhập</button>
+        <div class="adm-msg err" id="admLoginMsg" role="alert" hidden></div>
+      </form>
+    </section>
+
+    <section id="admPanel" hidden>
+      <div class="adm-card">
+        <h2>Tải tài liệu mới</h2>
+        <form id="admUploadForm" novalidate>
+          <div class="adm-grid">
+            <div class="form-group-clean" style="grid-column:1/-1;">
+              <label for="upTitle">Tên tài liệu *</label>
+              <input type="text" id="upTitle" maxlength="150" required />
+            </div>
+            <div class="form-group-clean" style="grid-column:1/-1;">
+              <label for="upDesc">Mô tả ngắn</label>
+              <textarea id="upDesc" maxlength="400"></textarea>
+            </div>
+            <div class="form-group-clean">
+              <label for="upFile">File tài liệu (PDF hoặc Word) *</label>
+              <input type="file" id="upFile" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
+              <div class="adm-hint">Định dạng: .pdf, .doc, .docx</div>
+            </div>
+            <div class="form-group-clean">
+              <label for="upCover">Ảnh bìa *</label>
+              <input type="file" id="upCover" accept="image/png,image/jpeg,image/webp" required />
+              <div class="adm-hint">PNG, JPG hoặc WebP. Nên dùng ảnh dọc tỉ lệ khoảng 4:3 trở lên.</div>
+            </div>
+            <div class="form-group-clean">
+              <label for="upViews">Lượt xem ban đầu</label>
+              <input type="number" id="upViews" min="0" step="1" placeholder="Để trống = ngẫu nhiên 2000–3000" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="upSubmit" style="height:46px;min-width:200px;">Tải lên</button>
+          <div class="adm-progress" id="upProgress" hidden><i></i></div>
+          <div class="adm-msg" id="upMsg" role="status" hidden></div>
+        </form>
+      </div>
+
+      <div class="adm-card">
+        <h2>Tài liệu đã tải lên <span id="admCount" style="color:#6b8590;font-weight:600;"></span></h2>
+        <div id="admList"><div class="adm-empty">Đang tải...</div></div>
+      </div>
+    </section>
+
+    <div class="adm-card" id="admDisabled" hidden>
+      <h2>Chưa bật khu vực quản trị</h2>
+      <p>Máy chủ chưa có <code>ADMIN_PASSWORD</code>. Thêm biến này vào file <code>.env</code> rồi khởi động lại container.</p>
+    </div>
+  </main>
+
+  <input type="file" id="admReplaceInput" hidden />
+  <script src="assets/js/tai-lieu-ai-admin.js"></script>
+</body>
+</html>

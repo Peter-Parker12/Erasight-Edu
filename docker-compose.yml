@@ -13,3 +13,14 @@ services:
       WP_API_URL: ${WP_API_URL}
       WP_POST_TAG: ${WP_POST_TAG:-erasight-education}
       SITE_URL: ${SITE_URL:-https://academy.erasight.net}
+      # AI document library (see .env.example)
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      ACCESS_DAYS: ${ACCESS_DAYS:-7}
+      MAX_DOC_MB: ${MAX_DOC_MB:-25}
+      MAX_COVER_MB: ${MAX_COVER_MB:-3}
+    volumes:
+      - erasight-data:/app/data
+
+volumes:
+  erasight-data:
