@@ -5,7 +5,7 @@ const crypto = require('crypto');
 module.exports = function createShowcaseService({
   send, readJson, rateLimited, isAdmin,
 }) {
-  const DATA_DIR = path.join(__dirname, 'data');
+  const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
   const SHOWCASES_FILE = path.join(DATA_DIR, 'showcases.json');
   const UPLOAD_DIR = path.join(DATA_DIR, 'showcases');
 
