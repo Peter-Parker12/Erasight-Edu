@@ -7,6 +7,19 @@
   'use strict';
 
   const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
+
+  // Đảm bảo URL mặc định trên web server luôn hiển thị chuẩn /Homepage ngay lần đầu truy cập
+  if (!isFileProtocol && typeof window !== 'undefined' && window.location) {
+    const pathname = window.location.pathname.toLowerCase();
+    if (pathname === '/' || pathname === '/index.html') {
+      const hash = window.location.hash === '#top' ? '' : window.location.hash;
+      const search = window.location.search || '';
+      window.history.replaceState(null, '', '/Homepage' + search + hash);
+    } else if (window.location.hash === '#top') {
+      window.history.replaceState(null, '', window.location.pathname + (window.location.search || ''));
+    }
+  }
+
   // Xác định đường dẫn gốc để xử lý đúng tài nguyên ảnh/css
   const rootPath = (function () {
     const metaRoot = document.querySelector('meta[name="base-path"]');

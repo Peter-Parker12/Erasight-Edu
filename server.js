@@ -184,7 +184,11 @@ function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
 
-  if (p === '/' || p.toLowerCase() === '/homepage') p = '/index.html';
+  if (p === '/' || p === '/index.html') {
+    res.writeHead(302, { 'Location': '/Homepage' });
+    return res.end();
+  }
+  if (p.toLowerCase() === '/homepage') p = '/index.html';
   else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
   // Pretty post URLs: /blog-<post-slug> -> blog-post.html (the page reads the slug from the URL)
   else if (/^\/blog-[A-Za-z0-9%_-]+$/.test(p)) p = '/blog-post.html';
