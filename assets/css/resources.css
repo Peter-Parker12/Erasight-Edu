@@ -31,6 +31,22 @@
   pointer-events: none;
 }
 
+/* Hero riêng cho Tài liệu AI & Sản phẩm học viên: dùng ảnh nền BC1.png trên web / desktop, giữ nguyên trên mobile */
+@media (min-width: 769px) {
+  .res-hero--doc,
+  .res-hero--showcase {
+    background-color: #f5f8f9;
+    background-image: url('../images/BC1.png');
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-size: cover;
+  }
+  .res-hero--doc::before,
+  .res-hero--showcase::before {
+    display: none;
+  }
+}
+
 .res-hero .wrap {
   position: relative;
   z-index: 1;
@@ -317,6 +333,13 @@
   font-weight: 800;
   color: #fff;
   background: linear-gradient(135deg, var(--p), var(--pd));
+}
+
+img.avatar {
+  object-fit: cover;
+  display: block;
+  border: 1.5px solid var(--line);
+  background: #fff;
 }
 
 .avatar.is-orange {

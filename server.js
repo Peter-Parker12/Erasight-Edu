@@ -191,6 +191,11 @@ function serveStatic(req, res) {
     return res.end();
   }
   if (p.toLowerCase() === '/homepage') p = '/index.html';
+  else if (p.toLowerCase() === '/admin') p = '/admin.html';
+  else if (p.toLowerCase() === '/tai-lieu-ai-admin' || p.toLowerCase() === '/tai-lieu-ai-admin.html') {
+    res.writeHead(302, { 'Location': '/admin' });
+    return res.end();
+  }
   else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
   // Pretty post URLs: /blog-<post-slug> -> blog-post.html (the page reads the slug from the URL)
   else if (/^\/blog-[A-Za-z0-9%_-]+$/.test(p)) p = '/blog-post.html';
@@ -243,8 +248,14 @@ const documents = require('./documents')({
   twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY),
 });
 
+// ---- Showcase library (admin student project uploads) ---------------------
+const showcases = require('./showcases')({
+  send, readJson, rateLimited, isAdmin: documents.isAdmin,
+});
+
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
+  if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
   if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });

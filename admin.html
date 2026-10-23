@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Bảng điều khiển Quản trị CRM | Erasight Academy</title>
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <style>
+    :root {
+      --sidebar-w: 260px;
+      --crm-bg: #F4F7F8;
+      --crm-card: #FFFFFF;
+      --crm-line: #E2E9EC;
+      --crm-ink: #0C2A3A;
+      --crm-slate: #5E7784;
+      --crm-p: #0DA096;
+      --crm-p-light: #E6F6F4;
+      --crm-orange: #E85D04;
+      --crm-blue: #2176C7;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--crm-bg);
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-be-vietnam), -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--crm-ink);
+      min-height: 100vh;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+    .crm-login-wrap[hidden],
+    .crm-app[hidden],
+    .tab-pane[hidden] {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       LOGIN VIEW
+       ========================================================================== */
+    .crm-login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at top right, rgba(13, 160, 150, 0.12), transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(232, 93, 4, 0.08), transparent 60%),
+                  var(--crm-bg);
+    }
+    .crm-login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border: 1px solid var(--crm-line);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 12px 40px rgba(12, 42, 58, 0.08);
+      text-align: center;
+    }
+    .crm-login-card img { height: 32px; margin-bottom: 20px; }
+    .crm-login-card h2 { font-size: 20px; font-weight: 800; margin: 0 0 8px; color: var(--crm-ink); }
+    .crm-login-card p { font-size: 13.5px; color: var(--crm-slate); margin: 0 0 24px; line-height: 1.5; }
+
+    /* ==========================================================================
+       CRM SPLIT 8 - 2 LAYOUT
+       ========================================================================== */
+    .crm-app {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    /* 20% SIDEBAR (Left) */
+    .crm-sidebar {
+      background: #FFFFFF;
+      border-right: 1px solid var(--crm-line);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 40;
+    }
+
+    .crm-sidebar-brand {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--crm-line);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .crm-sidebar-brand img { height: 26px; width: auto; }
+    .crm-brand-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--crm-p);
+      background: var(--crm-p-light);
+      padding: 3px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .crm-nav-section {
+      padding: 20px 14px 10px;
+      flex: 1;
+    }
+    .crm-nav-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8C9FA8;
+      padding: 0 10px 10px;
+    }
+    .crm-nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .crm-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--crm-slate);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+    .crm-nav-item:hover {
+      color: var(--crm-ink);
+      background: var(--crm-bg);
+    }
+    .crm-nav-item.is-active {
+      color: #fff;
+      background: var(--crm-ink);
+      box-shadow: 0 4px 14px rgba(12, 42, 58, 0.16);
+    }
+    .crm-nav-item.is-active svg {
+      color: var(--crm-p);
+    }
+    .crm-nav-item .badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(12, 42, 58, 0.08);
+      color: var(--crm-slate);
+    }
+    .crm-nav-item.is-active .badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    .crm-quick-links {
+      padding: 12px 14px 20px;
+      border-top: 1px solid var(--crm-line);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .crm-quick-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--crm-slate);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .crm-quick-link:hover {
+      color: var(--crm-p);
+      background: var(--crm-p-light);
+    }
+
+    .crm-sidebar-user {
+      padding: 16px 18px;
+      border-top: 1px solid var(--crm-line);
+      background: #FAFDFD;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .crm-user-ava {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--crm-ink);
+      color: var(--crm-p);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .crm-user-info { flex: 1; min-width: 0; }
+    .crm-user-info .name { font-size: 13px; font-weight: 800; color: var(--crm-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .crm-user-info .role { font-size: 11.5px; color: var(--crm-slate); display: block; }
+    .crm-btn-logout {
+      background: none;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      transition: background 0.2s;
+    }
+    .crm-btn-logout:hover { background: #FDECEC; }
+
+    /* 80% MAIN CONTENT (Right) */
+    .crm-main {
+      padding: 24px 32px 80px;
+      overflow-y: auto;
+    }
+
+    /* Top Header Bar inside Main */
+    .crm-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .crm-topbar-title h1 {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--crm-ink);
+      letter-spacing: -0.02em;
+    }
+    .crm-topbar-title .sub {
+      font-size: 13.5px;
+      color: var(--crm-slate);
+      margin-top: 3px;
+    }
+    .crm-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* KPI Mini Cards */
+    .crm-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .crm-kpi-card {
+      background: #fff;
+      border: 1px solid var(--crm-line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 8px rgba(12, 42, 58, 0.03);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .crm-kpi-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .crm-kpi-icon.teal { background: var(--crm-p-light); color: var(--crm-p); }
+    .crm-kpi-icon.orange { background: #FFF0E6; color: var(--crm-orange); }
+    .crm-kpi-icon.blue { background: #E8F2FA; color: var(--crm-blue); }
+    .crm-kpi-icon.purple { background: #F1EDFC; color: #6D4BC3; }
+    .crm-kpi-data .val { font-size: 22px; font-weight: 800; color: var(--crm-ink); line-height: 1.1; margin-bottom: 2px; }
+    .crm-kpi-data .lbl { font-size: 12px; font-weight: 600; color: var(--crm-slate); }
+
+    /* Layout Split: Form Trái (4.5) & Table Phải (5.5) */
+    .crm-split-panel {
+      display: grid;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* CRM Cards */
+    .crm-card {
+      background: var(--crm-card);
+      border: 1px solid var(--crm-line);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 4px 18px rgba(12, 42, 58, 0.035);
+    }
+    .crm-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--crm-line);
+    }
+    .crm-card-head h2 {
+      font-size: 16.5px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--crm-ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crm-card-head .count-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      background: var(--crm-p-light);
+      color: var(--crm-p);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Form Inputs */
+    .form-group-clean {
+      margin-bottom: 14px;
+    }
+    .form-group-clean label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--crm-ink);
+      margin-bottom: 6px;
+    }
+    .form-group-clean input[type=text],
+    .form-group-clean input[type=url],
+    .form-group-clean input[type=number],
+    .form-group-clean select,
+    .form-group-clean textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--crm-line);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      background: #fff;
+      color: var(--crm-ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group-clean input:focus,
+    .form-group-clean select:focus,
+    .form-group-clean textarea:focus {
+      border-color: var(--crm-p);
+      box-shadow: 0 0 0 3px rgba(13, 160, 150, 0.12);
+    }
+    .form-group-clean textarea { min-height: 70px; resize: vertical; }
+    .form-group-clean input[type=file] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px dashed var(--crm-line);
+      border-radius: 10px;
+      font-size: 12.5px;
+      background: #FAFCFC;
+    }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-hint {
+      font-size: 11.5px;
+      color: #79919D;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Buttons */
+    .crm-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--crm-line);
+      background: #fff;
+      color: var(--crm-ink);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .crm-btn:hover {
+      border-color: var(--crm-p);
+      color: var(--crm-p);
+    }
+    .crm-btn.primary {
+      background: var(--crm-ink);
+      color: #fff;
+      border-color: var(--crm-ink);
+    }
+    .crm-btn.primary:hover {
+      background: #11384D;
+      color: #fff;
+    }
+    .crm-btn.accent {
+      background: var(--crm-orange);
+      color: #fff;
+      border-color: var(--crm-orange);
+    }
+    .crm-btn.accent:hover {
+      background: #D45000;
+    }
+    .crm-btn.danger {
+      color: #c0392b;
+      border-color: #F8D7DA;
+      background: #FFF8F8;
+    }
+    .crm-btn.danger:hover {
+      background: #c0392b;
+      color: #fff;
+    }
+    .crm-btn.sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+    .crm-btn:disabled { opacity: 0.5; cursor: wait; }
+
+    /* Progress & Messages */
+    .adm-progress { height: 5px; border-radius: 999px; background: var(--crm-line); margin-top: 12px; overflow: hidden; }
+    .adm-progress i { display: block; height: 100%; width: 0; background: var(--crm-p); transition: width .15s; }
+    .adm-msg { margin: 12px 0 0; padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 1.45; }
+    .adm-msg.err { background: #FDECEC; color: #8A1F1F; }
+    .adm-msg.ok { background: var(--crm-p-light); color: #07736C; }
+    .adm-msg[hidden] { display: none; }
+
+    /* CRM Table & Rows */
+    .crm-list-box {
+      max-height: calc(100vh - 270px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .crm-row {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--crm-line);
+      align-items: start;
+    }
+    .crm-row:last-child { border-bottom: 0; }
+    .crm-row-thumb {
+      width: 80px;
+      height: 72px;
+      border-radius: 9px;
+      object-fit: cover;
+      background: #E8EFF2;
+      border: 1px solid var(--crm-line);
+      display: block;
+    }
+    .crm-row-content { min-width: 0; }
+    .crm-row-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .crm-row-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--crm-ink);
+      margin: 0 0 4px;
+      line-height: 1.4;
+    }
+    .crm-row-desc {
+      font-size: 12.5px;
+      color: var(--crm-slate);
+      margin: 0 0 8px;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .crm-row-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--crm-slate);
+    }
+    .crm-pill {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--crm-ink);
+      color: #fff;
+    }
+    .crm-pill.pub { background: #1F9D5C; }
+    .crm-pill.draft { background: var(--crm-orange); }
+    .crm-pill.link { background: #2176C7; }
+    .crm-pill.mkt { background: #E85D04; }
+    .crm-pill.eng { background: #2176C7; }
+
+    /* Student Avatar */
+    .shc-author-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #F4F7F8;
+      padding: 3px 8px 3px 3px;
+      border-radius: 999px;
+      border: 1px solid var(--crm-line);
+    }
+    .shc-avatar-img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .shc-avatar-draft {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--crm-p);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+    }
+
+    .crm-doc-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .crm-input-inline {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--crm-line);
+      border-radius: 7px;
+      font-family: inherit;
+      font-size: 13px;
+      background: #FAFCFC;
+      color: var(--crm-ink);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .crm-input-inline:focus {
+      background: #fff;
+      border-color: var(--crm-p);
+      box-shadow: 0 0 0 2px rgba(13, 160, 150, 0.1);
+    }
+    .crm-textarea-inline {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--crm-line);
+      border-radius: 7px;
+      font-family: inherit;
+      font-size: 12.5px;
+      min-height: 44px;
+      resize: vertical;
+      background: #FAFCFC;
+      color: var(--crm-ink);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .crm-textarea-inline:focus {
+      background: #fff;
+      border-color: var(--crm-p);
+      box-shadow: 0 0 0 2px rgba(13, 160, 150, 0.1);
+    }
+    .crm-row-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .shc-thumb-wrap {
+      position: relative;
+      width: 80px;
+      height: 72px;
+      border-radius: 9px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .shc-thumb-badge {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: rgba(12, 42, 58, 0.85);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tab-pane[hidden] { display: none !important; }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      .crm-split-panel { grid-template-columns: 1fr; }
+      .crm-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .crm-app { grid-template-columns: 1fr; }
+      .crm-sidebar { height: auto; position: static; }
+      .crm-main { padding: 18px 16px 60px; }
+      .crm-kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. LOGIN BOX (KHI CHƯA ĐĂNG NHẬP)
+       ======================================================================== -->
+  <div class="crm-login-wrap" id="admLoginBox" hidden>
+    <div class="crm-login-card">
+      <img src="assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" onerror="this.remove()" />
+      <h2>Đăng nhập Quản trị CRM</h2>
+      <p>Truy cập bảng điều khiển phân hệ Thư viện tài liệu AI và Sản phẩm học viên.</p>
+      
+      <form id="admLoginForm" novalidate>
+        <div class="form-group-clean" style="text-align:left;">
+          <label for="admPassword">Mật khẩu quản trị</label>
+          <input type="password" id="admPassword" placeholder="Nhập mật khẩu quản trị..." autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="crm-btn primary" style="width:100%;height:44px;font-size:14px;margin-top:6px;">Đăng nhập hệ thống</button>
+        <div class="adm-msg err" id="admLoginMsg" role="alert" hidden></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. CRM DASHBOARD SPLIT 8 - 2 (KHI ĐÃ ĐĂNG NHẬP)
+       ======================================================================== -->
+  <div class="crm-app" id="admMainPanes" hidden>
+    
+    <!-- CỘT 2: SIDEBAR (20% Split Trái) -->
+    <aside class="crm-sidebar">
+      <div class="crm-sidebar-brand">
+        <img src="assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight" onerror="this.remove()" />
+        <span class="crm-brand-tag">CRM Admin</span>
+      </div>
+
+      <div class="crm-nav-section">
+        <div class="crm-nav-label">Phân hệ quản trị</div>
+        <div class="crm-nav-menu" role="tablist">
+          <!-- Button 1: Thư viện tài liệu AI -->
+          <button type="button" class="crm-nav-item is-active" id="tabDocBtn" data-tab="doc" role="tab" aria-selected="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Tài liệu AI</span>
+            <span class="badge" id="sideDocCount">0</span>
+          </button>
+
+          <!-- Button 2: Sản phẩm học viên -->
+          <button type="button" class="crm-nav-item" id="tabShowcaseBtn" data-tab="showcase" role="tab" aria-selected="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Sản phẩm học viên</span>
+            <span class="badge" id="sideShowcaseCount">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="crm-quick-links">
+        <div class="crm-nav-label" style="padding-left:12px;">Liên kết nhanh</div>
+        <a href="/tai-lieu-ai" target="_blank" rel="noopener" class="crm-quick-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>Xem Thư viện AI</span>
+        </a>
+        <a href="/san-pham-hoc-vien" target="_blank" rel="noopener" class="crm-quick-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>Xem Sản phẩm học viên</span>
+        </a>
+        <a href="/Homepage" target="_blank" rel="noopener" class="crm-quick-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Trang chủ Erasight</span>
+        </a>
+      </div>
+
+      <!-- User footer in sidebar -->
+      <div class="crm-sidebar-user">
+        <div class="crm-user-ava">EA</div>
+        <div class="crm-user-info">
+          <span class="name">Quản trị viên</span>
+          <span class="role">Admin Portal</span>
+        </div>
+        <button type="button" class="crm-btn-logout" id="admLogout" title="Đăng xuất" aria-label="Đăng xuất">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CỘT 8: MAIN DASHBOARD (80% Split Phải) -->
+    <main class="crm-main">
+      
+      <!-- Topbar Header -->
+      <div class="crm-topbar">
+        <div class="crm-topbar-title">
+          <h1 id="crmPaneTitle">Quản trị Thư viện Tài liệu AI</h1>
+          <div class="sub" id="crmPaneSub">Upload file tài liệu, quản lý link online và duyệt xuất bản tài liệu công khai.</div>
+        </div>
+        <div class="crm-topbar-actions">
+          <a class="crm-btn" id="admViewPageLink" href="/tai-lieu-ai" target="_blank" rel="noopener">
+            <span>Xem trang thực tế</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           TAB 1: THƯ VIỆN TÀI LIỆU AI
+           ==================================================================== -->
+      <section class="tab-pane" id="paneDoc">
+        <!-- KPI Cards -->
+        <div class="crm-kpi-grid">
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon teal">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiDocTotal">0</div>
+              <div class="lbl">Tổng tài liệu</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon orange">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiDocPub">0</div>
+              <div class="lbl">Đã xuất bản</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon blue">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiDocViews">0</div>
+              <div class="lbl">Tổng lượt xem</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiDocLinks">0</div>
+              <div class="lbl">Tài liệu Link online</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split: Form Tải Mới (Trái) & Bảng Danh Sách (Phải) -->
+        <div class="crm-split-panel">
+          <!-- Form Tải Lên -->
+          <div class="crm-card">
+            <div class="crm-card-head">
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Tải tài liệu mới</span>
+              </h2>
+            </div>
+            <form id="admUploadForm" novalidate>
+              <div class="form-group-clean">
+                <label for="upTitle">Tên tài liệu *</label>
+                <input type="text" id="upTitle" placeholder="Ví dụ: Bộ 50 Prompt Marketing chuyển đổi cao" maxlength="150" required />
+              </div>
+              <div class="form-group-clean">
+                <label for="upDesc">Mô tả ngắn tài liệu</label>
+                <textarea id="upDesc" placeholder="Mô tả nội dung chính, đối tượng áp dụng..." maxlength="400"></textarea>
+              </div>
+              <div class="form-group-clean">
+                <label for="upFile">File tài liệu (PDF, Word, Excel, CSV)</label>
+                <input type="file" id="upFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" />
+                <div class="form-hint">Định dạng: .pdf, .doc, .docx, .xlsx, .csv (tối đa 25MB)</div>
+              </div>
+              <div class="form-group-clean">
+                <label for="upLink">Link tài liệu trực tuyến (tuỳ chọn)</label>
+                <input type="url" id="upLink" placeholder="https://docs.google.com/... hoặc Notion, Drive" maxlength="500" />
+                <div class="form-hint">Dán link Google Sheets, Notion... (dùng kèm hoặc thay thế file)</div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-group-clean">
+                  <label for="upCover">Ảnh bìa *</label>
+                  <input type="file" id="upCover" accept="image/png,image/jpeg,image/webp" required />
+                  <div class="form-hint">Tỉ lệ chuẩn 1.1:1</div>
+                </div>
+                <div class="form-group-clean">
+                  <label for="upViews">Lượt xem ban đầu</label>
+                  <input type="number" id="upViews" min="0" step="1" placeholder="Ngẫu nhiên 2000–3000" />
+                  <div class="form-hint">Để trống = random</div>
+                </div>
+              </div>
+              <button type="submit" class="crm-btn accent" id="upSubmit" style="width:100%;height:44px;font-size:14px;margin-top:6px;">
+                <span>Tải lên tài liệu</span>
+              </button>
+              <div class="adm-progress" id="upProgress" hidden><i></i></div>
+              <div class="adm-msg" id="upMsg" role="status" hidden></div>
+            </form>
+          </div>
+
+          <!-- Bảng Danh Sách Đã Tải Lên -->
+          <div class="crm-card">
+            <div class="crm-card-head">
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span>Tài liệu trong kho</span>
+              </h2>
+              <span class="count-pill" id="admCount">0 tài liệu</span>
+            </div>
+            <div class="crm-list-box" id="admList">
+              <div class="adm-empty">Đang tải danh sách tài liệu...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TAB 2: SẢN PHẨM HỌC VIÊN
+           ==================================================================== -->
+      <section class="tab-pane" id="paneShowcase" hidden>
+        <!-- KPI Cards -->
+        <div class="crm-kpi-grid">
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon teal">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiShcTotal">0</div>
+              <div class="lbl">Tổng sản phẩm</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon orange">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiShcVideo">0</div>
+              <div class="lbl">Video thực chiến</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon blue">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiShcImage">0</div>
+              <div class="lbl">Hình ảnh / Hồ sơ</div>
+            </div>
+          </div>
+          <div class="crm-kpi-card">
+            <div class="crm-kpi-icon purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="crm-kpi-data">
+              <div class="val" id="kpiShcStudents">0</div>
+              <div class="lbl">Học viên tham gia</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split: Form Tải Mới (Trái) & Bảng Danh Sách (Phải) -->
+        <div class="crm-split-panel">
+          <!-- Form Tải Sản Phẩm Học Viên -->
+          <div class="crm-card">
+            <div class="crm-card-head">
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Thêm sản phẩm học viên</span>
+              </h2>
+            </div>
+            <form id="shcUploadForm" novalidate>
+              <div class="form-group-clean">
+                <label for="shcTitle">Tên đồ án / sản phẩm *</label>
+                <input type="text" id="shcTitle" placeholder="Ví dụ: Auto-Publishing không bị chặn cache Facebook" maxlength="150" required />
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group-clean">
+                  <label for="shcCourse">Khoá học *</label>
+                  <select id="shcCourse" required>
+                    <option value="mkt">AI Marketing (MKT)</option>
+                    <option value="eng">English Track &amp; Interview (ENG)</option>
+                    <option value="all">Khoá học khác</option>
+                  </select>
+                </div>
+                <div class="form-group-clean">
+                  <label for="shcBadge">Huy hiệu góc</label>
+                  <input type="text" id="shcBadge" placeholder="Live Demo / Kết quả thật" maxlength="40" />
+                </div>
+              </div>
+
+              <div class="form-group-clean">
+                <label for="shcCategory">Nhãn phân loại</label>
+                <input type="text" id="shcCategory" placeholder="Ví dụ: AI Marketing · Đồ án tốt nghiệp" maxlength="100" />
+                <div class="form-hint">Để trống sẽ tự động điền theo khoá học</div>
+              </div>
+
+              <div class="form-group-clean">
+                <label for="shcDesc">Mô tả ngắn đồ án *</label>
+                <textarea id="shcDesc" placeholder="Tóm tắt công năng, stack ứng dụng và kết quả thực tế..." maxlength="400" required></textarea>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group-clean">
+                  <label for="shcStudentName">Tên học viên *</label>
+                  <input type="text" id="shcStudentName" placeholder="Ví dụ: Phương Thanh" maxlength="80" required />
+                </div>
+                <div class="form-group-clean">
+                  <label for="shcStudentRole">Khoá / Vai trò</label>
+                  <input type="text" id="shcStudentRole" placeholder="Ví dụ: Khoá MKT_001" maxlength="80" />
+                </div>
+              </div>
+
+              <!-- Upload ảnh đại diện học viên thật -->
+              <div class="form-group-clean" style="background:#FAFDFD; border:1px solid #D7E7E9; border-radius:12px; padding:12px 14px;">
+                <label for="shcAvatar" style="color:var(--crm-p); display:flex; align-items:center; gap:6px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span>Ảnh đại diện học viên (Avatar thật)</span>
+                </label>
+                <input type="file" id="shcAvatar" accept="image/png,image/jpeg,image/webp" />
+                <div class="form-hint">Upload ảnh chân dung thật để hiển thị avatar tròn thay vì chữ viết tắt.</div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group-clean">
+                  <label for="shcMediaType">Loại media *</label>
+                  <select id="shcMediaType">
+                    <option value="video">Video demo (.mp4, .webm)</option>
+                    <option value="image">Hình ảnh sản phẩm (.png, .jpg)</option>
+                  </select>
+                </div>
+                <div class="form-group-clean">
+                  <label for="shcThumb">Ảnh poster / Thumb</label>
+                  <input type="file" id="shcThumb" accept="image/png,image/jpeg,image/webp" />
+                </div>
+              </div>
+
+              <div class="form-group-clean">
+                <label for="shcMediaFile" id="shcMediaLabel">Tệp Media chính (Video hoặc Ảnh) *</label>
+                <input type="file" id="shcMediaFile" accept="video/mp4,video/webm,image/png,image/jpeg,image/webp" required />
+                <div class="form-hint" id="shcMediaHint">Video tối đa 60MB, Ảnh tối đa 15MB</div>
+              </div>
+
+              <button type="submit" class="crm-btn accent" id="shcSubmit" style="width:100%;height:44px;font-size:14px;margin-top:6px;">
+                <span>Tải lên sản phẩm học viên</span>
+              </button>
+              <div class="adm-progress" id="shcProgress" hidden><i></i></div>
+              <div class="adm-msg" id="shcMsg" role="status" hidden></div>
+            </form>
+          </div>
+
+          <!-- Bảng Danh Sách Sản Phẩm Đã Trưng Bày -->
+          <div class="crm-card">
+            <div class="crm-card-head">
+              <h2>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span>Sản phẩm đang trưng bày</span>
+              </h2>
+              <span class="count-pill" id="shcCount">0 sản phẩm</span>
+            </div>
+            <div class="crm-list-box" id="shcList">
+              <div class="adm-empty">Đang tải danh sách sản phẩm...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="crm-card" id="admDisabled" style="max-width:500px;margin:80px auto;text-align:center;" hidden>
+    <h2>Chưa bật khu vực quản trị</h2>
+    <p>Máy chủ chưa có biến <code>ADMIN_PASSWORD</code> trong file <code>.env</code>.</p>
+  </div>
+
+  <input type="file" id="admReplaceInput" hidden />
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

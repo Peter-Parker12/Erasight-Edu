@@ -350,5 +350,6 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
         if (e.status === 413) res.on('finish', () => req.destroy());
       }
     },
+    isAdmin,
   };
 };
