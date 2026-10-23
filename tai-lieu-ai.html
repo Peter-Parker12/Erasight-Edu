@@ -26,16 +26,6 @@
          ====================================================================== -->
     <section class="res-hero">
       <div class="wrap">
-        <nav class="res-breadcrumb" aria-label="Breadcrumb">
-          <a href="/Homepage">Trang chủ</a>
-          <span class="sep">/</span>
-          <span>Resource</span>
-          <span class="sep">/</span>
-          <span class="current">Tài liệu AI</span>
-        </nav>
-
-        <div class="res-motif" aria-hidden="true"><span></span><span></span><span></span></div>
-        <span class="eyebrow pur">Resource · AI Library</span>
         <h1>Thư viện <span class="hl">Tài liệu AI</span> cho người đi làm.</h1>
         <p class="lead">
           Prompt, workflow template, cẩm nang và slide bài giảng được đội ngũ Erasight chọn lọc &amp; kiểm chứng
@@ -45,7 +35,6 @@
         <form class="lib-search" id="libSearchForm" role="search" onsubmit="return false;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="search" id="libSearchInput" placeholder="Tìm tài liệu: prompt content, n8n, ChatGPT, CV..." aria-label="Tìm kiếm tài liệu AI" autocomplete="off" />
-          <kbd>/</kbd>
           <button type="submit" class="btn btn-primary" id="libSearchBtn">Tìm kiếm</button>
         </form>
 
@@ -164,6 +153,59 @@
         <button type="submit" class="btn btn-primary dl-submit" id="dlSubmit">Tải tài liệu ↓</button>
         <p class="dl-note">Erasight chỉ dùng thông tin này để gửi tài liệu và tư vấn khoá học phù hợp.</p>
       </form>
+    </div>
+  </div>
+
+  <!-- POPUP SHOWCASE THÔNG TIN TÀI LIỆU (Khi đã ghi danh) -->
+  <div class="doc-modal" id="showcaseModal" role="dialog" aria-modal="true" aria-labelledby="scTitle">
+    <div class="doc-modal-box">
+      <button type="button" class="doc-modal-close" id="scClose" aria-label="Đóng">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="doc-cover has-img" id="scCover">
+        <img id="scImg" src="" alt="" />
+        <span class="ext" id="scExt">PDF</span>
+      </div>
+      <div class="doc-modal-body">
+        <div class="sc-badge-row">
+          <span class="eyebrow pur">Thông tin tài liệu</span>
+          <span class="sc-status-pill">✓ Đã ghi danh</span>
+        </div>
+        <h3 id="scTitle">Tên tài liệu</h3>
+        <p id="scDesc" class="sc-desc"></p>
+        
+        <div class="doc-spec">
+          <div>
+            <dt>Định dạng</dt>
+            <dd id="scType">PDF</dd>
+          </div>
+          <div>
+            <dt>Dung lượng</dt>
+            <dd id="scSize">0 KB</dd>
+          </div>
+          <div>
+            <dt>Lượt xem</dt>
+            <dd id="scViews">0</dd>
+          </div>
+          <div>
+            <dt>Ngày đăng</dt>
+            <dd id="scDate">Hôm nay</dd>
+          </div>
+        </div>
+
+        <div class="sc-actions">
+          <button type="button" class="btn btn-primary sc-dl-btn" id="scDownloadBtn">
+            <span>Tải tài liệu ngay</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          </button>
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" id="scLinkBtn" hidden style="display:none;align-items:center;gap:6px;">
+            <span>Mở link online</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
+          <button type="button" class="btn btn-ghost" id="scCloseBtn">Đóng</button>
+        </div>
+        <p class="sc-note">Tài khoản của bạn đã được xác thực — tải không giới hạn trong 7 ngày.</p>
+      </div>
     </div>
   </div>
 

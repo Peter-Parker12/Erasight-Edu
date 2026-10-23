@@ -39,6 +39,9 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
     pdf: { mime: 'application/pdf', magic: [Buffer.from('%PDF-')] },
     docx: { mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', magic: [Buffer.from([0x50, 0x4b, 0x03, 0x04])] },
     doc: { mime: 'application/msword', magic: [Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])] },
+    xlsx: { mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', magic: [Buffer.from([0x50, 0x4b, 0x03, 0x04])] },
+    xls: { mime: 'application/vnd.ms-excel', magic: [Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])] },
+    csv: { mime: 'text/csv; charset=utf-8', magic: [], extra: (b) => !b.slice(0, 16).includes(0x00) },
   };
   const COVER_TYPES = {
     png: { mime: 'image/png', magic: [Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])] },
@@ -61,12 +64,20 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
 
   const findDoc = (id) => docs.find((d) => d.id === id);
   const isPublished = (d) => d && d.status === 'published';
-  const refreshStatus = (d) => { d.status = d.file && d.cover ? 'published' : 'pending'; d.updatedAt = new Date().toISOString(); };
+  const refreshStatus = (d) => {
+    d.status = (d.file || d.link) && d.cover ? 'published' : 'pending';
+    d.updatedAt = new Date().toISOString();
+  };
   const publicDoc = (d) => ({
-    id: d.id, title: d.title, description: d.description, views: d.views, type: d.type, size: d.size,
+    id: d.id, title: d.title, description: d.description, views: d.views,
+    type: d.type || (d.link ? 'link' : null), size: d.size || 0,
+    link: d.link || null,
     coverUrl: `/api/documents/${d.id}/cover?v=${encodeURIComponent(d.updatedAt)}`, createdAt: d.createdAt,
   });
-  const adminDoc = (d) => ({ ...publicDoc(d), status: d.status, hasFile: !!d.file, hasCover: !!d.cover });
+  const adminDoc = (d) => ({
+    ...publicDoc(d), status: d.status, hasFile: !!d.file, hasCover: !!d.cover,
+    link: d.link || '',
+  });
 
   // ---- Signed cookies --------------------------------------------------------
   const mac = (s) => crypto.createHmac('sha256', SECRET).update(s).digest('base64url');
@@ -135,7 +146,9 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
         try {
           const fd = fs.openSync(tmp, 'r'); const head = Buffer.alloc(16);
           fs.readSync(fd, head, 0, 16, 0); fs.closeSync(fd);
-          const ok = size > 0 && type.magic.some((m) => startsWith(head, m)) && (!type.extra || type.extra(head));
+          const hasMagic = Array.isArray(type.magic) && type.magic.length > 0;
+          const magicMatch = hasMagic ? type.magic.some((m) => startsWith(head, m)) : true;
+          const ok = size > 0 && magicMatch && (!type.extra || type.extra(head));
           if (!ok) { fs.unlinkSync(tmp); return reject(fail(400, 'File content does not match its type')); }
           fs.renameSync(tmp, destPath);
           resolve(size);
@@ -181,12 +194,14 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
         const b = await readJson(req);
         const title = cleanText(b.title, 150);
         if (!title) throw fail(400, 'Title is required');
+        const link = cleanText(b.link, 500) || null;
         const now = new Date().toISOString();
         const doc = {
           id: crypto.randomBytes(8).toString('hex'), title, description: cleanText(b.description, 400),
           views: b.views === undefined || b.views === '' ? crypto.randomInt(2000, 3001) : readViews(b.views),
-          type: null, size: 0, file: null, cover: null, status: 'pending', createdAt: now, updatedAt: now,
+          type: link ? 'link' : null, size: 0, file: null, cover: null, link, status: 'pending', createdAt: now, updatedAt: now,
         };
+        refreshStatus(doc);
         docs.push(doc); saveNow();
         return send(res, 201, { document: adminDoc(doc) });
       }
@@ -216,6 +231,11 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
       if (b.title !== undefined) { const t = cleanText(b.title, 150); if (!t) throw fail(400, 'Title is required'); doc.title = t; }
       if (b.description !== undefined) doc.description = cleanText(b.description, 400);
       if (b.views !== undefined) doc.views = readViews(b.views);
+      if (b.link !== undefined) {
+        doc.link = cleanText(b.link, 500) || null;
+        if (!doc.file && doc.link) doc.type = 'link';
+      }
+      refreshStatus(doc);
       doc.updatedAt = new Date().toISOString(); saveNow();
       return send(res, 200, { document: adminDoc(doc) });
     }
@@ -259,17 +279,24 @@ module.exports = function init({ twenty, twentyReady, normalizePhone, send, read
 
   function download(req, res, doc) {
     if (!hasAccess(req)) return send(res, 403, { error: 'Access required' });
-    const file = path.join(FILES_DIR, doc.file || '');
-    if (!doc.file || !fs.existsSync(file)) return send(res, 404, { error: 'File missing' });
-    const type = DOC_TYPES[doc.type];
-    const ascii = `${slug(doc.title)}.${doc.type}`;
-    const utf8 = encodeURIComponent(`${doc.title.replace(/[\\/:*?"<>|\r\n]+/g, ' ').trim().slice(0, 120)}.${doc.type}`);
-    res.writeHead(200, {
-      'Content-Type': type.mime, 'Content-Length': fs.statSync(file).size,
-      'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${utf8}`,
-      'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff',
-    });
-    fs.createReadStream(file).pipe(res);
+    if (doc.file) {
+      const file = path.join(FILES_DIR, doc.file || '');
+      if (!fs.existsSync(file)) return send(res, 404, { error: 'File missing' });
+      const type = DOC_TYPES[doc.type] || { mime: 'application/octet-stream' };
+      const ascii = `${slug(doc.title)}.${doc.type}`;
+      const utf8 = encodeURIComponent(`${doc.title.replace(/[\\/:*?"<>|\r\n]+/g, ' ').trim().slice(0, 120)}.${doc.type}`);
+      res.writeHead(200, {
+        'Content-Type': type.mime, 'Content-Length': fs.statSync(file).size,
+        'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${utf8}`,
+        'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff',
+      });
+      return fs.createReadStream(file).pipe(res);
+    }
+    if (doc.link) {
+      res.writeHead(302, { Location: doc.link });
+      return res.end();
+    }
+    return send(res, 404, { error: 'No file or link available' });
   }
 
   function cover(req, res, doc) {

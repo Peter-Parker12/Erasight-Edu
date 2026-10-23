@@ -36,11 +36,12 @@
     .adm-msg[hidden] { display: none; }
     .adm-row { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); }
     .adm-row:first-child { border-top: 0; }
-    .adm-thumb { width: 96px; height: 120px; border-radius: 10px; background: var(--cloud); border: 1px solid var(--line); object-fit: cover; display: block; }
+    .adm-thumb { width: 99px; height: 90px; aspect-ratio: 1.1 / 1; border-radius: 10px; background: var(--cloud); border: 1px solid var(--line); object-fit: cover; display: block; }
     .adm-thumb.none { display: grid; place-items: center; font-size: 11px; color: #8aa0a8; text-align: center; padding: 6px; }
     .adm-fields { display: grid; grid-template-columns: 1fr 120px; gap: 10px 12px; }
     .adm-fields input, .adm-fields textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 9px; font: inherit; font-size: 13.5px; outline: none; }
     .adm-fields input:focus, .adm-fields textarea:focus { border-color: var(--p); }
+    .adm-fields input.f-link { grid-column: 1 / -1; }
     .adm-fields textarea { grid-column: 1 / -1; min-height: 60px; resize: vertical; }
     .adm-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 12.5px; color: #5d7681; }
     .adm-badge { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--ink); color: #fff; }
@@ -54,7 +55,7 @@
     .adm-empty { text-align: center; color: #6b8590; padding: 26px 0 8px; }
     .adm-progress { height: 6px; border-radius: 3px; background: var(--line); margin-top: 12px; overflow: hidden; }
     .adm-progress i { display: block; height: 100%; width: 0; background: var(--p); transition: width .15s; }
-    @media (max-width: 560px) { .adm-row { grid-template-columns: 1fr; } .adm-thumb { width: 100%; height: 160px; } .adm-fields { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .adm-row { grid-template-columns: 1fr; } .adm-thumb { width: 132px; height: 120px; aspect-ratio: 1.1 / 1; } .adm-fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -95,14 +96,19 @@
               <textarea id="upDesc" maxlength="400"></textarea>
             </div>
             <div class="form-group-clean">
-              <label for="upFile">File tài liệu (PDF hoặc Word) *</label>
-              <input type="file" id="upFile" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
-              <div class="adm-hint">Định dạng: .pdf, .doc, .docx</div>
+              <label for="upFile">File tài liệu (PDF, Word, Excel, CSV)</label>
+              <input type="file" id="upFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" />
+              <div class="adm-hint">Định dạng: .pdf, .doc, .docx, .xlsx, .csv (tối đa 25MB)</div>
+            </div>
+            <div class="form-group-clean">
+              <label for="upLink">Link truy cập tài liệu (tuỳ chọn)</label>
+              <input type="url" id="upLink" placeholder="https://docs.google.com/... hoặc link Notion, Drive, Canva" maxlength="500" />
+              <div class="adm-hint">Có thể dán link Google Sheets, Drive, Notion... (dùng kèm hoặc thay thế file)</div>
             </div>
             <div class="form-group-clean">
               <label for="upCover">Ảnh bìa *</label>
               <input type="file" id="upCover" accept="image/png,image/jpeg,image/webp" required />
-              <div class="adm-hint">PNG, JPG hoặc WebP. Nên dùng ảnh dọc tỉ lệ khoảng 4:3 trở lên.</div>
+              <div class="adm-hint">PNG, JPG hoặc WebP. Tỉ lệ chuẩn 1.1:1 (khoảng 1024x900, 800x720 hoặc ảnh vuông).</div>
             </div>
             <div class="form-group-clean">
               <label for="upViews">Lượt xem ban đầu</label>

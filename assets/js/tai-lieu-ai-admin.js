@@ -11,7 +11,7 @@
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
   const HEADERS = { 'X-Requested-With': 'erasight-admin' };
-  const DOC_EXT = ['pdf', 'doc', 'docx'];
+  const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv'];
   const COVER_EXT = ['png', 'jpg', 'jpeg', 'webp'];
   const extOf = (name) => (String(name).split('.').pop() || '').toLowerCase();
 
@@ -109,20 +109,26 @@
   }
 
   function rowHtml(d) {
-    const ready = d.hasFile && d.hasCover;
+    const ready = (d.hasFile || d.link) && d.hasCover;
     const thumb = d.hasCover
       ? `<img class="adm-thumb" src="${esc(d.coverUrl)}" alt="" />`
       : '<div class="adm-thumb none">Chưa có ảnh bìa</div>';
+    const badgeText = d.type ? esc(String(d.type).toUpperCase()) : (d.link ? 'LINK' : 'NHÁP');
+    const statusText = ready
+      ? `Đang hiển thị (${d.hasFile ? esc(String(d.type).toUpperCase()) : ''}${d.hasFile && d.link ? ' + ' : ''}${d.link ? 'Link' : ''})`
+      : 'Thiếu ' + [!d.hasFile && !d.link && 'file/link', !d.hasCover && 'ảnh bìa'].filter(Boolean).join(' + ') + ' — chưa hiển thị';
+
     return `
       <div class="adm-row" data-id="${esc(d.id)}">
         ${thumb}
         <div class="adm-fields">
-          <input type="text" class="f-title" value="${esc(d.title)}" maxlength="150" aria-label="Tên tài liệu" />
+          <input type="text" class="f-title" value="${esc(d.title)}" maxlength="150" placeholder="Tên tài liệu *" aria-label="Tên tài liệu" />
           <input type="number" class="f-views" value="${esc(d.views)}" min="0" step="1" aria-label="Lượt xem" />
-          <textarea class="f-desc" maxlength="400" aria-label="Mô tả ngắn">${esc(d.description)}</textarea>
+          <input type="url" class="f-link" value="${esc(d.link || '')}" maxlength="500" placeholder="Link tài liệu (tuỳ chọn): Google Sheets, Drive, Notion..." aria-label="Link tài liệu" />
+          <textarea class="f-desc" maxlength="400" placeholder="Mô tả ngắn" aria-label="Mô tả ngắn">${esc(d.description)}</textarea>
           <div class="adm-meta">
-            <span class="adm-badge ${ready ? '' : 'draft'}">${ready ? esc(String(d.type).toUpperCase()) : 'NHÁP'}</span>
-            <span>${ready ? 'Đang hiển thị' : 'Thiếu ' + [!d.hasFile && 'file', !d.hasCover && 'ảnh bìa'].filter(Boolean).join(' + ') + ' — chưa hiển thị trên trang'}</span>
+            <span class="adm-badge ${ready ? '' : 'draft'}">${badgeText}</span>
+            <span>${statusText}</span>
             <div class="adm-actions">
               <button type="button" class="adm-btn primary" data-act="save">Lưu</button>
               <button type="button" class="adm-btn" data-act="file">${d.hasFile ? 'Đổi file' : 'Thêm file'}</button>
@@ -152,7 +158,7 @@
     replaceCtx = null;
     const m = row.querySelector('.adm-msg');
     const ext = extOf(file.name);
-    if (!(kind === 'file' ? DOC_EXT : COVER_EXT).includes(ext)) return msg(m, kind === 'file' ? 'Chỉ nhận PDF, DOC, DOCX.' : 'Chỉ nhận PNG, JPG, WebP.', 'err');
+    if (!(kind === 'file' ? DOC_EXT : COVER_EXT).includes(ext)) return msg(m, kind === 'file' ? 'Chỉ nhận PDF, DOC, DOCX, XLSX, XLS, CSV.' : 'Chỉ nhận PNG, JPG, WebP.', 'err');
     msg(m, 'Đang tải lên...', 'ok');
     try {
       await uploadFile(`/api/admin/documents/${id}/${kind}?ext=${ext}`, file);
@@ -172,7 +178,7 @@
 
     if (act === 'file' || act === 'cover') {
       const input = $('admReplaceInput');
-      input.accept = act === 'file' ? '.pdf,.doc,.docx' : 'image/png,image/jpeg,image/webp';
+      input.accept = act === 'file' ? '.pdf,.doc,.docx,.xls,.xlsx,.csv' : 'image/png,image/jpeg,image/webp';
       replaceCtx = { id, kind: act, row };
       return input.click();
     }
@@ -189,10 +195,12 @@
         await api('PATCH', `/api/admin/documents/${id}`, {
           title: row.querySelector('.f-title').value,
           description: row.querySelector('.f-desc').value,
-          views: row.querySelector('.f-views').value
+          views: row.querySelector('.f-views').value,
+          link: row.querySelector('.f-link').value.trim()
         });
         msg(m, 'Đã lưu.', 'ok');
         setTimeout(() => { m.hidden = true; }, 2200);
+        await loadList();
       } catch (err) {
         msg(m, err.message, 'err');
       } finally {
@@ -207,13 +215,15 @@
     const m = $('upMsg');
     const bar = $('upProgress');
     const title = $('upTitle').value.trim();
+    const link = $('upLink') ? $('upLink').value.trim() : '';
     const file = $('upFile').files[0];
     const cover = $('upCover').files[0];
     const fileExt = file && extOf(file.name);
     const coverExt = cover && extOf(cover.name);
 
     if (!title) return msg(m, 'Vui lòng nhập tên tài liệu.', 'err');
-    if (!file || !DOC_EXT.includes(fileExt)) return msg(m, 'Vui lòng chọn file PDF hoặc Word (.pdf, .doc, .docx).', 'err');
+    if (!file && !link) return msg(m, 'Vui lòng chọn file (.pdf, .docx, .xlsx, .csv) hoặc nhập link tài liệu.', 'err');
+    if (file && !DOC_EXT.includes(fileExt)) return msg(m, 'File không được hỗ trợ. Chỉ nhận PDF, Word, Excel (.xlsx, .xls) hoặc CSV.', 'err');
     if (!cover || !COVER_EXT.includes(coverExt)) return msg(m, 'Vui lòng chọn ảnh bìa (PNG, JPG hoặc WebP).', 'err');
 
     const submit = $('upSubmit');
@@ -226,15 +236,20 @@
     try {
       msg(m, 'Đang tạo tài liệu...', 'ok');
       const body = { title, description: $('upDesc').value };
+      if (link) body.link = link;
       if ($('upViews').value.trim() !== '') body.views = $('upViews').value.trim();
       created = (await api('POST', '/api/admin/documents', body)).document;
 
-      msg(m, 'Đang tải file tài liệu...', 'ok');
-      await uploadFile(`/api/admin/documents/${created.id}/file?ext=${fileExt}`, file, (p) => setBar(p * 0.85));
-      msg(m, 'Đang tải ảnh bìa...', 'ok');
-      await uploadFile(`/api/admin/documents/${created.id}/cover?ext=${coverExt === 'jpeg' ? 'jpg' : coverExt}`, cover, (p) => setBar(0.85 + p * 0.15));
+      if (file) {
+        msg(m, 'Đang tải file tài liệu...', 'ok');
+        await uploadFile(`/api/admin/documents/${created.id}/file?ext=${fileExt}`, file, (p) => setBar(p * (cover ? 0.85 : 1)));
+      }
+      if (cover) {
+        msg(m, 'Đang tải ảnh bìa...', 'ok');
+        await uploadFile(`/api/admin/documents/${created.id}/cover?ext=${coverExt === 'jpeg' ? 'jpg' : coverExt}`, cover, (p) => setBar((file ? 0.85 : 0) + p * (file ? 0.15 : 1)));
+      }
 
-      msg(m, `Đã tải lên "${title}". Tài liệu đã hiển thị trên trang.`, 'ok');
+      msg(m, `Đã tải lên "${title}". Tài liệu đã sẵn sàng trên trang.`, 'ok');
       $('admUploadForm').reset();
       await loadList();
     } catch (err) {
