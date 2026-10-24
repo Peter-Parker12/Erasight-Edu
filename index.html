@@ -572,6 +572,117 @@
         padding: 22px 18px 26px;
       }
     }
+
+    /* ==========================================================================
+       ABOUT US SECTION (GIỚI THIỆU CHUNG & VIDEO Q2) - SHARP SQUARE CORNERS
+       ========================================================================== */
+    .about-intro-sec {
+      background: #FFFFFF;
+      padding: 68px 0 76px;
+      position: relative;
+      border-top: 1px solid rgba(226, 232, 240, 0.7);
+    }
+    .about-intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 68px;
+      align-items: center;
+    }
+    .about-intro-text {
+      width: 100%;
+    }
+    .about-heading {
+      font-size: clamp(34px, 4vw, 44px);
+      font-weight: 800;
+      color: #E85D04;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin: 0 0 22px;
+    }
+    .about-paragraph {
+      font-size: 15.5px;
+      line-height: 1.78;
+      color: #4A6572;
+      margin-bottom: 18px;
+      text-align: justify;
+    }
+    .about-paragraph:last-child {
+      margin-bottom: 0;
+    }
+    .about-paragraph strong {
+      color: #0C2A3A;
+      font-weight: 700;
+    }
+    .about-accent {
+      color: #E85D04;
+      font-weight: 700;
+    }
+
+    /* RIGHT COLUMN: Video with Orange Accent Frame scaled up via Grid (NO OVERLAP, NO ROUNDED CORNERS) */
+    .about-intro-media {
+      position: relative;
+      width: 100%;
+    }
+    .about-accent-frame {
+      position: relative;
+      border-radius: 0 !important;
+      padding-top: 16px;
+      padding-right: 20px;
+      width: 100%;
+    }
+    .about-orange-bg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 18px;
+      left: 36px;
+      background: #E85D04;
+      border-radius: 0 !important;
+      z-index: 1;
+      box-shadow: 0 16px 36px rgba(232, 93, 4, 0.22);
+      transition: box-shadow 0.3s ease;
+    }
+    .about-accent-frame:hover .about-orange-bg {
+      box-shadow: 0 20px 44px rgba(232, 93, 4, 0.32);
+    }
+    .about-video-container {
+      position: relative;
+      z-index: 2;
+      background: #0C2A3A;
+      border-radius: 0 !important;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(12, 42, 58, 0.16);
+      border: 3px solid #FFFFFF;
+    }
+    .about-video-container video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      object-fit: cover;
+      background: #0C2A3A;
+      border-radius: 0 !important;
+    }
+
+    @media (max-width: 991px) {
+      .about-intro-sec {
+        padding: 48px 0 56px;
+      }
+      .about-intro-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .about-intro-text {
+        max-width: 100%;
+      }
+      .about-accent-frame {
+        padding-top: 14px;
+        padding-right: 16px;
+      }
+      .about-orange-bg {
+        left: 20px;
+        bottom: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -897,6 +1008,46 @@
               </svg>
               <span class="flip-btn-tooltip" id="heroFlipTooltip">Xem ảnh lớp học</span>
             </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         ABOUT US SECTION (GIỚI THIỆU CHUNG & VIDEO INTRO)
+         ====================================================================== -->
+    <section class="about-intro-sec" id="ve-chung-toi" aria-label="Giới thiệu chung về Erasight">
+      <div class="wrap">
+        <div class="about-intro-grid">
+          <!-- Cột trái: Văn bản giới thiệu chung -->
+          <div class="about-intro-text">
+            <h2 class="about-heading">Về chúng tôi</h2>
+            <p class="about-paragraph">
+              <strong>Erasight Academy</strong> là học viện đào tạo và phát triển năng lực nghề nghiệp thực chiến hàng đầu cho thế hệ trẻ đi làm, cung cấp các chương trình đào tạo chuyên sâu về năng lực số như <span class="about-accent">Trí tuệ nhân tạo (AI Marketing Automation)</span>, <span class="about-accent">No-Code Workflows</span>, <span class="about-accent">Tự động hoá vận hành nội dung</span> và <span class="about-accent">Tiếng Anh phỏng vấn ứng tuyển chuyên nghiệp (STAR Framework &amp; MNC Standard)</span>.
+            </p>
+            <p class="about-paragraph">
+              Chúng tôi — <strong>Erasight</strong> tự hào đã đồng hành giúp hàng trăm học viên làm chủ công cụ mới, tự tin tối ưu hoá hiệu suất công việc và nâng cao thu nhập. Chúng tôi củng cố năng lực thực chiến thông qua phương pháp <em>"Học thật — Ra sản phẩm thật"</em>.
+            </p>
+          </div>
+
+          <!-- Cột phải: Video giới thiệu với khung màu cam cạnh vuông góc (Không bo tròn góc) -->
+          <div class="about-intro-media">
+            <div class="about-accent-frame">
+              <div class="about-orange-bg" aria-hidden="true"></div>
+              <div class="about-video-container">
+                <video 
+                  id="aboutIntroVideo"
+                  poster="assets/images/Q2_poster.jpg"
+                  controls
+                  playsinline
+                  preload="metadata"
+                  title="Video giới thiệu Erasight Academy - Kỹ năng thực chiến cho người đi làm"
+                >
+                  <source src="assets/videos/Q2.mp4" type="video/mp4" />
+                  Trình duyệt của bạn không hỗ trợ phát video HTML5.
+                </video>
+              </div>
+            </div>
           </div>
         </div>
       </div>
