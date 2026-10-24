@@ -39,7 +39,10 @@
 
 /* Floating Glass Pill State when Scrolled (cotrain-inspired design) */
 .site-header.is-scrolled {
+  position: fixed;
   top: 14px;
+  left: 0;
+  right: 0;
   width: calc(100% - 48px);
   max-width: 1160px;
   margin: 0 auto;
@@ -50,6 +53,7 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-bottom: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 1000;
 }
 
 .site-header-inner {
@@ -75,7 +79,10 @@
     height: 70px;
   }
   .site-header.is-scrolled {
+    position: fixed;
     top: 10px;
+    left: 0;
+    right: 0;
     width: calc(100% - 24px);
     border-radius: 18px;
   }
@@ -101,7 +108,8 @@
 }
 
 .site-header.is-scrolled .nav-link.nav-link--active,
-.site-header.is-scrolled .nav-link.active {
+.site-header.is-scrolled .nav-link.active,
+.site-header.is-scrolled .nav-link.is-current {
   color: #FFFFFF;
   background: rgba(255, 255, 255, 0.14);
   border-radius: 9999px;

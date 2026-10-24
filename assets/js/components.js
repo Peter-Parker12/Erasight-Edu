@@ -490,6 +490,10 @@
       const gvLinks = document.querySelectorAll('[data-nav="giang-vien"]');
       gvLinks.forEach(l => l.classList.add('active'));
     }
+    if (currentPath.includes('hoi-dap')) {
+      const hdLinks = document.querySelectorAll('[data-nav="hoi-dap"]');
+      hdLinks.forEach(l => l.classList.add('active'));
+    }
     if (currentPath.includes('blog')) {
       const blogLinks = document.querySelectorAll('[data-nav="blog"]');
       blogLinks.forEach(l => l.classList.add('active'));
@@ -573,8 +577,16 @@
   function renderComponents() {
     // Header render nếu có container hoặc thẻ tùy biến
     const headerContainer = document.getElementById('site-header') || document.querySelector('erasight-header');
-    if (headerContainer && !headerContainer.querySelector('.site-header')) {
-      headerContainer.innerHTML = HEADER_TEMPLATE;
+    if (headerContainer) {
+      const existingHeader = headerContainer.querySelector('.site-header');
+      if (existingHeader) {
+        headerContainer.replaceWith(existingHeader);
+      } else {
+        const temp = document.createElement('div');
+        temp.innerHTML = HEADER_TEMPLATE.trim();
+        const newHeader = temp.firstElementChild;
+        headerContainer.replaceWith(newHeader);
+      }
     }
 
     // Footer render nếu có container hoặc thẻ tùy biến
