@@ -1832,7 +1832,7 @@ section.blk {
    WEDGE (COMPARISON TABLE) WITH B7 BACKGROUND
    ========================================================================== */
 .wedge {
-  background: url('../images/B7.png') no-repeat center center / cover;
+  background: url('../images/B7.webp') no-repeat center center / cover;
   position: relative;
   overflow: hidden;
 }

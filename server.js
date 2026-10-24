@@ -3,6 +3,8 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 
@@ -162,7 +164,6 @@ async function handleEnroll(req, res) {
 
 // Cache-busting: rewrite local CSS/JS URLs in served HTML to ?v=<content hash>, so an edited file
 // always gets a new URL and a stale copy in Cloudflare/the browser can never be reused.
-const crypto = require('crypto');
 const hashCache = new Map(); // file -> { mtimeMs, hash }
 function assetHash(rel) {
   const file = path.join(ROOT, rel);
@@ -199,18 +200,65 @@ function serveStatic(req, res) {
   else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
   // Pretty post URLs: /blog-<post-slug> -> blog-post.html (the page reads the slug from the URL)
   else if (/^\/blog-[A-Za-z0-9%_-]+$/.test(p)) p = '/blog-post.html';
+
+  // Tự động chuyển sang ảnh WebP nếu client hỗ trợ và có file .webp trên đĩa
+  let ext = path.extname(p).toLowerCase();
+  const acceptHeader = req.headers['accept'] || '';
+  if (acceptHeader.includes('image/webp') && (ext === '.png' || ext === '.jpg' || ext === '.jpeg')) {
+    const webpCandidate = p.slice(0, -ext.length) + '.webp';
+    if (fs.existsSync(path.join(ROOT, webpCandidate))) {
+      p = webpCandidate;
+      ext = '.webp';
+    }
+  }
+
   const file = path.join(ROOT, p);
   if (!STATIC_ALLOW.test(p) || !file.startsWith(ROOT + path.sep)) { res.writeHead(404); return res.end('Not found'); }
+
   fs.readFile(file, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('Not found'); }
-    if (p.endsWith('.html')) buf = stampAssets(buf.toString('utf8'));
-    res.writeHead(200, {
-      'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      // Code/markup must never be served stale by Cloudflare or browsers; only media is cached long-term.
-      'Cache-Control': /\.(js|css|html|json)$/i.test(p) ? 'no-cache, no-store, must-revalidate'
-        : p.startsWith('/assets/') ? 'public, max-age=604800' : 'no-cache',
-    });
-    res.end(buf);
+    if (p.endsWith('.html')) buf = Buffer.from(stampAssets(buf.toString('utf8')));
+
+    // ETag & Conditional 304 Not Modified
+    const etag = '"' + crypto.createHash('md5').update(buf).digest('hex') + '"';
+    if (req.headers['if-none-match'] === etag) {
+      res.writeHead(304, { 'ETag': etag });
+      return res.end();
+    }
+
+    const isText = /\.(html|css|js|json|svg)$/i.test(p);
+    const isImmutable = req.url.includes('?v=') || /\.(webp|png|jpg|jpeg|gif|woff2?|mp4)$/i.test(p);
+
+    const cacheControl = isImmutable
+      ? 'public, max-age=31536000, immutable'
+      : (isText && !p.endsWith('.html'))
+        ? 'public, max-age=86400, stale-while-revalidate=604800'
+        : 'public, max-age=0, must-revalidate';
+
+    const headers = {
+      'Content-Type': MIME[ext] || 'application/octet-stream',
+      'Cache-Control': cacheControl,
+      'ETag': etag,
+    };
+
+    // Bật nén Gzip cho text resources (HTML, CSS, JS, SVG, JSON)
+    const acceptEncoding = req.headers['accept-encoding'] || '';
+    if (isText && acceptEncoding.includes('gzip') && buf.length > 256) {
+      zlib.gzip(buf, (zErr, gzipped) => {
+        if (!zErr && gzipped) {
+          headers['Content-Encoding'] = 'gzip';
+          headers['Vary'] = 'Accept-Encoding';
+          res.writeHead(200, headers);
+          res.end(gzipped);
+        } else {
+          res.writeHead(200, headers);
+          res.end(buf);
+        }
+      });
+    } else {
+      res.writeHead(200, headers);
+      res.end(buf);
+    }
   });
 }
 

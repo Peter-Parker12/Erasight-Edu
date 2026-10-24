@@ -11,10 +11,16 @@
   <!-- Google Fonts: Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" />
+  </noscript>
   
-  <link rel="stylesheet" href="assets/css/style.css?v=2.7" />
-  <link rel="stylesheet" href="assets/css/header-footer.css?v=2.2" />
+  <link rel="preload" href="assets/css/style.css" as="style" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preload" href="assets/css/header-footer.css" as="style" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
 
   <style>
     /* ==========================================================================
@@ -1402,7 +1408,7 @@
               >
                 <source src="assets/videos/A1_web.mp4" type="video/mp4" />
                 <source src="assets/videos/A1.mp4" type="video/mp4" />
-                <img src="assets/images/A1_frame.jpg" alt="Auto-Publishing không bị chặn cache Facebook" />
+                <img src="assets/images/A1_frame.jpg" alt="Auto-Publishing không bị chặn cache Facebook" loading="lazy" decoding="async" />
               </video>
               <span class="asset-badge-live">Live Demo</span>
 
@@ -1453,7 +1459,7 @@
               >
                 <source src="assets/videos/Q1_web.mp4" type="video/mp4" />
                 <source src="assets/videos/Q1.mp4" type="video/mp4" />
-                <img src="assets/images/Q1_poster.jpg" alt="Xây dựng Video Motion Graphic dài không tốn token qua Remotion Skills" />
+                <img src="assets/images/Q1_poster.jpg" alt="Xây dựng Video Motion Graphic dài không tốn token qua Remotion Skills" loading="lazy" decoding="async" />
               </video>
               <span class="asset-badge-live">Live Demo</span>
 
@@ -1540,7 +1546,7 @@
               <div class="faculty-badge-card is-active" id="facultyCard0" data-name="Hồ Hoàng Tiến" data-role="Chủ nhiệm khoá AI Marketing · Automation Architect">
                 <div class="faculty-badge-inner">
                   <div class="faculty-badge-media">
-                    <img src="assets/images/instructor_tien.png" alt="Hồ Hoàng Tiến" class="faculty-badge-photo" />
+                    <img src="assets/images/instructor_tien.png" alt="Hồ Hoàng Tiến" class="faculty-badge-photo" loading="lazy" decoding="async" width="400" height="400" />
                     <div class="faculty-badge-media-overlay"></div>
                   </div>
                   <div class="faculty-badge-content">
@@ -1568,7 +1574,7 @@
               <div class="faculty-badge-card" id="facultyCard1" data-name="Nguyễn Mai Trâm" data-role="Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner">
                 <div class="faculty-badge-inner">
                   <div class="faculty-badge-media">
-                    <img src="assets/images/instructor_tram.png" alt="Nguyễn Mai Trâm" class="faculty-badge-photo" />
+                    <img src="assets/images/instructor_tram.png" alt="Nguyễn Mai Trâm" class="faculty-badge-photo" loading="lazy" decoding="async" width="400" height="400" />
                     <div class="faculty-badge-media-overlay"></div>
                   </div>
                   <div class="faculty-badge-content">
