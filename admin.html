@@ -632,6 +632,85 @@
 
     .tab-pane[hidden] { display: none !important; }
 
+    /* Modal Popup Chỉnh sửa */
+    .crm-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(12, 42, 58, 0.55);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      overflow-y: auto;
+      animation: modalFadeIn 0.2s ease;
+    }
+    .crm-modal-backdrop[hidden] { display: none !important; }
+    .crm-modal-card {
+      background: #FFFFFF;
+      border: 1px solid var(--crm-line);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 20px 50px rgba(12, 42, 58, 0.22);
+      overflow: hidden;
+      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .crm-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--crm-line);
+      background: #FAFDFD;
+    }
+    .crm-modal-head h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--crm-ink);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .crm-modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      color: var(--crm-slate);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .crm-modal-close:hover {
+      background: #F0F4F6;
+      color: var(--crm-ink);
+    }
+    .crm-modal-body {
+      padding: 20px 22px;
+      max-height: calc(85vh - 120px);
+      overflow-y: auto;
+    }
+    .crm-modal-foot {
+      padding: 14px 22px;
+      border-top: 1px solid var(--crm-line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #FAFDFD;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
     /* Responsive */
     @media (max-width: 1080px) {
       .crm-split-panel { grid-template-columns: 1fr; }
@@ -1011,6 +1090,85 @@
   <div class="crm-card" id="admDisabled" style="max-width:500px;margin:80px auto;text-align:center;" hidden>
     <h2>Chưa bật khu vực quản trị</h2>
     <p>Máy chủ chưa có biến <code>ADMIN_PASSWORD</code> trong file <code>.env</code>.</p>
+  </div>
+
+  <!-- MODAL POPUP CHỈNH SỬA SẢN PHẨM HỌC VIÊN -->
+  <div class="crm-modal-backdrop" id="shcEditModal" hidden>
+    <div class="crm-modal-card" role="dialog" aria-modal="true" aria-labelledby="shcEditModalTitle">
+      <div class="crm-modal-head">
+        <h3 id="shcEditModalTitle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Chỉnh sửa sản phẩm học viên</span>
+        </h3>
+        <button type="button" class="crm-modal-close" id="shcEditClose" title="Đóng popup">✕</button>
+      </div>
+      <form id="shcEditForm" novalidate>
+        <div class="crm-modal-body">
+          <input type="hidden" id="editShcId" />
+          
+          <div class="form-group-clean">
+            <label for="editShcTitle">Tên đồ án / sản phẩm *</label>
+            <input type="text" id="editShcTitle" required maxlength="150" placeholder="Ví dụ: Auto-Publishing không bị chặn cache Facebook" />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group-clean">
+              <label for="editShcCourse">Khoá học *</label>
+              <select id="editShcCourse" required>
+                <option value="mkt">AI Marketing (MKT)</option>
+                <option value="eng">English Track &amp; Interview (ENG)</option>
+                <option value="all">Khoá học khác</option>
+              </select>
+            </div>
+            <div class="form-group-clean">
+              <label for="editShcBadge">Huy hiệu góc</label>
+              <input type="text" id="editShcBadge" maxlength="40" placeholder="Live Demo / Kết quả thật" />
+            </div>
+          </div>
+
+          <div class="form-group-clean">
+            <label for="editShcCategory">Nhãn phân loại</label>
+            <input type="text" id="editShcCategory" maxlength="100" placeholder="Ví dụ: AI Marketing · Đồ án tốt nghiệp" />
+          </div>
+
+          <div class="form-group-clean">
+            <label for="editShcDesc">Mô tả ngắn đồ án *</label>
+            <textarea id="editShcDesc" required maxlength="400" placeholder="Tóm tắt công năng, stack ứng dụng..." style="min-height:95px;"></textarea>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group-clean">
+              <label for="editShcStudentName">Tên học viên *</label>
+              <input type="text" id="editShcStudentName" required maxlength="80" placeholder="Ví dụ: Phương Thanh" />
+            </div>
+            <div class="form-group-clean">
+              <label for="editShcStudentRole">Khoá / Vai trò</label>
+              <input type="text" id="editShcStudentRole" maxlength="80" placeholder="Ví dụ: Khoá MKT_001" />
+            </div>
+          </div>
+
+          <!-- Đổi Avatar và Poster tuỳ chọn -->
+          <div class="form-row-2" style="background:#FAFDFD; border:1px solid #D7E7E9; border-radius:12px; padding:12px; margin-top:10px;">
+            <div class="form-group-clean" style="margin-bottom:0;">
+              <label for="editShcAvatar" style="font-size:12px; color:var(--crm-p);">Đổi ảnh đại diện (Avatar thật)</label>
+              <input type="file" id="editShcAvatar" accept="image/png,image/jpeg,image/webp" style="font-size:11.5px;" />
+              <div class="form-hint" style="font-size:11px;">Chọn tệp nếu muốn thay avatar mới</div>
+            </div>
+            <div class="form-group-clean" style="margin-bottom:0;">
+              <label for="editShcThumb" style="font-size:12px;">Đổi ảnh bìa / Poster</label>
+              <input type="file" id="editShcThumb" accept="image/png,image/jpeg,image/webp" style="font-size:11.5px;" />
+              <div class="form-hint" style="font-size:11px;">Chọn tệp nếu muốn thay poster mới</div>
+            </div>
+          </div>
+
+          <div class="adm-msg" id="editShcMsg" role="status" hidden></div>
+        </div>
+        <div class="crm-modal-foot">
+          <button type="button" class="crm-btn" id="shcEditCancel">Huỷ bỏ</button>
+          <button type="submit" class="crm-btn primary" id="shcEditSubmit">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <input type="file" id="admReplaceInput" hidden />

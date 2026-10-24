@@ -15,6 +15,509 @@
   
   <link rel="stylesheet" href="assets/css/style.css?v=2.7" />
   <link rel="stylesheet" href="assets/css/header-footer.css?v=2.2" />
+
+  <style>
+    /* ==========================================================================
+       ENTERPRISE KNOWLEDGE BASE / FAQ PORTAL STYLING (HOMEPAGE)
+       ========================================================================== */
+    .faq-portal-section {
+      background: #FFFFFF;
+      padding: 60px 0 80px;
+    }
+    .faq-neon-grad {
+      background: linear-gradient(135deg, #0DA096 0%, #00F5D4 52%, #07736C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      font-weight: 800;
+      filter: drop-shadow(0 2px 10px rgba(0, 245, 212, 0.35));
+    }
+
+    /* ==========================================================================
+       FACULTY SHOWCASE CAROUSEL (THEO MẪU BẰNG BADGE SHOWCASE)
+       ========================================================================== */
+    .faculty-showcase-container {
+      margin-top: 24px;
+      position: relative;
+    }
+    .faculty-showcase-topline {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0C2A3A;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+      transition: opacity 0.2s ease;
+      min-height: 22px;
+      padding-left: 2px;
+    }
+    .faculty-showcase-wrapper {
+      display: flex;
+      align-items: stretch;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* 2 Side Panels (Orange Accent Wings with Grayscale Ghost Backdrop) */
+    .faculty-side-panel {
+      flex: 0 0 76px;
+      width: 76px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #D86B44;
+      transition: all 0.25s ease;
+      padding: 0;
+      box-shadow: 0 6px 18px rgba(216, 107, 68, 0.22);
+    }
+    .faculty-side-panel:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(216, 107, 68, 0.38);
+      filter: brightness(1.05);
+    }
+    .faculty-side-backdrop {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center top;
+      filter: grayscale(100%);
+      opacity: 0.32;
+      transition: background-image 0.3s ease, opacity 0.3s ease;
+    }
+    .faculty-side-panel:hover .faculty-side-backdrop {
+      opacity: 0.42;
+    }
+    .faculty-side-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(216, 107, 68, 0.72);
+      mix-blend-mode: multiply;
+    }
+    .faculty-arrow-icon {
+      position: relative;
+      z-index: 2;
+      color: #FFFFFF;
+      transition: transform 0.2s ease;
+    }
+    .faculty-side-panel--prev:hover .faculty-arrow-icon {
+      transform: translateX(-3px);
+    }
+    .faculty-side-panel--next:hover .faculty-arrow-icon {
+      transform: translateX(3px);
+    }
+
+    /* Center Stage (Badge Showcase) */
+    .faculty-showcase-stage {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      min-height: 440px;
+    }
+    .faculty-badge-card {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.985);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 35px rgba(12, 42, 58, 0.08);
+    }
+    .faculty-badge-card.is-active {
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
+    .faculty-badge-inner {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      height: 100%;
+      min-height: 440px;
+    }
+    .faculty-badge-media {
+      position: relative;
+      background: #F1F5F9;
+      overflow: hidden;
+    }
+    .faculty-badge-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .faculty-badge-card:hover .faculty-badge-photo {
+      transform: scale(1.02);
+    }
+    .faculty-badge-media-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 65%, rgba(12, 42, 58, 0.12) 100%);
+      pointer-events: none;
+    }
+    .faculty-badge-content {
+      padding: 38px 42px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #FFFFFF;
+    }
+    .faculty-badge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #EDF2F7;
+    }
+    .faculty-badge-logo {
+      height: 24px;
+      width: auto;
+      object-fit: contain;
+    }
+    .faculty-badge-pill {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 5px 12px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .pill-teal {
+      background: #E2F5F3;
+      color: #07736C;
+    }
+    .pill-blue {
+      background: #E9F2FB;
+      color: #175496;
+    }
+    .faculty-badge-main {
+      margin: auto 0;
+      padding: 16px 0;
+    }
+    .faculty-badge-name {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+    .faculty-badge-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0DA096;
+      margin-bottom: 14px;
+    }
+    .faculty-badge-desc {
+      font-size: 15px;
+      color: #334155;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .faculty-badge-footer {
+      padding-top: 18px;
+      border-top: 1px solid #EDF2F7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faculty-mobile-controls {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .faculty-badge-inner {
+        grid-template-columns: 280px 1fr;
+      }
+      .faculty-badge-content {
+        padding: 26px 28px;
+      }
+    }
+    @media (max-width: 768px) {
+      .faculty-showcase-wrapper {
+        flex-direction: column;
+      }
+      .faculty-side-panel {
+        display: none;
+      }
+      .faculty-badge-inner {
+        grid-template-columns: 1fr;
+      }
+      .faculty-badge-media {
+        height: 320px;
+      }
+      .faculty-badge-content {
+        padding: 24px 20px;
+      }
+      .faculty-mobile-controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .faculty-mobile-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        border: none;
+        background: #D86B44;
+        color: #FFFFFF;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+    }
+    .faq-portal-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+    .faq-portal-sidebar {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(12, 42, 58, 0.04);
+      position: sticky;
+      top: 90px;
+    }
+    .faq-portal-nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .faq-nav-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 13px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #EDF2F7;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+      position: relative;
+    }
+    .faq-nav-item:last-child {
+      border-bottom: none;
+    }
+    .faq-nav-item:hover {
+      background: #F8FAFC;
+      color: #0C2A3A;
+    }
+    .faq-nav-item.is-active {
+      background: #E8F6F5;
+      color: #0C2A3A;
+      font-weight: 700;
+      border-left: 4.5px solid #0DA096;
+      padding-left: 13.5px;
+    }
+    .faq-portal-main {
+      min-width: 0;
+    }
+    .faq-search-banner {
+      background: #E8F6F5 url('assets/images/BC2.png') center/cover no-repeat;
+      border: 1px solid #D2E3E5;
+      border-radius: 12px;
+      padding: 30px 32px 34px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px rgba(12, 42, 58, 0.08);
+      text-align: center;
+      position: relative;
+    }
+    .faq-search-banner h2 {
+      font-size: 21px;
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0 0 16px;
+      letter-spacing: -0.01em;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.85);
+    }
+    .faq-search-input-wrap {
+      position: relative;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    .faq-search-banner-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 44px 0 18px;
+      border-radius: 8px;
+      border: 1.5px solid #CBD5E1;
+      background: #FFFFFF;
+      font-size: 15px;
+      font-family: inherit;
+      color: #0C2A3A;
+      outline: none;
+      box-shadow: 0 4px 15px rgba(12, 42, 58, 0.06);
+      transition: all 0.2s;
+    }
+    .faq-search-banner-input:focus {
+      background: #FFFFFF;
+      border-color: #0DA096;
+      box-shadow: 0 0 0 3px rgba(13, 160, 150, 0.25), 0 6px 20px rgba(12, 42, 58, 0.1);
+    }
+    .faq-search-banner-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #005691;
+      pointer-events: none;
+    }
+    .faq-results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .faq-section-heading {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .faq-count-status {
+      font-size: 13px;
+      color: #64748B;
+      font-weight: 500;
+    }
+    .faq-classic-list {
+      border-top: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      background: #FFFFFF;
+    }
+    .faq-classic-item {
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .faq-classic-item:last-child {
+      border-bottom: none;
+    }
+    .faq-classic-item summary {
+      list-style: none;
+      padding: 16px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      user-select: none;
+      outline: none;
+      transition: background 0.15s ease;
+    }
+    .faq-classic-item summary::-webkit-details-marker {
+      display: none;
+    }
+    .faq-classic-item summary:hover {
+      background: #F8FAFC;
+    }
+    .faq-classic-item[open] summary {
+      background: #F8FBFC;
+    }
+    .faq-circle-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      color: #0DA096;
+      margin-top: 1px;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .faq-classic-item summary:hover .faq-circle-icon {
+      color: #07736C;
+    }
+    .faq-classic-item[open] .faq-circle-icon {
+      color: #07736C;
+    }
+    .faq-question-text {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0C2A3A;
+      line-height: 1.45;
+      margin: 0;
+      flex: 1;
+    }
+    .faq-classic-item[open] .faq-question-text {
+      color: #07736C;
+    }
+    .faq-classic-body {
+      padding: 4px 18px 20px 48px;
+      font-size: 14.5px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .faq-classic-body strong, .faq-classic-body b {
+      color: #0C2A3A;
+    }
+    .faq-classic-body ul {
+      margin: 8px 0 8px 20px;
+    }
+    .faq-classic-body li {
+      margin-bottom: 4px;
+    }
+    .faq-highlight-note {
+      margin-top: 10px;
+      padding: 9px 14px;
+      background: #F1F8F9;
+      border-left: 3px solid #0DA096;
+      border-radius: 4px;
+      font-size: 13.5px;
+      color: #0F5E58;
+    }
+    .faq-portal-empty {
+      text-align: center;
+      padding: 42px 20px;
+      color: #64748B;
+      font-size: 14px;
+    }
+    @media (max-width: 860px) {
+      .faq-portal-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .faq-portal-sidebar {
+        position: static;
+      }
+      .faq-portal-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        white-space: nowrap;
+        background: #F8FAFC;
+        border-radius: 8px;
+        padding: 4px;
+      }
+      .faq-nav-item {
+        border-bottom: none;
+        border-radius: 6px;
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+      .faq-nav-item.is-active {
+        border-left: none;
+        background: #FFFFFF;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .faq-search-banner {
+        padding: 22px 18px 26px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -93,7 +596,7 @@
             </a>
           </div>
         </div>
-        <a href="#faq" class="nav-link">Hỏi đáp</a>
+        <a href="/hoi-dap" target="_blank" rel="noopener noreferrer" class="nav-link">Hỏi đáp</a>
         <a href="/blog" class="nav-link" data-nav="blog">Blog</a>
       </nav>
 
@@ -136,7 +639,7 @@
             <a href="/tai-lieu-ai" class="mobile-nav-sublink">✦ Tài liệu AI</a>
           </div>
         </div>
-        <a href="#faq" class="mobile-nav-item">Hỏi đáp</a>
+        <a href="/hoi-dap" target="_blank" rel="noopener noreferrer" class="mobile-nav-item">Hỏi đáp</a>
         <a href="/blog" class="mobile-nav-item" data-nav="blog">Blog</a>
       </div>
 
@@ -958,37 +1461,113 @@
          ====================================================================== -->
     <section class="blk" id="giang-vien" style="background:var(--cloud);">
       <div class="wrap">
-        <div class="sec-head">
-          <span class="eyebrow">Người đồng hành</span>
-          <h2>Đội ngũ giảng viên &amp; cố vấn thực chiến</h2>
-          <p>Trực tiếp xây dựng sản phẩm và tuyển dụng nhân sự mỗi ngày.</p>
+        <div class="sec-head center" style="text-align:center; margin-bottom:28px;">
+          <h2 style="font-size:clamp(28px, 3.8vw, 42px); line-height:1.25; margin-bottom:10px;"><span class="faq-neon-grad">Người đồng hành</span></h2>
+          <p style="font-size:16.5px; font-weight:700; color:var(--dark); margin:0 auto 4px; max-width:680px;">Đội ngũ giảng viên &amp; cố vấn thực chiến</p>
+          <p style="font-size:15px; color:var(--slate); margin:0 auto; max-width:680px;">Trực tiếp xây dựng sản phẩm và tuyển dụng nhân sự mỗi ngày.</p>
         </div>
 
-        <div class="faculty-grid">
-          <div class="faculty-card-clean">
-            <img src="assets/images/instructor_tien.png" alt="Hồ Hoàng Tiến" />
-            <div>
-              <h3>Hồ Hoàng Tiến</h3>
-              <div class="faculty-role">Chủ nhiệm khoá AI Marketing · Automation Architect</div>
-              <p style="margin-bottom:12px;">3 năm kinh nghiệm thiết kế hệ thống tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Đã giảng dạy hơn 500 sinh viên và trực tiếp thiết kế hệ sinh thái tự động hoá cho hơn 25+ dự án số tại các SMEs.</p>
-              <a href="/giang-vien#ai-marketing" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--td); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
-                <span>Xem chi tiết hồ sơ &amp; cam kết</span>
-                <span>→</span>
-              </a>
-            </div>
+        <div class="faculty-showcase-container">
+          <!-- Top Line Title: Profile Name - Role -->
+          <div class="faculty-showcase-topline" id="facultyTopMeta">
+            Hồ Hoàng Tiến - Chủ nhiệm khoá AI Marketing · Automation Architect
           </div>
 
-          <div class="faculty-card-clean">
-            <img src="assets/images/instructor_tram.png" alt="Nguyễn Mai Trâm" />
-            <div>
-              <h3>Nguyễn Mai Trâm</h3>
-              <div class="faculty-role blue">Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner</div>
-              <p style="margin-bottom:12px;">8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.</p>
-              <a href="/giang-vien#career-english" style="font-family:var(--font-heading); font-size:13.5px; font-weight:700; color:var(--blue); display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
-                <span>Xem chi tiết hồ sơ &amp; cam kết</span>
-                <span>→</span>
-              </a>
+          <div class="faculty-showcase-wrapper">
+            <!-- Left Side Panel (Orange Accent Wing) -->
+            <button type="button" class="faculty-side-panel faculty-side-panel--prev" id="facultyPrevBtn" aria-label="Xem người đồng hành trước">
+              <div class="faculty-side-backdrop" id="facultyPrevThumb" style="background-image: url('assets/images/instructor_tram.png');"></div>
+              <div class="faculty-side-overlay"></div>
+              <svg class="faculty-arrow-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+
+            <!-- Center Stage: Showcase Badge Cards -->
+            <div class="faculty-showcase-stage" id="facultyStage">
+              <!-- Badge Card 1: Hồ Hoàng Tiến -->
+              <div class="faculty-badge-card is-active" id="facultyCard0" data-name="Hồ Hoàng Tiến" data-role="Chủ nhiệm khoá AI Marketing · Automation Architect">
+                <div class="faculty-badge-inner">
+                  <div class="faculty-badge-media">
+                    <img src="assets/images/instructor_tien.png" alt="Hồ Hoàng Tiến" class="faculty-badge-photo" />
+                    <div class="faculty-badge-media-overlay"></div>
+                  </div>
+                  <div class="faculty-badge-content">
+                    <div class="faculty-badge-header">
+                      <img src="assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" class="faculty-badge-logo" />
+                      <span class="faculty-badge-pill pill-teal">MKT_001 · AI MARKETING</span>
+                    </div>
+                    <div class="faculty-badge-main">
+                      <h3 class="faculty-badge-name">Hồ Hoàng Tiến</h3>
+                      <div class="faculty-badge-title">Chủ nhiệm khoá AI Marketing · Automation Architect</div>
+                      <p class="faculty-badge-desc">
+                        3 năm kinh nghiệm thiết kế hệ thống tự động hoá quy trình và tối ưu hóa vận hành nội dung số. Đã giảng dạy hơn 500 sinh viên và trực tiếp thiết kế hệ sinh thái tự động hoá cho hơn 25+ dự án số tại các SMEs.
+                      </p>
+                    </div>
+                    <div class="faculty-badge-footer">
+                      <a href="/giang-vien#ai-marketing" class="btn btn-primary btn-sm">
+                        Xem chi tiết hồ sơ &amp; cam kết →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Badge Card 2: Nguyễn Mai Trâm -->
+              <div class="faculty-badge-card" id="facultyCard1" data-name="Nguyễn Mai Trâm" data-role="Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner">
+                <div class="faculty-badge-inner">
+                  <div class="faculty-badge-media">
+                    <img src="assets/images/instructor_tram.png" alt="Nguyễn Mai Trâm" class="faculty-badge-photo" />
+                    <div class="faculty-badge-media-overlay"></div>
+                  </div>
+                  <div class="faculty-badge-content">
+                    <div class="faculty-badge-header">
+                      <img src="assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" class="faculty-badge-logo" />
+                      <span class="faculty-badge-pill pill-blue">ENG_002 · CAREER ENGLISH</span>
+                    </div>
+                    <div class="faculty-badge-main">
+                      <h3 class="faculty-badge-name">Nguyễn Mai Trâm</h3>
+                      <div class="faculty-badge-title" style="color:var(--blue);">Cố vấn Tiếng Anh &amp; Tuyển dụng · Senior TA Partner</div>
+                      <p class="faculty-badge-desc">
+                        8+ năm kinh nghiệm quản lý tuyển dụng tại các tập đoàn đa quốc gia, từng phỏng vấn hơn 2.500 ứng viên ngành Marketing và Tech. Trực tiếp sửa CV và chấm Mock Interview 1:1 cho học viên.
+                      </p>
+                    </div>
+                    <div class="faculty-badge-footer">
+                      <a href="/giang-vien#career-english" class="btn btn-primary btn-sm" style="background:var(--blue); border-color:var(--blue);">
+                        Xem chi tiết hồ sơ &amp; cam kết →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Right Side Panel (Orange Accent Wing) -->
+            <button type="button" class="faculty-side-panel faculty-side-panel--next" id="facultyNextBtn" aria-label="Xem người đồng hành tiếp theo">
+              <div class="faculty-side-backdrop" id="facultyNextThumb" style="background-image: url('assets/images/instructor_tram.png');"></div>
+              <div class="faculty-side-overlay"></div>
+              <svg class="faculty-arrow-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 5"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Mobile Controls -->
+          <div class="faculty-mobile-controls">
+            <button type="button" class="faculty-mobile-btn" id="facultyMobilePrev" aria-label="Trước">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="faculty-mobile-btn" id="facultyMobileNext" aria-label="Sau">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 5"></polyline>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -1006,8 +1585,7 @@
     <section class="blk" id="pricing">
       <div class="wrap">
         <div class="sec-head center">
-          <span class="eyebrow pur" style="margin:0 auto;">Học phí &amp; Ghi danh</span>
-          <h2>Học phí trọn gói. Giữ chỗ đợt khai giảng này.</h2>
+          <h2>Học phí trọn gói<br />Giữ chỗ đợt khai giảng này</h2>
           <p>Mỗi lớp tối đa 12 học viên để đảm bảo từng người đều được sửa bài và hỗ trợ 1:1.</p>
         </div>
 
@@ -1122,56 +1700,305 @@
     </section>
 
     <!-- ======================================================================
-         FAQ (HỎI ĐÁP CỐT LÕI)
+         FAQ (HỎI ĐÁP CỐT LÕI - ENTERPRISE PORTAL LAYOUT)
          ====================================================================== -->
-    <section class="blk" id="faq" style="background:var(--cloud);">
+    <section class="blk faq-portal-section" id="faq">
       <div class="wrap">
-        <div class="sec-head center">
-          <span class="eyebrow" style="margin:0 auto;">Giải đáp thắc mắc</span>
-          <h2>Câu hỏi thường gặp</h2>
-          <p>Mọi thông tin về phương pháp học và chính sách đồng hành.</p>
+        <div class="sec-head center" style="margin-bottom:34px;">
+          <h2 style="font-size:clamp(28px, 3.8vw, 42px); line-height:1.25; margin-bottom:12px;"><span class="faq-neon-grad">Frequently</span> Asked Questions</h2>
+          <p style="font-size:15.5px; color:var(--slate); max-width:680px; margin:0 auto;">
+            Tra cứu nhanh các thắc mắc về lộ trình đào tạo, lịch học, chính sách học bù và chuẩn đầu ra tại Erasight Academy.
+          </p>
         </div>
 
-        <div class="faq-stack">
-          <details class="faq-card" open>
-            <summary>
-              <span>Tôi chưa từng biết lập trình thì có học được khoá AI Marketing không?</span>
-              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
-            </summary>
-            <div class="faq-body">
-              Hoàn toàn học được. Khoá học được thiết kế theo tư duy No-Code: bạn dùng các công cụ có sẵn qua giao diện trực quan và bảng tính Google Sheets. Không yêu cầu bất kỳ nền tảng code nào từ trước.
-            </div>
-          </details>
+        <div class="faq-portal-grid">
+          <!-- Left Sidebar Menu -->
+          <aside class="faq-portal-sidebar" aria-label="Danh mục câu hỏi">
+            <nav class="faq-portal-nav" id="faqSideNav">
+              <button type="button" class="faq-nav-item is-active" data-cat="all">Frequently Asked Questions</button>
+              <button type="button" class="faq-nav-item" data-cat="lo-trinh">Lộ trình &amp; Kiến thức</button>
+              <button type="button" class="faq-nav-item" data-cat="lich-hoc">Lịch học &amp; Điểm danh</button>
+              <button type="button" class="faq-nav-item" data-cat="hoc-bu">Chính sách học bù &amp; Review</button>
+              <button type="button" class="faq-nav-item" data-cat="do-an">Đồ án &amp; Chuẩn đầu ra</button>
+              <button type="button" class="faq-nav-item" data-cat="chinh-sach">Quy định &amp; Quyền lợi</button>
+              <button type="button" class="faq-nav-item" data-cat="cam-ket">Hỗ trợ sau khoá &amp; Cam kết</button>
+              <a href="/hoi-dap" target="_blank" rel="noopener noreferrer" class="faq-nav-item" style="color:var(--orange); font-weight:700;">Xem chi tiết &amp; Ghi danh tại Trang Hỏi đáp &rarr;</a>
+            </nav>
+          </aside>
 
-          <details class="faq-card">
-            <summary>
-              <span>Nếu tôi bận một buổi học thì có được học bù không?</span>
-              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
-            </summary>
-            <div class="faq-body">
-              Có. Erasight có chính sách 3 buổi học lại "Yêu lại từ đầu" miễn phí hoàn toàn cho mỗi khoá. Toàn bộ các buổi học đều có record video để bạn xem lại bất cứ lúc nào trong vòng 1 năm.
+          <!-- Main Content Area -->
+          <div class="faq-portal-main">
+            <!-- Search Banner with BC1.png background -->
+            <div class="faq-search-banner">
+              <h2>Frequently Asked Questions and Answers Search</h2>
+              <div class="faq-search-input-wrap">
+                <input type="search" class="faq-search-banner-input" id="faqPortalSearch" placeholder="Search" aria-label="Search frequently asked questions" autocomplete="off" />
+                <svg class="faq-search-banner-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
             </div>
-          </details>
 
-          <details class="faq-card">
-            <summary>
-              <span>Tiếng Anh của tôi ở mức A2 (cơ bản) thì có theo kịp khoá phỏng vấn không?</span>
-              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
-            </summary>
-            <div class="faq-body">
-              Khoá học thiết kế tối ưu cho học viên ở mức A2–B1. Thay vì học ngữ pháp trừu tượng, bạn được rèn luyện trực tiếp các mẫu câu phỏng vấn thực tế theo khung STAR và sửa bài 1:1 để tự tin phản xạ.
+            <!-- List Header -->
+            <div class="faq-results-header">
+              <h3 class="faq-section-heading" id="faqSectionHeading">Top Frequently Asked Questions</h3>
+              <span class="faq-count-status" id="faqCountStatus">16 câu hỏi</span>
             </div>
-          </details>
 
-          <details class="faq-card">
-            <summary>
-              <span>Sau khoá học tôi có được cấp chứng nhận tốt nghiệp không?</span>
-              <span style="color:var(--orange); font-size:20px; font-weight:700;">+</span>
-            </summary>
-            <div class="faq-body">
-              Có. Sau buổi báo cáo đồ án tốt nghiệp, học viên hoàn thành sẽ được cấp Chứng nhận tốt nghiệp chuẩn nhận diện Erasight Edu (có mã số xác thực trực tuyến để gắn vào CV và LinkedIn).
+            <!-- Accordion List -->
+            <div class="faq-classic-list" id="faqClassicList">
+
+              <!-- Item 1 -->
+              <details class="faq-classic-item" data-cat="lo-trinh" open>
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học có cần biết lập trình không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Không bắt buộc.</b> Khóa học tập trung vào tư duy workflow, no-code/low-code và hướng dẫn từng bước. Phần nâng cao như Google Apps Script được hướng dẫn theo mức phù hợp.
+                  <div class="faq-highlight-note">
+                    💡 Hơn 85% học viên Erasight chưa từng biết viết code vẫn tự tin hoàn thành workflow tự động hoá hoàn chỉnh.
+                  </div>
+                </div>
+              </details>
+
+              <!-- Item 2 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu bận một buổi thì có học lại được không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Học viên có video record chất lượng cao, folder tài liệu học tập đầy đủ và có thể gửi câu hỏi qua form hoặc nhóm hỗ trợ để được mentor giải đáp.
+                </div>
+              </details>
+
+              <!-- Item 3 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Sau khóa học có sản phẩm gì không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Học viên cần hoàn thành đồ án cuối khóa là một <b>workflow Automation Marketing hoàn chỉnh</b> (tự động xuất bản nội dung, tạo ảnh model thương hiệu, website portfolio cá nhân có gắn công cụ).
+                </div>
+              </details>
+
+              <!-- Item 4 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học phù hợp với sinh viên không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Phù hợp</b>, đặc biệt với sinh viên khối ngành Marketing, Kinh doanh, Truyền thông, Thương mại điện tử (TMĐT), Công nghệ thông tin (CNTT) muốn có sản phẩm thực chiến vào CV.
+                </div>
+              </details>
+
+              <!-- Item 5 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học có phù hợp với người đã đi làm không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Nội dung giúp nhân viên Marketing, Content Creator, E-commerce và nhân viên văn phòng tăng hiệu suất và tự động hóa các đầu việc lặp lại thủ công.
+                </div>
+              </details>
+
+              <!-- Item 6 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Điểm tổng kết được tính như thế nào?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Điểm tổng kết chuẩn đầu ra = <b>BTVN (50%)</b> + <b>Chuyên cần (20%)</b> + <b>Đồ án cuối khóa (30%)</b>. Điểm chuyên cần đối chiếu bằng form điểm danh và video record buổi học.
+                </div>
+              </details>
+
+              <!-- Item 7 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu nghỉ học có được học bù không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Được học bù</b> thông qua video record và các buổi Bonus/Review "Yêu lại từ đầu". Trung tâm không tổ chức dạy riêng từng cá nhân nếu học viên nghỉ vì lý do cá nhân.
+                </div>
+              </details>
+
+              <!-- Item 8 -->
+              <details class="faq-classic-item" data-cat="lich-hoc">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu vào lớp muộn thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Mentor vẫn tiếp tục giảng theo tiến độ lớp. Học viên chủ động xem lại video record để bổ sung phần kiến thức đã bỏ lỡ ở đầu buổi.
+                </div>
+              </details>
+
+              <!-- Item 9 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu không hoàn thành Project cuối khóa thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Học viên sẽ <b>chưa đủ điều kiện đạt chuẩn đầu ra</b> và chưa nhận chứng nhận hoàn thành khóa học cho đến khi hoàn thiện và nộp lại theo yêu cầu.
+                </div>
+              </details>
+
+              <!-- Item 10 -->
+              <details class="faq-classic-item" data-cat="chinh-sach">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có được chia sẻ tài khoản học cho người khác không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Không.</b> Mỗi tài khoản chỉ dành riêng cho một học viên. Hệ thống có quyền khóa quyền truy cập nếu phát hiện hành vi chia sẻ tài khoản trái phép.
+                </div>
+              </details>
+
+              <!-- Item 11 -->
+              <details class="faq-classic-item" data-cat="chinh-sach">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Không tham gia group hỗ trợ có ảnh hưởng không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có ảnh hưởng lớn.</b> Toàn bộ thông báo, cập nhật lịch học, tài liệu và bài tập đều được gửi trong group lớp. Học viên tự chịu trách nhiệm nếu bỏ lỡ thông tin.
+                </div>
+              </details>
+
+              <!-- Item 12 -->
+              <details class="faq-classic-item" data-cat="cam-ket">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Sau khi kết thúc khóa học còn được hỗ trợ không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Học viên vẫn được tham gia <b>Community Erasight</b> để cập nhật tài liệu và kiến thức mới. Việc mentor hỗ trợ trực tiếp sẽ theo chính sách bảo hành khóa học.
+                </div>
+              </details>
+
+              <!-- Item 13 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có được học lại toàn bộ khóa không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Trong thời gian bảo hành (tối đa <b>2 tháng</b> kể từ ngày kết thúc), học viên có thể xin tham gia lại lớp mới nếu còn chỗ. Sau thời gian này học viện sẽ không hỗ trợ học lại toàn bộ.
+                </div>
+              </details>
+
+              <!-- Item 14 -->
+              <details class="faq-classic-item" data-cat="lich-hoc">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu vắng nhiều buổi liên tiếp thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Mentor sẽ liên hệ để nắm tình hình. Tuy nhiên học viên vẫn phải tự đảm bảo tiến độ học và hoàn thành các yêu cầu chuẩn đầu ra của khóa học.
+                </div>
+              </details>
+
+              <!-- Item 15 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu AI hoặc công cụ trong khóa thay đổi thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Nội dung khóa học sẽ được cập nhật theo xu hướng mới nhất. Mentor chú trọng hướng dẫn <b>phương pháp tư duy và workflow logic</b> thay vì phụ thuộc vào một công cụ cụ thể.
+                </div>
+              </details>
+
+              <!-- Item 16 -->
+              <details class="faq-classic-item" data-cat="cam-ket">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có cam kết đầu ra không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Khóa học cam kết cung cấp đầy đủ kiến thức thực chiến, quy trình chuẩn mực và mentor hỗ trợ tận tâm. Kết quả cuối cùng phụ thuộc vào mức độ học tập, thực hành và hoàn thành bài tập của từng học viên.
+                </div>
+              </details>
+
             </div>
-          </details>
+
+            <!-- Empty Search Message -->
+            <div class="faq-portal-empty" id="faqPortalEmpty" style="display:none;">
+              Không tìm thấy câu hỏi phù hợp. Vui lòng kiểm tra lại từ khoá tìm kiếm.
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1444,9 +2271,11 @@
           <span class="tech-pill">✦ Đăng bài chuẩn giờ</span>
         </div>
         <a href="#pricing" class="btn btn-primary btn-sm" onclick="closeVideoDetailModal()">Ghi danh khoá học AI Marketing →</a>
-      </div>
     </div>
   </div>
+
+  <!-- Core Reusable Components (Header, Footer, Scroll Glass Pill) -->
+  <script src="assets/js/components.js"></script>
 
   <script>
     const VIDEO_DATA = {
@@ -1556,6 +2385,149 @@
           closeVideoDetailModal();
         }
       });
+    });
+  </script>
+
+  <!-- Script điều khiển Portal FAQ trên Homepage -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('faqPortalSearch');
+      const sideNavButtons = document.querySelectorAll('.faq-nav-item[data-cat]');
+      const faqItems = document.querySelectorAll('.faq-classic-item');
+      const emptyMsg = document.getElementById('faqPortalEmpty');
+      const countStatus = document.getElementById('faqCountStatus');
+      const sectionHeading = document.getElementById('faqSectionHeading');
+
+      let currentCategory = 'all';
+      let searchKeyword = '';
+
+      function normalize(str) {
+        return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      }
+
+      function filterFaq() {
+        const query = normalize(searchKeyword.trim());
+        let visibleCount = 0;
+
+        faqItems.forEach(item => {
+          const itemCat = item.dataset.cat;
+          const qText = item.querySelector('.faq-question-text')?.textContent || '';
+          const aText = item.querySelector('.faq-classic-body')?.textContent || '';
+          const fullText = normalize(qText + ' ' + aText);
+
+          const matchesCat = (currentCategory === 'all' || itemCat === currentCategory);
+          const matchesQuery = !query || fullText.includes(query);
+
+          if (matchesCat && matchesQuery) {
+            item.style.display = '';
+            visibleCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        if (countStatus) {
+          countStatus.textContent = `${visibleCount} câu hỏi`;
+        }
+        if (emptyMsg) {
+          emptyMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+      }
+
+      // Sidebar category switch
+      sideNavButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sideNavButtons.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          currentCategory = btn.dataset.cat;
+          
+          if (sectionHeading) {
+            if (currentCategory === 'all') {
+              sectionHeading.textContent = 'Top Frequently Asked Questions';
+            } else {
+              sectionHeading.textContent = btn.textContent.trim();
+            }
+          }
+          filterFaq();
+        });
+      });
+
+      // Search input listener
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchKeyword = e.target.value;
+          filterFaq();
+        });
+      }
+
+      // Plus / Minus icon toggle
+      faqItems.forEach(item => {
+        const vertLine = item.querySelector('.vert-line');
+        item.addEventListener('toggle', () => {
+          if (vertLine) {
+            vertLine.style.display = item.open ? 'none' : '';
+          }
+        });
+        // Initial state
+        if (vertLine) {
+          vertLine.style.display = item.open ? 'none' : '';
+        }
+      });
+    });
+  </script>
+
+  <!-- Script điều khiển Faculty Showcase Carousel (Badge Showcase) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.faculty-badge-card');
+      const topMeta = document.getElementById('facultyTopMeta');
+      const prevBtn = document.getElementById('facultyPrevBtn');
+      const nextBtn = document.getElementById('facultyNextBtn');
+      const prevThumb = document.getElementById('facultyPrevThumb');
+      const nextThumb = document.getElementById('facultyNextThumb');
+      const mobPrev = document.getElementById('facultyMobilePrev');
+      const mobNext = document.getElementById('facultyMobileNext');
+
+      if (!cards.length) return;
+
+      const instructors = [
+        { name: 'Hồ Hoàng Tiến', role: 'Chủ nhiệm khoá AI Marketing · Automation Architect', photo: 'assets/images/instructor_tien.png' },
+        { name: 'Nguyễn Mai Trâm', role: 'Cố vấn Tiếng Anh & Tuyển dụng · Senior TA Partner', photo: 'assets/images/instructor_tram.png' }
+      ];
+
+      let currentIndex = 0;
+
+      function updateShowcase(index) {
+        currentIndex = (index + cards.length) % cards.length;
+
+        cards.forEach((card, i) => {
+          if (i === currentIndex) {
+            card.classList.add('is-active');
+          } else {
+            card.classList.remove('is-active');
+          }
+        });
+
+        const activeInst = instructors[currentIndex];
+        const otherIndex = (currentIndex + 1) % instructors.length;
+        const otherInst = instructors[otherIndex];
+
+        if (topMeta) {
+          topMeta.style.opacity = '0';
+          setTimeout(() => {
+            topMeta.textContent = `${activeInst.name} - ${activeInst.role}`;
+            topMeta.style.opacity = '1';
+          }, 150);
+        }
+
+        if (prevThumb) prevThumb.style.backgroundImage = `url('${otherInst.photo}')`;
+        if (nextThumb) nextThumb.style.backgroundImage = `url('${otherInst.photo}')`;
+      }
+
+      if (prevBtn) prevBtn.addEventListener('click', () => updateShowcase(currentIndex - 1));
+      if (nextBtn) nextBtn.addEventListener('click', () => updateShowcase(currentIndex + 1));
+      if (mobPrev) mobPrev.addEventListener('click', () => updateShowcase(currentIndex - 1));
+      if (mobNext) mobNext.addEventListener('click', () => updateShowcase(currentIndex + 1));
     });
   </script>
 </body>

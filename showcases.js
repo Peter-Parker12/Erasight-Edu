@@ -407,6 +407,38 @@ module.exports = function createShowcaseService({
           }
         }
 
+        // PATCH metadata text
+        if (req.method === 'PATCH') {
+          const b = await readJson(req);
+          if (b.title !== undefined) {
+            const title = cleanText(b.title, 150);
+            if (!title) throw fail(400, 'Tên đồ án không được để trống');
+            item.title = title;
+          }
+          if (b.description !== undefined) item.description = cleanText(b.description, 400);
+          if (b.studentName !== undefined) {
+            const studentName = cleanText(b.studentName, 100);
+            if (!studentName) throw fail(400, 'Tên học viên không được để trống');
+            item.studentName = studentName;
+            if (!item.avatarFile) {
+              item.avatarDraft = studentName.split(' ').map((p) => p[0]).slice(-2).join('').toUpperCase();
+            }
+          }
+          if (b.studentRole !== undefined) item.studentRole = cleanText(b.studentRole, 100);
+          if (b.course !== undefined) {
+            item.course = cleanText(b.course, 30) || 'mkt';
+            if (!item.avatarFile) {
+              item.avatarColor = item.course === 'eng' ? 'blue' : 'orange';
+            }
+          }
+          if (b.category !== undefined) item.category = cleanText(b.category, 100);
+          if (b.badge !== undefined) item.badge = cleanText(b.badge, 50);
+
+          item.updatedAt = new Date().toISOString();
+          saveShowcases();
+          return send(res, 200, { showcase: publicShowcase(item) });
+        }
+
         // DELETE
         if (req.method === 'DELETE') {
           if (item.avatarFile) fs.unlink(path.join(UPLOAD_DIR, item.avatarFile), () => {});

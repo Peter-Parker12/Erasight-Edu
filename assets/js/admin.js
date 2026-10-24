@@ -448,9 +448,11 @@
       ? `<img class="shc-avatar-img" src="${esc(s.avatarUrl)}" alt="${esc(s.studentName)}" />`
       : `<span class="shc-avatar-draft">${esc(s.avatarDraft || 'HV')}</span>`;
 
-    const courseBadge = s.course === 'eng'
+    const isEng = s.course === 'eng';
+    const isAll = s.course === 'all';
+    const courseBadge = isEng
       ? '<span class="crm-pill eng">English Track</span>'
-      : '<span class="crm-pill mkt">AI Marketing</span>';
+      : (isAll ? '<span class="crm-pill" style="background:#555;">Khoá khác</span>' : '<span class="crm-pill mkt">AI Marketing</span>');
     const mediaBadge = s.mediaType === 'video'
       ? '<span class="crm-pill" style="background:#5E7784;">🎬 Video</span>'
       : '<span class="crm-pill" style="background:#0DA096;">🖼️ Hình ảnh</span>';
@@ -475,7 +477,13 @@
               <span style="font-size:12px;font-weight:700;color:var(--crm-ink);">${esc(s.studentName)}</span>
               <span style="font-size:11.5px;color:var(--crm-slate);">· ${esc(s.studentRole || 'Học viên')}</span>
             </div>
-            <button type="button" class="crm-btn sm danger" data-act="del-shc">Xoá sản phẩm</button>
+            <div class="crm-row-actions">
+              <button type="button" class="crm-btn sm" data-act="edit-shc" style="display:inline-flex;align-items:center;gap:5px;background:#FAFDFD;color:var(--crm-ink);border:1px solid #D9E4E8;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Chỉnh sửa</span>
+              </button>
+              <button type="button" class="crm-btn sm danger" data-act="del-shc">Xoá</button>
+            </div>
           </div>
         </div>
       </div>`;
@@ -627,23 +635,186 @@
     const shcListEl = $('shcList');
     if (shcListEl) {
       shcListEl.addEventListener('click', async (e) => {
-        const btn = e.target.closest('button[data-act="del-shc"]');
+        const btn = e.target.closest('button[data-act]');
         if (!btn) return;
         const row = btn.closest('.crm-row');
         if (!row) return;
         const id = row.dataset.id;
-        if (!confirm('Bạn có chắc muốn xoá sản phẩm học viên này?')) return;
-        btn.disabled = true;
+        const act = btn.dataset.act;
+
+        if (act === 'edit-shc') {
+          openShcModal(id);
+          return;
+        }
+
+        if (act === 'del-shc') {
+          if (!confirm('Bạn có chắc muốn xoá sản phẩm học viên này? Thao tác không thể hoàn tác.')) return;
+          btn.disabled = true;
+          try {
+            const r = await fetch(`/api/admin/showcases/${id}`, {
+              method: 'DELETE',
+              headers: { 'X-Requested-With': 'erasight-admin' }
+            });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            loadShowcases();
+          } catch (err) {
+            alert('Lỗi xoá: ' + err.message);
+            btn.disabled = false;
+          }
+        }
+      });
+    }
+  }
+
+  // =========================================================================
+  // POPUP MODAL CHỈNH SỬA SẢN PHẨM HỌC VIÊN
+  // =========================================================================
+  function openShcModal(id) {
+    const s = showcases.find((item) => String(item.id) === String(id));
+    if (!s) return;
+    const modal = $('shcEditModal');
+    if (!modal) return;
+
+    $('editShcId').value = s.id;
+    $('editShcTitle').value = s.title || '';
+    $('editShcCourse').value = s.course || 'mkt';
+    $('editShcBadge').value = s.badge || '';
+    $('editShcCategory').value = s.category || '';
+    $('editShcDesc').value = s.description || '';
+    $('editShcStudentName').value = s.studentName || '';
+    $('editShcStudentRole').value = s.studentRole || '';
+    $('editShcAvatar').value = '';
+    $('editShcThumb').value = '';
+
+    const msg = $('editShcMsg');
+    if (msg) {
+      msg.hidden = true;
+      msg.textContent = '';
+      msg.className = 'adm-msg';
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      const titleInput = $('editShcTitle');
+      if (titleInput) titleInput.focus();
+    }, 50);
+  }
+
+  function closeShcModal() {
+    const modal = $('shcEditModal');
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function initShcModal() {
+    const modal = $('shcEditModal');
+    const closeBtn = $('shcEditClose');
+    const cancelBtn = $('shcEditCancel');
+    const form = $('shcEditForm');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeShcModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeShcModal);
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeShcModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.hidden) {
+        closeShcModal();
+      }
+    });
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = $('editShcId').value;
+        const title = $('editShcTitle').value.trim();
+        const course = $('editShcCourse').value;
+        const badge = $('editShcBadge').value.trim();
+        const category = $('editShcCategory').value.trim();
+        const desc = $('editShcDesc').value.trim();
+        const studentName = $('editShcStudentName').value.trim();
+        const studentRole = $('editShcStudentRole').value.trim();
+        const msg = $('editShcMsg');
+        const submitBtn = $('shcEditSubmit');
+
+        function setModalMsg(text, isErr = false) {
+          if (!msg) return;
+          msg.hidden = false;
+          msg.className = 'adm-msg ' + (isErr ? 'err' : 'ok');
+          msg.textContent = text;
+        }
+
+        if (!title) return setModalMsg('Vui lòng nhập tên đồ án.', true);
+        if (!desc) return setModalMsg('Vui lòng nhập mô tả ngắn đồ án.', true);
+        if (!studentName) return setModalMsg('Vui lòng nhập tên học viên.', true);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu...';
+        msg.hidden = true;
+
         try {
-          const r = await fetch(`/api/admin/showcases/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-Requested-With': 'erasight-admin' }
+          // 1. Cập nhật metadata text qua PATCH
+          const patchRes = await fetch(`/api/admin/showcases/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'erasight-admin' },
+            body: JSON.stringify({
+              title, course, badge, category,
+              description: desc, studentName, studentRole
+            })
           });
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          loadShowcases();
+          if (!patchRes.ok) {
+            const err = await patchRes.json().catch(() => ({}));
+            throw new Error(err.error || 'Cập nhật nội dung thất bại.');
+          }
+
+          // 2. Upload avatar mới nếu có chọn
+          const avaInput = $('editShcAvatar');
+          if (avaInput.files && avaInput.files.length > 0) {
+            const file = avaInput.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const putAva = await fetch(`/api/admin/showcases/${id}/avatar?ext=${encodeURIComponent(ext)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/octet-stream', 'X-Requested-With': 'erasight-admin' },
+              body: file
+            });
+            if (!putAva.ok) {
+              const err = await putAva.json().catch(() => ({}));
+              throw new Error(err.error || 'Tải ảnh đại diện mới thất bại.');
+            }
+          }
+
+          // 3. Upload poster mới nếu có chọn
+          const thumbInput = $('editShcThumb');
+          if (thumbInput.files && thumbInput.files.length > 0) {
+            const file = thumbInput.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const putThumb = await fetch(`/api/admin/showcases/${id}/thumb?ext=${encodeURIComponent(ext)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/octet-stream', 'X-Requested-With': 'erasight-admin' },
+              body: file
+            });
+            if (!putThumb.ok) {
+              const err = await putThumb.json().catch(() => ({}));
+              throw new Error(err.error || 'Tải ảnh poster mới thất bại.');
+            }
+          }
+
+          setModalMsg('Đã lưu thay đổi thành công!');
+          setTimeout(async () => {
+            closeShcModal();
+            await loadShowcases();
+          }, 350);
         } catch (err) {
-          alert('Lỗi xoá: ' + err.message);
-          btn.disabled = false;
+          setModalMsg(err.message, true);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Lưu thay đổi';
         }
       });
     }
@@ -665,6 +836,7 @@
     initLogin();
     initDocForm();
     initShowcaseForm();
+    initShcModal();
     checkSession();
   });
 })();

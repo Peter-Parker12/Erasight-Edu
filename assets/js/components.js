@@ -114,7 +114,7 @@
             </div>
           </div>
 
-          <a href="${pageUrl('Homepage', '#faq')}" class="nav-link">Hỏi đáp</a>
+          <a href="${pageUrl('hoi-dap')}" target="_blank" rel="noopener noreferrer" class="nav-link" data-nav="hoi-dap">Hỏi đáp</a>
           <a href="${pageUrl('blog')}" class="nav-link" data-nav="blog">Blog</a>
         </nav>
 
@@ -157,7 +157,7 @@
               <a href="${pageUrl('tai-lieu-ai')}" class="mobile-nav-sublink" data-nav="tai-lieu-ai">✦ Tài liệu AI</a>
             </div>
           </div>
-          <a href="${pageUrl('Homepage', '#faq')}" class="mobile-nav-item">Hỏi đáp</a>
+          <a href="${pageUrl('hoi-dap')}" target="_blank" rel="noopener noreferrer" class="mobile-nav-item" data-nav="hoi-dap">Hỏi đáp</a>
           <a href="${pageUrl('blog')}" class="mobile-nav-item" data-nav="blog">Blog</a>
         </div>
 
@@ -536,6 +536,36 @@
           window.location.href = 'blog-post.html?slug=' + slug + hash;
         }
       }, true);
+    }
+
+    // F. Hiệu ứng Floating Glass Pill cho Header khi cuộn trang
+    const headerEl = document.getElementById('siteHeader');
+    if (headerEl) {
+      let isTicking = false;
+      const scrollThreshold = 35;
+
+      function handleHeaderScroll() {
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        if (scrollY > scrollThreshold) {
+          if (!headerEl.classList.contains('is-scrolled')) {
+            headerEl.classList.add('is-scrolled');
+          }
+        } else {
+          if (headerEl.classList.contains('is-scrolled')) {
+            headerEl.classList.remove('is-scrolled');
+          }
+        }
+        isTicking = false;
+      }
+
+      window.addEventListener('scroll', () => {
+        if (!isTicking) {
+          window.requestAnimationFrame(handleHeaderScroll);
+          isTicking = true;
+        }
+      }, { passive: true });
+
+      handleHeaderScroll();
     }
   }
 

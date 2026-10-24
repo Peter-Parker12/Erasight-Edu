@@ -23,7 +23,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   1. SITE HEADER
+   1. SITE HEADER & FLOATING GLASS PILL EFFECT
    -------------------------------------------------------------------------- */
 .site-header {
   position: sticky;
@@ -33,7 +33,23 @@
   border-bottom: 1px solid var(--hf-line);
   box-shadow: 0 2px 14px rgba(12, 42, 58, 0.04);
   font-family: var(--hf-font-main);
-  transition: all 0.25s ease;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+/* Floating Glass Pill State when Scrolled (cotrain-inspired design) */
+.site-header.is-scrolled {
+  top: 14px;
+  width: calc(100% - 48px);
+  max-width: 1160px;
+  margin: 0 auto;
+  border-radius: 9999px;
+  background: rgba(12, 42, 58, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .site-header-inner {
@@ -45,6 +61,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
+}
+
+.site-header.is-scrolled .site-header-inner {
+  height: 60px;
+  padding: 0 24px;
 }
 
 @media (max-width: 768px) {
@@ -52,6 +74,68 @@
     padding: 0 20px;
     height: 70px;
   }
+  .site-header.is-scrolled {
+    top: 10px;
+    width: calc(100% - 24px);
+    border-radius: 18px;
+  }
+  .site-header.is-scrolled .site-header-inner {
+    height: 58px;
+    padding: 0 16px;
+  }
+}
+
+/* Scrolled Elements Overrides */
+.site-header.is-scrolled .site-brand img {
+  height: 32px;
+  filter: brightness(0) invert(1);
+}
+
+.site-header.is-scrolled .nav-link {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14.5px;
+}
+
+.site-header.is-scrolled .nav-link:hover {
+  color: #00E5D4;
+}
+
+.site-header.is-scrolled .nav-link.nav-link--active,
+.site-header.is-scrolled .nav-link.active {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.site-header.is-scrolled .nav-link-caret {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.site-header.is-scrolled .btn-login {
+  color: #FFFFFF;
+}
+
+.site-header.is-scrolled .btn-login:hover {
+  color: #00E5D4;
+}
+
+.site-header.is-scrolled .btn-enroll {
+  border-radius: 9999px;
+  padding: 8px 20px;
+  font-size: 13.5px;
+  box-shadow: 0 4px 15px rgba(232, 93, 4, 0.35);
+}
+
+.site-header.is-scrolled .mobile-toggle-btn span {
+  background: #FFFFFF;
+}
+
+.site-header.is-scrolled .dropdown-panel {
+  top: calc(100% + 14px);
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }
 
 /* Header Brand / Logo */

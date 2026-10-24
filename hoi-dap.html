@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Frequently Asked Questions and Answers — Erasight Academy</title>
+  <meta name="description" content="Trung tâm hỏi đáp và giải đáp thắc mắc toàn diện về lộ trình học, phương pháp workflow, học bù, điểm số, đồ án và cam kết đầu ra tại Erasight Academy." />
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
+
+  <style>
+    /* ==========================================================================
+       ENTERPRISE KNOWLEDGE BASE / FAQ PORTAL STYLING
+       ========================================================================== */
+    .faq-portal-section {
+      background: #FFFFFF;
+      padding: 40px 0 70px;
+      min-height: 600px;
+    }
+    .faq-neon-grad {
+      background: linear-gradient(135deg, #0DA096 0%, #00F5D4 52%, #07736C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      font-weight: 800;
+      filter: drop-shadow(0 2px 10px rgba(0, 245, 212, 0.35));
+    }
+
+    /* Top Header Bar */
+    .faq-portal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1.5px solid #EAEFF2;
+      flex-wrap: wrap;
+    }
+    .faq-portal-title {
+      font-size: clamp(26px, 3.2vw, 36px);
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    /* Social Action Icons */
+    .faq-social-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-social-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #111827;
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .faq-social-btn:hover {
+      background: var(--p);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(13, 160, 150, 0.25);
+    }
+
+    /* 2-Column Portal Grid: Sidebar Left + Content Right */
+    .faq-portal-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* Sidebar Navigation */
+    .faq-portal-sidebar {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(12, 42, 58, 0.04);
+      position: sticky;
+      top: 90px;
+    }
+    .faq-portal-nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .faq-nav-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 13px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #EDF2F7;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+      position: relative;
+    }
+    .faq-nav-item:last-child {
+      border-bottom: none;
+    }
+    .faq-nav-item:hover {
+      background: #F8FAFC;
+      color: #0C2A3A;
+    }
+    .faq-nav-item.is-active {
+      background: #E8F6F5;
+      color: #0C2A3A;
+      font-weight: 700;
+      border-left: 4.5px solid #0DA096;
+      padding-left: 13.5px;
+    }
+
+    /* Main Content Area */
+    .faq-portal-main {
+      min-width: 0;
+    }
+
+    /* Search Banner with BC2.png background */
+    .faq-search-banner {
+      background: #E8F6F5 url('assets/images/BC2.png') center/cover no-repeat;
+      border: 1px solid #D2E3E5;
+      border-radius: 12px;
+      padding: 30px 32px 34px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px rgba(12, 42, 58, 0.08);
+      text-align: center;
+      position: relative;
+    }
+    .faq-search-banner h2 {
+      font-size: 21px;
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0 0 16px;
+      letter-spacing: -0.01em;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.85);
+    }
+    .faq-search-input-wrap {
+      position: relative;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    .faq-search-banner-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 44px 0 18px;
+      border-radius: 8px;
+      border: 1.5px solid #CBD5E1;
+      background: #FFFFFF;
+      font-size: 15px;
+      font-family: inherit;
+      color: #0C2A3A;
+      outline: none;
+      box-shadow: 0 4px 15px rgba(12, 42, 58, 0.06);
+      transition: all 0.2s;
+    }
+    .faq-search-banner-input:focus {
+      background: #FFFFFF;
+      border-color: #0DA096;
+      box-shadow: 0 0 0 3px rgba(13, 160, 150, 0.25), 0 6px 20px rgba(12, 42, 58, 0.1);
+    }
+    .faq-search-banner-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #005691;
+      pointer-events: none;
+    }
+
+    /* Section Heading */
+    .faq-results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .faq-section-heading {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0C2A3A;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .faq-count-status {
+      font-size: 13px;
+      color: #64748B;
+      font-weight: 500;
+    }
+
+    /* Classic IRS/Gov Accordion List */
+    .faq-classic-list {
+      border-top: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      background: #FFFFFF;
+    }
+
+    .faq-classic-item {
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .faq-classic-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-classic-item summary {
+      list-style: none;
+      padding: 16px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      user-select: none;
+      outline: none;
+      transition: background 0.15s ease;
+    }
+    .faq-classic-item summary::-webkit-details-marker {
+      display: none;
+    }
+    .faq-classic-item summary:hover {
+      background: #F8FAFC;
+    }
+    .faq-classic-item[open] summary {
+      background: #F8FBFC;
+    }
+
+    /* Plus/Minus Circular Icon */
+    .faq-circle-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      color: #0DA096;
+      margin-top: 1px;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .faq-classic-item summary:hover .faq-circle-icon {
+      color: #07736C;
+    }
+    .faq-classic-item[open] .faq-circle-icon {
+      color: #07736C;
+    }
+
+    .faq-question-text {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0C2A3A;
+      line-height: 1.45;
+      margin: 0;
+      flex: 1;
+    }
+    .faq-classic-item[open] .faq-question-text {
+      color: #07736C;
+    }
+
+    /* Answer Body */
+    .faq-classic-body {
+      padding: 4px 18px 20px 48px;
+      font-size: 14.5px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .faq-classic-body strong, .faq-classic-body b {
+      color: #0C2A3A;
+    }
+    .faq-classic-body ul {
+      margin: 8px 0 8px 20px;
+    }
+    .faq-classic-body li {
+      margin-bottom: 4px;
+    }
+    .faq-highlight-note {
+      margin-top: 10px;
+      padding: 9px 14px;
+      background: #F1F8F9;
+      border-left: 3px solid #0DA096;
+      border-radius: 4px;
+      font-size: 13.5px;
+      color: #0F5E58;
+    }
+
+    /* Empty state */
+    .faq-portal-empty {
+      text-align: center;
+      padding: 42px 20px;
+      color: #64748B;
+      font-size: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .faq-portal-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .faq-portal-sidebar {
+        position: static;
+      }
+      .faq-portal-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        white-space: nowrap;
+        background: #F8FAFC;
+        border-radius: 8px;
+        padding: 4px;
+      }
+      .faq-nav-item {
+        border-bottom: none;
+        border-radius: 6px;
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+      .faq-nav-item.is-active {
+        border-left: none;
+        background: #FFFFFF;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .faq-search-banner {
+        padding: 22px 18px 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Site Header (Controlled by components.js) -->
+  <div id="site-header">
+    <header class="site-header" id="siteHeader">
+      <div class="site-header-inner">
+        <a href="/Homepage" class="site-brand" aria-label="Erasight Academy - Skills for what's next">
+          <img src="assets/logos/erasight-logo-slogan-mau-1600w.png" alt="Erasight Academy — Skills for what's next." />
+        </a>
+        <nav class="site-nav" aria-label="Điều hướng chính">
+          <div class="nav-dropdown" id="navCoursesDropdown">
+            <a href="/Homepage" class="nav-link dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+              <span>Khoá học</span>
+              <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </a>
+            <div class="dropdown-panel" role="menu">
+              <a href="/Homepage#khoa-mkt" class="dropdown-item" role="menuitem">
+                <span class="dropdown-badge badge-orange">MKT_001</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">AI Marketing thực chiến</span>
+                  <span class="dropdown-desc">Tự động hoá quy trình đăng bài đa kênh không cần biết code</span>
+                </div>
+              </a>
+              <a href="/Homepage#khoa-eng" class="dropdown-item" role="menuitem">
+                <span class="dropdown-badge badge-blue">ENG_002</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Tiếng Anh phỏng vấn &amp; đi làm</span>
+                  <span class="dropdown-desc">CV chuẩn ATS, phản xạ STAR và tự tin đàm phán trước HR</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          <a href="/giang-vien" class="nav-link" data-nav="giang-vien">Giảng viên</a>
+          <div class="nav-dropdown" id="navResourceDropdown">
+            <a href="/san-pham-hoc-vien" class="nav-link dropdown-trigger" data-nav="resource" aria-haspopup="true" aria-expanded="false">
+              <span>Resource</span>
+              <svg class="nav-link-caret" viewBox="0 0 10 6" fill="currentColor">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+            </a>
+            <div class="dropdown-panel" role="menu">
+              <a href="/san-pham-hoc-vien" class="dropdown-item" role="menuitem" data-nav="san-pham-hoc-vien">
+                <span class="dropdown-badge badge-teal">SHOWCASE</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Sản phẩm học viên</span>
+                  <span class="dropdown-desc">Đồ án thực chiến &amp; nhận xét từ chính học viên Erasight</span>
+                </div>
+              </a>
+              <a href="/tai-lieu-ai" class="dropdown-item" role="menuitem" data-nav="tai-lieu-ai">
+                <span class="dropdown-badge badge-orange">LIBRARY</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Tài liệu AI</span>
+                  <span class="dropdown-desc">Prompt, template, cẩm nang &amp; slide AI chọn lọc để tải về</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          <a href="/hoi-dap" class="nav-link nav-link--active" data-nav="hoi-dap" aria-current="page">Hỏi đáp</a>
+          <a href="/blog" class="nav-link" data-nav="blog">Blog</a>
+        </nav>
+        <div class="site-actions">
+          <a href="/Homepage#dang-nhap" class="btn-login" id="loginBtnTrigger">Đăng nhập</a>
+          <a href="#pricing" class="btn-enroll">Ghi danh ngay</a>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <main id="top">
+    <!-- ======================================================================
+         FAQ PORTAL LAYOUT (THEO THIẾT KẾ YÊU CẦU)
+         ====================================================================== -->
+    <section class="faq-portal-section">
+      <div class="wrap">
+        <!-- Top Title & Social Share -->
+        <div class="faq-portal-header">
+          <h1 class="faq-portal-title"><span class="faq-neon-grad">Frequently</span> asked questions and answers</h1>
+          <div class="faq-social-group">
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="faq-social-btn" title="LinkedIn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="faq-social-btn" title="X / Twitter">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="faq-social-btn" title="Facebook">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+            </a>
+            <a href="mailto:contact@erasight.edu.vn" class="faq-social-btn" title="Gửi Email">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="faq-portal-grid">
+          <!-- Left Sidebar Menu -->
+          <aside class="faq-portal-sidebar" aria-label="Danh mục câu hỏi">
+            <nav class="faq-portal-nav" id="faqSideNav">
+              <button type="button" class="faq-nav-item is-active" data-cat="all">Frequently Asked Questions</button>
+              <button type="button" class="faq-nav-item" data-cat="lo-trinh">Lộ trình &amp; Kiến thức</button>
+              <button type="button" class="faq-nav-item" data-cat="lich-hoc">Lịch học &amp; Điểm danh</button>
+              <button type="button" class="faq-nav-item" data-cat="hoc-bu">Chính sách học bù &amp; Review</button>
+              <button type="button" class="faq-nav-item" data-cat="do-an">Đồ án &amp; Chuẩn đầu ra</button>
+              <button type="button" class="faq-nav-item" data-cat="chinh-sach">Quy định &amp; Quyền lợi</button>
+              <button type="button" class="faq-nav-item" data-cat="cam-ket">Hỗ trợ sau khoá &amp; Cam kết</button>
+              <a href="#pricing" class="faq-nav-item" style="color:var(--orange); font-weight:700;">Học phí &amp; Ghi danh giữ chỗ &darr;</a>
+            </nav>
+          </aside>
+
+          <!-- Main Content Area -->
+          <div class="faq-portal-main">
+            <!-- Search Banner (Deep Navy Card) -->
+            <div class="faq-search-banner">
+              <h2>Frequently Asked Questions and Answers Search</h2>
+              <div class="faq-search-input-wrap">
+                <input type="search" class="faq-search-banner-input" id="faqPortalSearch" placeholder="Search" aria-label="Search frequently asked questions" autocomplete="off" />
+                <svg class="faq-search-banner-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+            </div>
+
+            <!-- List Header -->
+            <div class="faq-results-header">
+              <h3 class="faq-section-heading" id="faqSectionHeading">Top Frequently Asked Questions</h3>
+              <span class="faq-count-status" id="faqCountStatus">16 câu hỏi</span>
+            </div>
+
+            <!-- Accordion List -->
+            <div class="faq-classic-list" id="faqClassicList">
+
+              <!-- Item 1 -->
+              <details class="faq-classic-item" data-cat="lo-trinh" open>
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học có cần biết lập trình không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Không bắt buộc.</b> Khóa học tập trung vào tư duy workflow, no-code/low-code và hướng dẫn từng bước. Phần nâng cao như Google Apps Script được hướng dẫn theo mức phù hợp.
+                  <div class="faq-highlight-note">
+                    💡 Hơn 85% học viên Erasight chưa từng biết viết code vẫn tự tin hoàn thành workflow tự động hoá hoàn chỉnh.
+                  </div>
+                </div>
+              </details>
+
+              <!-- Item 2 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu bận một buổi thì có học lại được không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Học viên có video record chất lượng cao, folder tài liệu học tập đầy đủ và có thể gửi câu hỏi qua form hoặc nhóm hỗ trợ để được mentor giải đáp.
+                </div>
+              </details>
+
+              <!-- Item 3 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Sau khóa học có sản phẩm gì không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Học viên cần hoàn thành đồ án cuối khóa là một <b>workflow Automation Marketing hoàn chỉnh</b> (tự động xuất bản nội dung, tạo ảnh model thương hiệu, website portfolio cá nhân có gắn công cụ).
+                </div>
+              </details>
+
+              <!-- Item 4 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học phù hợp với sinh viên không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Phù hợp</b>, đặc biệt với sinh viên khối ngành Marketing, Kinh doanh, Truyền thông, Thương mại điện tử (TMĐT), Công nghệ thông tin (CNTT) muốn có sản phẩm thực chiến vào CV.
+                </div>
+              </details>
+
+              <!-- Item 5 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Khóa học có phù hợp với người đã đi làm không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có.</b> Nội dung giúp nhân viên Marketing, Content Creator, E-commerce và nhân viên văn phòng tăng hiệu suất và tự động hóa các đầu việc lặp lại thủ công.
+                </div>
+              </details>
+
+              <!-- Item 6 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Điểm tổng kết được tính như thế nào?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Điểm tổng kết chuẩn đầu ra = <b>BTVN (50%)</b> + <b>Chuyên cần (20%)</b> + <b>Đồ án cuối khóa (30%)</b>. Điểm chuyên cần đối chiếu bằng form điểm danh và video record buổi học.
+                </div>
+              </details>
+
+              <!-- Item 7 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu nghỉ học có được học bù không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Được học bù</b> thông qua video record và các buổi Bonus/Review "Yêu lại từ đầu". Trung tâm không tổ chức dạy riêng từng cá nhân nếu học viên nghỉ vì lý do cá nhân.
+                </div>
+              </details>
+
+              <!-- Item 8 -->
+              <details class="faq-classic-item" data-cat="lich-hoc">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu vào lớp muộn thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Mentor vẫn tiếp tục giảng theo tiến độ lớp. Học viên chủ động xem lại video record để bổ sung phần kiến thức đã bỏ lỡ ở đầu buổi.
+                </div>
+              </details>
+
+              <!-- Item 9 -->
+              <details class="faq-classic-item" data-cat="do-an">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu không hoàn thành Project cuối khóa thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Học viên sẽ <b>chưa đủ điều kiện đạt chuẩn đầu ra</b> và chưa nhận chứng nhận hoàn thành khóa học cho đến khi hoàn thiện và nộp lại theo yêu cầu.
+                </div>
+              </details>
+
+              <!-- Item 10 -->
+              <details class="faq-classic-item" data-cat="chinh-sach">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có được chia sẻ tài khoản học cho người khác không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Không.</b> Mỗi tài khoản chỉ dành riêng cho một học viên. Hệ thống có quyền khóa quyền truy cập nếu phát hiện hành vi chia sẻ tài khoản trái phép.
+                </div>
+              </details>
+
+              <!-- Item 11 -->
+              <details class="faq-classic-item" data-cat="chinh-sach">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Không tham gia group hỗ trợ có ảnh hưởng không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  <b>Có ảnh hưởng lớn.</b> Toàn bộ thông báo, cập nhật lịch học, tài liệu và bài tập đều được gửi trong group lớp. Học viên tự chịu trách nhiệm nếu bỏ lỡ thông tin.
+                </div>
+              </details>
+
+              <!-- Item 12 -->
+              <details class="faq-classic-item" data-cat="cam-ket">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Sau khi kết thúc khóa học còn được hỗ trợ không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Học viên vẫn được tham gia <b>Community Erasight</b> để cập nhật tài liệu và kiến thức mới. Việc mentor hỗ trợ trực tiếp sẽ theo chính sách bảo hành khóa học.
+                </div>
+              </details>
+
+              <!-- Item 13 -->
+              <details class="faq-classic-item" data-cat="hoc-bu">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có được học lại toàn bộ khóa không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Trong thời gian bảo hành (tối đa <b>2 tháng</b> kể từ ngày kết thúc), học viên có thể xin tham gia lại lớp mới nếu còn chỗ. Sau thời gian này học viện sẽ không hỗ trợ học lại toàn bộ.
+                </div>
+              </details>
+
+              <!-- Item 14 -->
+              <details class="faq-classic-item" data-cat="lich-hoc">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu vắng nhiều buổi liên tiếp thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Mentor sẽ liên hệ để nắm tình hình. Tuy nhiên học viên vẫn phải tự đảm bảo tiến độ học và hoàn thành các yêu cầu chuẩn đầu ra của khóa học.
+                </div>
+              </details>
+
+              <!-- Item 15 -->
+              <details class="faq-classic-item" data-cat="lo-trinh">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Nếu AI hoặc công cụ trong khóa thay đổi thì sao?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Nội dung khóa học sẽ được cập nhật theo xu hướng mới nhất. Mentor chú trọng hướng dẫn <b>phương pháp tư duy và workflow logic</b> thay vì phụ thuộc vào một công cụ cụ thể.
+                </div>
+              </details>
+
+              <!-- Item 16 -->
+              <details class="faq-classic-item" data-cat="cam-ket">
+                <summary>
+                  <svg class="faq-circle-icon icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16" class="vert-line"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  <h4 class="faq-question-text">Có cam kết đầu ra không?</h4>
+                </summary>
+                <div class="faq-classic-body">
+                  Khóa học cam kết cung cấp đầy đủ kiến thức thực chiến, quy trình chuẩn mực và mentor hỗ trợ tận tâm. Kết quả cuối cùng phụ thuộc vào mức độ học tập, thực hành và hoàn thành bài tập của từng học viên.
+                </div>
+              </details>
+
+            </div>
+
+            <!-- Empty Search Message -->
+            <div class="faq-portal-empty" id="faqPortalEmpty" style="display:none;">
+              Không tìm thấy câu hỏi phù hợp. Vui lòng kiểm tra lại từ khoá tìm kiếm.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         PHẦN 1: BẢNG HỌC PHÍ (THEO HÌNH ẢNH YÊU CẦU)
+         ====================================================================== -->
+    <section class="blk" id="pricing" style="background:var(--cloud); border-top:1px solid var(--line);">
+      <div class="wrap">
+        <div class="sec-head center">
+          <h2 style="font-size:clamp(28px, 3.8vw, 42px); line-height:1.25; margin-bottom:12px;">Học phí trọn gói<br />Giữ chỗ đợt khai giảng này</h2>
+          <p style="font-size:15.5px; color:var(--slate); max-width:620px; margin:0 auto;">Mỗi lớp tối đa 12 học viên để đảm bảo từng người đều được sửa bài và hỗ trợ 1:1.</p>
+        </div>
+
+        <div class="price-grid">
+          <!-- Card 1: 01. AI Marketing -->
+          <div class="price-card">
+            <h3>01. AI Marketing</h3>
+            <div class="who">11 buổi chính + 3 buổi học lại</div>
+            <div style="display:flex; align-items:baseline; gap:8px; margin: 12px 0 16px;">
+              <span class="amt" style="color:var(--orange); font-weight:800; margin:0;">3.800.000₫</span>
+              <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; text-decoration:line-through; color:var(--slate);">6.000.000₫</span>
+            </div>
+            <ul>
+              <li>Workflow tự động hoá đăng bài đa kênh</li>
+              <li>Tạo ảnh người mẫu thương hiệu nhất quán</li>
+              <li>Bộ prompt chuẩn và kỹ thuật humanize</li>
+              <li>Website portfolio cá nhân có gắn công cụ</li>
+              <li>3 Buổi học lại "Yêu lại từ đầu" miễn phí</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-ghost btn-sm" style="width:100%;" onclick="selectCourse('3')">Chọn khoá này</a>
+            </div>
+          </div>
+
+          <!-- Card 2: Featured Combo -->
+          <div class="price-card feat" style="position:relative;">
+            <div style="position:absolute; top:-12px; left:20px; background:var(--orange); color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; letter-spacing:0.04em;">ƯU ĐÃI COMBO 15%</div>
+            <h3>Combo Cả 2 Khoá</h3>
+            <div class="who" style="color:var(--orange);">AI Marketing + Tiếng Anh đi làm</div>
+            <div class="amt">6.800.000₫</div>
+            <ul>
+              <li>Toàn bộ chương trình AI Marketing 11 buổi</li>
+              <li>Toàn bộ chương trình Tiếng Anh phỏng vấn 15 buổi</li>
+              <li>CV được mentor tập đoàn lớn sửa trực tiếp 1:1</li>
+              <li>Mock interview 1:1 có bảng điểm chuẩn Pearson</li>
+              <li>Tiết kiệm trực tiếp 1.200.000₫ học phí</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-primary btn-sm" style="width:100%;" onclick="selectCourse('2,3')">Ghi danh Combo</a>
+            </div>
+          </div>
+
+          <!-- Card 3: 02. Tiếng Anh đi làm -->
+          <div class="price-card">
+            <h3>02. Tiếng Anh đi làm</h3>
+            <div class="who">15 buổi học · 4 module</div>
+            <div style="display:flex; align-items:baseline; gap:8px; margin: 12px 0 16px;">
+              <span class="amt" style="color:var(--orange); font-weight:800; margin:0;">4.000.000₫</span>
+              <span style="font-family:var(--font-mono); font-size:14px; font-weight:500; text-decoration:line-through; color:var(--slate);">7.500.000₫</span>
+            </div>
+            <ul>
+              <li>Phân tích JD và viết CV chuẩn ATS</li>
+              <li>Trả lời phỏng vấn theo khung STAR thuyết phục</li>
+              <li>Kỹ năng nói về điểm yếu và xử lý tình huống hóc búa</li>
+              <li>Mock interview trực tiếp có rubric quốc tế</li>
+              <li>Sửa bài phát âm và phản xạ 1:1</li>
+            </ul>
+            <div style="margin-top:auto;">
+              <a href="#enroll-form" class="btn btn-ghost btn-sm" style="width:100%;" onclick="selectCourse('2')">Chọn khoá này</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================================
+             PHẦN 2: PHIẾU ĐĂNG KÝ GIỮ CHỖ (THEO HÌNH ẢNH YÊU CẦU)
+             ====================================================================== -->
+        <div class="enroll-box-wrap" id="enroll-form" style="margin-top:40px; box-shadow:0 12px 35px rgba(12, 42, 58, 0.08);">
+          <h3 style="font-size:22px; text-align:center; margin-bottom:6px; color:var(--ink);">Phiếu đăng ký giữ chỗ</h3>
+          <p style="font-size:14px; color:var(--slate); text-align:center; margin-bottom:24px; line-height:1.5;">
+            Đợt khai giảng tuần này chỉ còn 3 / 12 suất trống. Vui lòng để lại thông tin để giáo vụ liên hệ xác nhận.
+          </p>
+
+          <form id="enrollFormClean">
+            <div class="form-group-clean">
+              <label for="enrollCourse">Khoá học bạn chọn *</label>
+              <select id="enrollCourse">
+                <option value="2,3">★ Combo cả 2 khoá (6.800.000₫ — Tiết kiệm 1.2M)</option>
+                <option value="3">Khoá 01: AI Marketing thực chiến (3.800.000₫)</option>
+                <option value="2">Khoá 02: Tiếng Anh phỏng vấn &amp; đi làm (4.000.000₫)</option>
+              </select>
+            </div>
+
+            <div class="form-group-clean">
+              <label for="name">Họ và tên *</label>
+              <input type="text" id="name" placeholder="Ví dụ: Nguyễn Văn An" required />
+            </div>
+
+            <div class="form-group-clean">
+              <label for="phone">Số điện thoại / Zalo *</label>
+              <input type="tel" id="phone" placeholder="Ví dụ: 0912 345 678" required />
+            </div>
+
+            <div class="form-group-clean">
+              <label for="email">Email nhận tài liệu học tập *</label>
+              <input type="email" id="email" placeholder="Ví dụ: an.nguyen@gmail.com" required />
+            </div>
+
+            <!-- Honeypot -->
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; opacity:0; height:0;" />
+
+            <button type="submit" class="btn btn-primary" style="width:100%; height:48px; font-size:16px; margin-top:8px;">
+              Ghi danh giữ chỗ ngay
+            </button>
+          </form>
+
+          <div id="enrollError" style="display:none; margin-top:16px; padding:14px; background:#FDECEC; border-radius:8px; font-size:13.5px; color:#8A1F1F; line-height:1.6;" role="alert">
+            Chưa gửi được thông tin. Vui lòng kiểm tra lại các ô hoặc thử lại sau ít phút.
+          </div>
+
+          <div id="enrollSuccess" style="display:none; margin-top:16px; padding:14px; background:var(--pl); border-radius:8px; font-size:13.5px; color:var(--td); line-height:1.6;">
+            <b>✓ Đã ghi nhận thông tin giữ chỗ!</b> Ban giáo vụ Erasight sẽ liên hệ qua Zalo/Điện thoại trong vòng 2 giờ làm việc để xác nhận lịch học.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reusable Shared Footer -->
+  <div id="site-footer"></div>
+
+  <script src="assets/js/components.js"></script>
+
+  <!-- Script điều khiển Portal FAQ & Enroll -->
+  <script>
+    function selectCourse(courseVal) {
+      const select = document.getElementById('enrollCourse');
+      if (select) select.value = courseVal;
+      const target = document.getElementById('enroll-form');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('faqPortalSearch');
+      const sideNavButtons = document.querySelectorAll('.faq-nav-item[data-cat]');
+      const faqItems = document.querySelectorAll('.faq-classic-item');
+      const emptyMsg = document.getElementById('faqPortalEmpty');
+      const countStatus = document.getElementById('faqCountStatus');
+      const sectionHeading = document.getElementById('faqSectionHeading');
+
+      let currentCategory = 'all';
+      let searchKeyword = '';
+
+      function normalize(str) {
+        return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      }
+
+      function filterFaq() {
+        const query = normalize(searchKeyword.trim());
+        let visibleCount = 0;
+
+        faqItems.forEach(item => {
+          const itemCat = item.dataset.cat;
+          const qText = item.querySelector('.faq-question-text')?.textContent || '';
+          const aText = item.querySelector('.faq-classic-body')?.textContent || '';
+          const fullText = normalize(qText + ' ' + aText);
+
+          const matchesCat = (currentCategory === 'all' || itemCat === currentCategory);
+          const matchesQuery = !query || fullText.includes(query);
+
+          if (matchesCat && matchesQuery) {
+            item.style.display = '';
+            visibleCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        if (countStatus) {
+          countStatus.textContent = `${visibleCount} câu hỏi`;
+        }
+        if (emptyMsg) {
+          emptyMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+      }
+
+      // Sidebar category switch
+      sideNavButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sideNavButtons.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          currentCategory = btn.dataset.cat;
+          
+          if (sectionHeading) {
+            if (currentCategory === 'all') {
+              sectionHeading.textContent = 'Top Frequently Asked Questions';
+            } else {
+              sectionHeading.textContent = btn.textContent.trim();
+            }
+          }
+          filterFaq();
+        });
+      });
+
+      // Search input listener
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchKeyword = e.target.value;
+          filterFaq();
+        });
+      }
+
+      // Plus / Minus icon toggle
+      faqItems.forEach(item => {
+        const vertLine = item.querySelector('.vert-line');
+        item.addEventListener('toggle', () => {
+          if (vertLine) {
+            vertLine.style.display = item.open ? 'none' : '';
+          }
+        });
+        // Initial state
+        if (vertLine) {
+          vertLine.style.display = item.open ? 'none' : '';
+        }
+      });
+
+      // Quick Enroll Submit Form
+      const enrollForm = document.getElementById('enrollFormClean');
+      const successMsg = document.getElementById('enrollSuccess');
+      const errorMsg = document.getElementById('enrollError');
+
+      if (enrollForm) {
+        enrollForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = enrollForm.querySelector('button[type="submit"]');
+          const originalText = btn ? btn.textContent : 'Ghi danh giữ chỗ ngay';
+
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Đang ghi nhận thông tin...';
+          }
+          if (errorMsg) errorMsg.style.display = 'none';
+          if (successMsg) successMsg.style.display = 'none';
+
+          const payload = {
+            name: document.getElementById('name').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            courses: document.getElementById('enrollCourse').value.split(',').map(Number),
+            website: document.getElementById('website').value,
+          };
+
+          try {
+            const res = await fetch('/api/enroll', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            enrollForm.reset();
+            if (successMsg) {
+              successMsg.style.display = 'block';
+              successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } catch (err) {
+            if (errorMsg) {
+              errorMsg.style.display = 'block';
+              errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } finally {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = originalText;
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
