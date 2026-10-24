@@ -40,6 +40,51 @@
       font-weight: 800;
       filter: drop-shadow(0 2px 10px rgba(232, 93, 4, 0.28));
     }
+    .faculty-title-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+      padding: 10px 32px 12px;
+      border-radius: 9999px;
+      box-shadow: 0 10px 28px rgba(12, 42, 58, 0.09), 0 2px 8px rgba(232, 93, 4, 0.06);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      position: relative;
+      opacity: 0;
+      transform: scale(0.65);
+      transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.45s ease;
+      will-change: transform, opacity;
+      margin-bottom: 6px;
+    }
+    .faculty-title-pill.is-inview {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .faculty-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.85em;
+      background: #E85D04;
+      margin-left: 3px;
+      vertical-align: -0.05em;
+      border-radius: 2px;
+      animation: facultyCursorBlink 0.75s infinite;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .faculty-cursor.is-typing {
+      opacity: 1;
+    }
+    @keyframes facultyCursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    @media (max-width: 640px) {
+      .faculty-title-pill {
+        padding: 8px 22px 10px;
+        max-width: 95%;
+      }
+    }
 
     /* ==========================================================================
        FACULTY SHOWCASE CAROUSEL (THEO MẪU BẰNG BADGE SHOWCASE)
@@ -1470,8 +1515,10 @@
     <section class="blk" id="giang-vien" style="background: #F4FBF9 url('assets/images/BC2.png') center/cover no-repeat; position: relative;">
       <div class="wrap">
         <div class="sec-head center" style="text-align:center; margin-bottom:28px;">
-          <h2 style="font-size:clamp(28px, 3.8vw, 42px); line-height:1.25; margin-bottom:10px;"><span class="orange-neon-grad">Người đồng hành</span></h2>
-          <p style="font-size:16.5px; font-weight:700; color:var(--dark); margin:0 auto 4px; max-width:680px;">Đội ngũ giảng viên &amp; cố vấn thực chiến</p>
+          <div class="faculty-title-pill" id="facultyTitlePill">
+            <h2 style="font-size:clamp(26px, 3.6vw, 38px); line-height:1.2; margin:0;"><span class="orange-neon-grad" id="facultyTypedText">Người đồng hành</span><span class="faculty-cursor" id="facultyCursor"></span></h2>
+          </div>
+          <p style="font-size:16.5px; font-weight:700; color:var(--dark); margin:12px auto 4px; max-width:680px;">Đội ngũ giảng viên &amp; cố vấn thực chiến</p>
           <p style="font-size:15px; color:var(--slate); margin:0 auto; max-width:680px;">Trực tiếp xây dựng sản phẩm và tuyển dụng nhân sự mỗi ngày.</p>
         </div>
 
@@ -2536,6 +2583,62 @@
       if (nextBtn) nextBtn.addEventListener('click', () => updateShowcase(currentIndex + 1));
       if (mobPrev) mobPrev.addEventListener('click', () => updateShowcase(currentIndex - 1));
       if (mobNext) mobNext.addEventListener('click', () => updateShowcase(currentIndex + 1));
+
+      // Hiệu ứng Zoom Badge trắng và Typewriter text "Người đồng hành" khi cuộn tới
+      const titlePill = document.getElementById('facultyTitlePill');
+      const typedText = document.getElementById('facultyTypedText');
+      const cursor = document.getElementById('facultyCursor');
+
+      if (titlePill && typedText) {
+        const fullText = "Người đồng hành";
+        let hasAnimated = false;
+
+        const triggerAnimation = () => {
+          if (hasAnimated) return;
+          hasAnimated = true;
+
+          // 1. Zoom badge trắng vào
+          titlePill.classList.add('is-inview');
+
+          // 2. Chờ badge zoom hoàn thành (~450ms), bắt đầu gõ text
+          setTimeout(() => {
+            typedText.textContent = '';
+            if (cursor) cursor.classList.add('is-typing');
+
+            let i = 0;
+            const typeSpeed = 55;
+            const interval = setInterval(() => {
+              if (i < fullText.length) {
+                typedText.textContent += fullText.charAt(i);
+                i++;
+              } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                  if (cursor) {
+                    cursor.classList.remove('is-typing');
+                    cursor.style.opacity = '0';
+                  }
+                }, 1200);
+              }
+            }, typeSpeed);
+          }, 450);
+        };
+
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                triggerAnimation();
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.3 });
+
+          observer.observe(titlePill);
+        } else {
+          triggerAnimation();
+        }
+      }
     });
   </script>
 </body>
