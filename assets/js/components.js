@@ -257,11 +257,12 @@
             <!-- Cột 1: Thông tin pháp nhân công ty -->
             <div class="footer-col">
               <div class="footer-company-info">
-                <h4 style="font-size:14px; margin-bottom:12px; color:#FFFFFF;">CÔNG TY TNHH ERASIGHT ACADEMY</h4>
-                <p>Ngày cấp GCNĐKDN: 26/07/2022</p>
-                <p>Nơi cấp: Sở KH&amp;ĐT TP. HCM (nay là Sở Tài chính TP. HCM)</p>
-                <p>MST: 0317402205</p>
-                <p>Địa chỉ: Tầng lửng, Toà nhà Fideco Riverview, Số 14 Đường Thảo Điền, Phường An Khánh, TP. Thủ Đức, TP. Hồ Chí Minh</p>
+                <h4 style="font-size:14px; margin-bottom:12px; color:#FFFFFF;">CÔNG TY TNHH TẬP ĐOÀN TƯ VẤN ERASIGHT</h4>
+                <p>Mã số thuế: 0319182770</p>
+                <p>Loại hình: Công ty TNHH hai thành viên trở lên</p>
+                <p>Ngày cấp: 25/09/2025</p>
+                <p>Tình trạng: <span style="color: #10b981; font-weight: 500;">Đang hoạt động</span></p>
+                <p>Địa chỉ (Sau sáp nhập): 3 Nguyễn Lương Bằng, Phường Tân Mỹ, Thành phố Hồ Chí Minh, Việt Nam</p>
               </div>
             </div>
 

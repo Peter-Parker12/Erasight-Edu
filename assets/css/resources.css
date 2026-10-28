@@ -1564,7 +1564,7 @@ img.avatar {
 
 .doc-cover.has-img {
   width: 100%;
-  aspect-ratio: 1.1 / 1;
+  aspect-ratio: 1 / 1;
   height: auto;
   padding: 0;
   background: var(--cloud);
@@ -1578,7 +1578,7 @@ img.avatar {
   inset: 0;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1.1 / 1;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   transition: transform 0.35s ease;
 }
@@ -1610,10 +1610,10 @@ img.avatar {
 .doc-views .doc-size { color: #8aa0a8; font-weight: 500; }
 .lib-grid.is-list .doc-views { grid-area: cat; margin-top: 0; }
 .lib-grid.is-list .doc-cover.has-img {
-  width: 140px;
-  height: 127px;
-  min-height: 127px;
-  aspect-ratio: 1.1 / 1;
+  width: 130px;
+  height: 130px;
+  min-height: 130px;
+  aspect-ratio: 1 / 1;
   flex-shrink: 0;
 }
 
@@ -1655,36 +1655,64 @@ img.avatar {
 }
 .dl-error[hidden] { display: none; }
 
-/* Showcase modal (khi đã ghi danh) — format ảnh bìa tỉ lệ 1.1 : 1 */
+/* Showcase modal (khi đã ghi danh) — format ảnh bìa tỉ lệ 1:1 */
 #showcaseModal .doc-modal-box {
-  max-width: 860px;
+  max-width: 900px;
   width: 100%;
   display: grid;
-  grid-template-columns: 370px 1fr;
+  grid-template-columns: 410px 1fr;
   align-items: stretch;
   border-radius: 24px;
   overflow: hidden;
   background: #fff;
   position: relative;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.3);
 }
 
-#showcaseModal .doc-cover.has-img {
+.sc-cover-col {
   width: 100%;
   height: 100%;
-  aspect-ratio: 1.1 / 1;
-  min-height: 336px;
-  position: relative;
-  background: var(--cloud);
-  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(150deg, #f0f6f7 0%, #f7fafb 100%);
+  border-right: 1px solid rgba(13, 160, 150, 0.12);
+  box-sizing: border-box;
 }
 
-#showcaseModal .doc-cover.has-img img {
+#showcaseModal #scCover.doc-cover.has-img {
+  width: 100%;
+  max-width: 362px;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(12, 42, 58, 0.12), 0 2px 6px rgba(12, 42, 58, 0.05);
+  border: 1px solid rgba(12, 42, 58, 0.06);
+}
+
+#showcaseModal #scCover.doc-cover.has-img img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1.1 / 1;
-  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: block;
+}
+
+#showcaseModal #scCover.doc-cover.has-img .ext {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
 }
 
 #showcaseModal .doc-modal-body {
@@ -1754,14 +1782,17 @@ img.avatar {
     max-height: 90vh;
     overflow-y: auto;
   }
-  #showcaseModal .doc-cover.has-img {
-    width: 100%;
-    max-width: 320px;
-    height: auto;
-    min-height: 0;
-    margin: 16px auto 0;
-    border-radius: 16px;
-    aspect-ratio: 1.1 / 1;
+  .sc-cover-col {
+    padding: 20px 20px 0;
+    border-right: none;
+    background: transparent;
+  }
+  #showcaseModal #scCover.doc-cover.has-img {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  #showcaseModal .doc-modal-body {
+    padding: 20px 22px 24px;
   }
   .sc-actions {
     flex-direction: column;

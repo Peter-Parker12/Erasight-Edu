@@ -498,5 +498,5 @@
     loadDocuments();
   });
 
-  window.ErasightLibrary = { reload: loadDocuments, resetFilters };
+  window.ErasightLibrary = { reload: loadDocuments, resetFilters, openShowcaseModal, state };
 })();
