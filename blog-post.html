@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Blog — Erasight Academy</title>
-  <meta name="description" content="Bài viết từ Erasight Academy." />
+  <!--SSR:HEAD-->
 
   <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
 
@@ -139,201 +138,14 @@
        BLOG DETAIL MAIN
        ====================================================================== -->
   <main class="blog-detail" id="blogDetailMain">
-    <!-- Loading skeleton shown first -->
-    <div id="blogDetailContent">
-      <div class="blog-detail__image-section">
-        <div class="blog-skeleton" style="height:420px;border-radius:16px;"></div>
-      </div>
-      <div class="blog-detail__container">
-        <div class="blog-skeleton" style="height:18px;width:100px;"></div>
-        <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:24px;border-bottom:1.5px solid var(--line,#DDE7E7);">
-          <div class="blog-skeleton" style="height:40px;"></div>
-          <div class="blog-skeleton" style="height:40px;width:75%;"></div>
-          <div class="blog-skeleton" style="height:14px;width:140px;"></div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="blog-skeleton" style="height:16px;"></div>
-          <div class="blog-skeleton" style="height:16px;width:92%;"></div>
-          <div class="blog-skeleton" style="height:16px;width:85%;"></div>
-          <div class="blog-skeleton" style="height:16px;"></div>
-          <div class="blog-skeleton" style="height:16px;width:60%;"></div>
-        </div>
-      </div>
-    </div>
+    <!-- Bài viết được server render sẵn từ WordPress (blog-ssr.js) -> bot/AI đọc được mà không cần JS -->
+    <div id="blogDetailContent"><!--SSR:MAIN--></div>
   </main>
 
   <!-- ======================================================================
        FOOTER CHUẨN DÙNG CHUNG CỦA DỰ ÁN (RENDER BỞI components.js)
        ====================================================================== -->
   <div id="site-footer"></div>
-
-  <!-- ======================================================================
-       BLOG DETAIL JAVASCRIPT
-       ====================================================================== -->
-  <script>
-  (function() {
-    function getParam(name) {
-      return new URLSearchParams(window.location.search).get(name);
-    }
-
-    function stripHtml(html) {
-      return (html || '').replace(/<[^>]*>/g, '').trim();
-    }
-
-    function formatDate(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
-
-    function extractCategories(post) {
-      const terms = (post._embedded?.['wp:term']?.[0] || []).filter(t => t.taxonomy === 'category');
-      const meaningful = terms.filter(t => t.slug !== 'uncategorized' && t.name.toLowerCase() !== 'uncategorized');
-      if (meaningful.length > 0) {
-        return meaningful.map(t => ({ id: t.id, name: t.name, slug: t.slug }));
-      }
-      return [{ id: terms[0]?.id || null, name: 'Kiến thức', slug: 'kien-thuc' }];
-    }
-
-    // Only posts carrying the tag configured on the server (WP_POST_TAG in .env) can be opened.
-    // Which post is being opened: /blog-<slug> (preferred), ?slug=<slug>, or legacy ?id=<id>.
-    function postRef() {
-      const m = window.location.pathname.match(/^\/blog-([A-Za-z0-9%_-]+)\/?$/);
-      const slug = (m && m[1] !== 'post' ? m[1] : null) || getParam('slug');
-      if (slug && /^[A-Za-z0-9%_-]+$/.test(slug)) return { slug };
-      const id = getParam('id');
-      if (id && /^\d+$/.test(id)) return { id };
-      return null;
-    }
-
-    async function fetchPost(ref) {
-      const cfgRes = await fetch('/api/blog-config');
-      if (!cfgRes.ok) throw new Error('Not found');
-      const tagSlug = (await cfgRes.json()).tag;
-      const postUrl = ref.slug ? `/api/wp/posts?slug=${ref.slug}&_embed` : `/api/wp/posts/${ref.id}?_embed`;
-      const [res, tagRes] = await Promise.all([
-        fetch(postUrl),
-        fetch(`/api/wp/tags?slug=${encodeURIComponent(tagSlug)}&per_page=1`),
-      ]);
-      if (!res.ok || !tagRes.ok) throw new Error('Not found');
-      const found = await res.json();
-      const post = Array.isArray(found) ? found[0] : found; // ?slug= returns an array
-      if (!post) throw new Error('Not found');
-      const tags = await tagRes.json();
-      if (!tags.length || !(post.tags || []).includes(tags[0].id)) throw new Error('Not found');
-      return { post, tagId: tags[0].id };
-    }
-
-    async function fetchRelatedPosts(currentId, tagId, catId) {
-      try {
-        let url = `/api/wp/posts?per_page=4&tags=${tagId}&exclude=${currentId}&_embed`;
-        if (catId) url += `&categories=${catId}`;
-        let res = await fetch(url);
-        if (!res.ok) {
-          res = await fetch(`/api/wp/posts?per_page=4&tags=${tagId}&exclude=${currentId}&_embed`);
-        }
-        if (!res.ok) return [];
-        const raw = await res.json();
-        return raw.filter(p => p.id !== Number(currentId)).slice(0, 3);
-      } catch {
-        return [];
-      }
-    }
-
-    function renderNotFound() {
-      document.getElementById('blogDetailContent').innerHTML = `
-        <div class="blog-detail__container" style="text-align:center;padding-top:60px;">
-          <a href="/blog" class="blog-detail__back">← Về trang Blog</a>
-          <div style="margin-top:40px;">
-            <div style="font-size:4rem;margin-bottom:16px;">🔍</div>
-            <h1 style="font-family:var(--font-display);font-size:1.8rem;color:var(--dark);">Không tìm thấy bài viết</h1>
-            <p style="color:var(--slate);margin-top:8px;">Bài viết có thể đã bị xoá hoặc đường dẫn không đúng.</p>
-          </div>
-        </div>`;
-    }
-
-    async function init() {
-      const ref = postRef();
-      if (!ref) { renderNotFound(); return; }
-
-      try {
-        const { post, tagId } = await fetchPost(ref);
-        // Old ?id= links: show the slug URL in the address bar
-        if (!ref.slug && post.slug) history.replaceState(null, '', `/blog-${post.slug}`);
-        const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;
-        const title = post.title?.rendered || '';
-        const date = formatDate(post.date);
-        const content = post.content?.rendered || '';
-        const cats = extractCategories(post);
-        const primaryCat = cats[0];
-
-        // Update page title & meta
-        document.title = `${stripHtml(title)} — Erasight Academy`;
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute('content', stripHtml(post.excerpt?.rendered || '').slice(0, 160));
-
-        const imageHtml = imageUrl ? `
-          <div class="blog-detail__image-section">
-            <div class="blog-detail__image-wrapper">
-              <img src="${imageUrl}" alt="${stripHtml(title).replace(/"/g,'&quot;')}" />
-            </div>
-          </div>` : '';
-
-        // Tải các bài viết cùng chủ đề
-        const related = await fetchRelatedPosts(post.id, tagId, primaryCat?.id);
-        const relatedHtml = related.length ? `
-          <section style="margin-top:48px;padding-top:36px;border-top:1.5px solid var(--line,#DDE7E7);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-              <h2 style="font-family:var(--font-display,'Bricolage Grotesque',sans-serif);font-size:1.35rem;font-weight:700;color:var(--dark,#0C2A3A);">Bài viết cùng chủ đề</h2>
-              <a href="/blog?cat=${encodeURIComponent(primaryCat.slug)}" style="color:var(--p,#0DA096);font-size:0.88rem;font-weight:600;text-decoration:none;">Xem thêm →</a>
-            </div>
-            <div class="blog-related-grid">
-              ${related.map(r => {
-                const rThumb = r._embedded?.['wp:featuredmedia']?.[0]?.source_url || null;
-                const rTitle = stripHtml(r.title?.rendered || '');
-                return `
-                  <a href="/blog-${r.slug}" class="blog-card" style="text-decoration:none;border-radius:12px;overflow:hidden;border:1px solid var(--line,#DDE7E7);background:white;display:flex;flex-direction:column;">
-                    <div style="width:100%;aspect-ratio:16/10;background:var(--line,#DDE7E7);overflow:hidden;">
-                      ${rThumb ? `<img src="${rThumb}" alt="${rTitle}" style="width:100%;height:100%;object-fit:cover;" />` : `<div style="width:100%;height:100%;display:grid;place-items:center;color:var(--slate);">📝</div>`}
-                    </div>
-                    <div style="padding:14px;display:flex;flex-direction:column;flex:1;">
-                      <h3 style="font-size:0.95rem;font-weight:700;color:var(--dark,#0C2A3A);line-height:1.4;margin-bottom:8px;">${rTitle}</h3>
-                      <p style="font-size:0.78rem;color:var(--slate,#4A6572);margin-top:auto;">${formatDate(r.date)}</p>
-                    </div>
-                  </a>`;
-              }).join('')}
-            </div>
-          </section>` : '';
-
-        document.getElementById('blogDetailContent').innerHTML = `
-          ${imageHtml}
-          <div class="blog-detail__container">
-            <a href="/blog" class="blog-detail__back">← Về trang Blog</a>
-            <div class="blog-detail__header">
-              <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                ${cats.map(c => `<a href="/blog?cat=${encodeURIComponent(c.slug)}" class="blog-detail__category-badge">${c.name}</a>`).join('')}
-              </div>
-              <h1 class="blog-detail__title">${title}</h1>
-              <p class="blog-detail__date">${date}</p>
-            </div>
-            <div class="blog-detail__content">${content}</div>
-            ${relatedHtml}
-            <div style="padding-top:32px;margin-top:36px;border-top:1.5px solid var(--line,#DDE7E7);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-              <a href="/blog" class="blog-detail__back">← Tất cả bài viết</a>
-              <a href="/Homepage#pricing" style="display:inline-block;padding:10px 22px;border-radius:999px;background:var(--orange,#E85D04);color:white;font-weight:700;font-size:0.9rem;text-decoration:none;">Ghi danh khoá học →</a>
-            </div>
-          </div>`;
-      } catch (e) {
-        renderNotFound();
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  })();
-  </script>
 
   <script src="assets/js/components.js"></script>
 

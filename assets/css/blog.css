@@ -827,3 +827,22 @@
   background-size: 200% 100%;
   border-radius: 8px;
 }
+
+/* Liên kết thật (server render) thay cho span/button gắn onclick */
+a.blog-ribbon__item,
+a.blog-category-chip,
+a.blog-pagination__btn,
+span.blog-pagination__btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+a.blog-ribbon__item--active { background: var(--p, #0DA096); color: #fff; }
+a.blog-ribbon__item--active strong { color: #fff; }
+a.blog-category-chip { transition: background 0.2s ease, color 0.2s ease; }
+a.blog-category-chip:hover,
+a.blog-category-chip--active { background: var(--p, #0DA096); color: #fff; }
+a.blog-category-chip:hover strong,
+a.blog-category-chip--active strong { color: #fff; }
+span.blog-pagination__btn[aria-disabled="true"] { cursor: not-allowed; }

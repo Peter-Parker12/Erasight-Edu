@@ -34,6 +34,8 @@ const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
 // WordPress REST API base URL (e.g. https://blog.erasight.vn/wp-json/wp/v2)
 const WP_API_URL = (process.env.WP_API_URL || '').replace(/\/+$/, '');
+// Public URL of the site, used for canonical links, Open Graph tags, JSON-LD and sitemap.xml
+const SITE_URL = (process.env.SITE_URL || 'https://academy.erasight.net').replace(/\/+$/, '');
 // Only posts carrying this WordPress tag are shown on the blog pages. Accepts the tag's slug or its
 // name ("Erasight Education" -> erasight-education); WordPress slugs are lowercase with hyphens.
 const WP_POST_TAG = (process.env.WP_POST_TAG || 'erasight-education')
@@ -183,6 +185,34 @@ function stampAssets(html) {
   });
 }
 
+// Send a buffer with ETag / 304 handling and gzip for text. Shared by static files and server-rendered pages.
+function respond(req, res, { status = 200, buf, contentType, cacheControl, isText = false, extraHeaders = {} }) {
+  const etag = '"' + crypto.createHash('md5').update(buf).digest('hex') + '"';
+  if (status === 200 && req.headers['if-none-match'] === etag) {
+    res.writeHead(304, { 'ETag': etag });
+    return res.end();
+  }
+  const headers = { 'Content-Type': contentType, 'Cache-Control': cacheControl, 'ETag': etag, ...extraHeaders };
+
+  // Bật nén Gzip cho text resources (HTML, CSS, JS, SVG, JSON)
+  const acceptEncoding = req.headers['accept-encoding'] || '';
+  if (isText && acceptEncoding.includes('gzip') && buf.length > 256) {
+    return zlib.gzip(buf, (zErr, gzipped) => {
+      if (!zErr && gzipped) {
+        headers['Content-Encoding'] = 'gzip';
+        headers['Vary'] = 'Accept-Encoding';
+        res.writeHead(status, headers);
+        res.end(gzipped);
+      } else {
+        res.writeHead(status, headers);
+        res.end(buf);
+      }
+    });
+  }
+  res.writeHead(status, headers);
+  res.end(buf);
+}
+
 function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
@@ -212,19 +242,21 @@ function serveStatic(req, res) {
     }
   }
 
+  // Blog pages are rendered on the server (full content in the HTML for crawlers and AI bots)
+  if (p === '/blog.html') return blog.list(req, res);
+  if (p === '/blog-post.html') {
+    const m = decodeURIComponent(new URL(req.url, 'http://x').pathname).match(/^\/blog-([A-Za-z0-9%_-]+)\/?$/);
+    return blog.post(req, res, m ? m[1] : null);
+  }
+  if (p === '/sitemap.xml') return blog.sitemap(req, res);
+  if (p === '/robots.txt') return blog.robots(req, res);
+
   const file = path.join(ROOT, p);
   if (!STATIC_ALLOW.test(p) || !file.startsWith(ROOT + path.sep)) { res.writeHead(404); return res.end('Not found'); }
 
   fs.readFile(file, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('Not found'); }
     if (p.endsWith('.html')) buf = Buffer.from(stampAssets(buf.toString('utf8')));
-
-    // ETag & Conditional 304 Not Modified
-    const etag = '"' + crypto.createHash('md5').update(buf).digest('hex') + '"';
-    if (req.headers['if-none-match'] === etag) {
-      res.writeHead(304, { 'ETag': etag });
-      return res.end();
-    }
 
     const isText = /\.(html|css|js|json|svg)$/i.test(p);
     const isImmutable = req.url.includes('?v=') || /\.(webp|png|jpg|jpeg|gif|woff2?|mp4)$/i.test(p);
@@ -235,30 +267,7 @@ function serveStatic(req, res) {
         ? 'public, max-age=86400, stale-while-revalidate=604800'
         : 'public, max-age=0, must-revalidate';
 
-    const headers = {
-      'Content-Type': MIME[ext] || 'application/octet-stream',
-      'Cache-Control': cacheControl,
-      'ETag': etag,
-    };
-
-    // Bật nén Gzip cho text resources (HTML, CSS, JS, SVG, JSON)
-    const acceptEncoding = req.headers['accept-encoding'] || '';
-    if (isText && acceptEncoding.includes('gzip') && buf.length > 256) {
-      zlib.gzip(buf, (zErr, gzipped) => {
-        if (!zErr && gzipped) {
-          headers['Content-Encoding'] = 'gzip';
-          headers['Vary'] = 'Accept-Encoding';
-          res.writeHead(200, headers);
-          res.end(gzipped);
-        } else {
-          res.writeHead(200, headers);
-          res.end(buf);
-        }
-      });
-    } else {
-      res.writeHead(200, headers);
-      res.end(buf);
-    }
+    respond(req, res, { buf, contentType: MIME[ext] || 'application/octet-stream', cacheControl, isText });
   });
 }
 
@@ -289,6 +298,11 @@ async function handleWpProxy(req, res) {
     res.end(JSON.stringify({ error: 'WordPress upstream error' }));
   }
 }
+
+// ---- Blog (server-side rendered from WordPress) ---------------------------
+const blog = require('./blog-ssr')({
+  ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finalize: stampAssets, respond,
+});
 
 // ---- Document library (admin uploads, gallery, gated downloads) -----------
 const documents = require('./documents')({
