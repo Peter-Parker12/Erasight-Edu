@@ -6,6 +6,11 @@
 (function () {
   'use strict';
 
+  // If this script is included twice on a page, a second run would bind every header handler again
+  // (the mobile menu would open and close in the same tap). Run only once.
+  if (window.__erasightComponentsLoaded) return;
+  window.__erasightComponentsLoaded = true;
+
   const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
 
   // Đảm bảo URL mặc định trên web server luôn hiển thị chuẩn /Homepage ngay lần đầu truy cập
@@ -409,6 +414,17 @@
     if (overlay) {
       overlay.addEventListener('click', closeMobileMenu);
     }
+
+    // Chạm ra ngoài menu (hoặc nhấn Esc) cũng đóng menu. Overlay nằm trong header nên chỉ phủ vùng header,
+    // vì vậy cần lắng nghe ở cấp document để chạm vào phần nội dung bên dưới vẫn đóng được menu.
+    document.addEventListener('click', (e) => {
+      if (!toggleBtn || !drawer || !toggleBtn.classList.contains('is-active')) return;
+      if (drawer.contains(e.target) || toggleBtn.contains(e.target)) return;
+      closeMobileMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggleBtn && toggleBtn.classList.contains('is-active')) closeMobileMenu();
+    });
 
     // Đóng drawer khi click vào liên kết bên trong
     const drawerLinks = drawer ? drawer.querySelectorAll('a') : [];

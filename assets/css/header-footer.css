@@ -977,3 +977,9 @@ footer,
   justify-content: center;
   border: 2px solid #FFFFFF;
 }
+
+/* Mục đang xem trong menu mobile (dùng chung cho mọi trang) */
+.mobile-nav-item--active {
+  color: var(--hf-teal, #0DA096) !important;
+  font-weight: 700;
+}
