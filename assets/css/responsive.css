@@ -1,0 +1,117 @@
+/* ==========================================================================
+   ERASIGHT — RESPONSIVE LAYER (mobile first fixes, loaded last on every public page)
+   Rules here only change layouts on small screens; desktop styling stays as designed.
+   Verify with:  node tools/mobile-audit.js
+   ========================================================================== */
+
+/* ---- 0. Foundation ------------------------------------------------------ */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* The HTML `hidden` attribute must win over component display rules (.btn { display: inline-flex } was showing hidden buttons) */
+[hidden] { display: none !important; }
+
+/* Media never wider than its container */
+img, video, canvas, svg, iframe { max-width: 100%; }
+
+/* Grid/flex children may shrink below their content width (a long label must not stretch a whole column) */
+:where(.hero-grid, .courses-deck-grid, .price-grid, .lib-layout, .lib-grid, .blog-layout, .blog-grid,
+       .blog-hero, .blog-content, .timeline, .adm-grid) > * { min-width: 0; }
+
+/* Last-resort guard: a stray decorative element can never create a sideways scroll bar.
+   (tools/mobile-audit.js switches this off so real overflow is still reported.) */
+html, body { overflow-x: clip; }
+
+/* Long words / URLs in editorial content wrap instead of pushing the layout */
+.blog-detail__content, .blog-card__title, .blog-card__excerpt, .doc-body h3, .doc-body p { overflow-wrap: anywhere; }
+.blog-detail__content img, .blog-detail__content video, .blog-detail__content iframe { max-width: 100%; height: auto; }
+.blog-detail__content iframe { aspect-ratio: 16 / 9; width: 100%; height: auto; }
+.blog-detail__content table, .blog-detail__content pre { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---- 1. Tablets and below (<= 960px) ------------------------------------ */
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  /* the mobile drawer must not be cut off by browser toolbars (iOS Safari) */
+  .mobile-drawer { max-height: calc(100dvh - 70px); }
+}
+
+/* ---- 2. Phones (<= 860px) ----------------------------------------------- */
+@media (max-width: 860px) {
+  .courses-deck-grid { grid-template-columns: minmax(0, 1fr); }
+  .price-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- 3. Small phones (<= 640px) ----------------------------------------- */
+@media (max-width: 640px) {
+  /* Buttons: long labels wrap instead of forcing the page wider; comfortable tap height */
+  .btn { white-space: normal; text-align: center; line-height: 1.3; min-height: 44px; }
+  .btn.btn-sm { min-height: 40px; }
+
+  /* Course cards: less padding, price and button stacked */
+  .course-presentation-card { padding: 28px 20px; }
+  .course-presentation-card > div[style*="justify-content:space-between"] {
+    flex-direction: column; align-items: stretch !important; gap: 14px;
+  }
+  .course-presentation-card > div[style*="justify-content:space-between"] .btn { width: 100%; }
+
+  /* Giảng viên page (Tailwind): hero headline scales with the screen; wrapped stat labels get readable line spacing */
+  .text-display-hero { font-size: clamp(32px, 9.5vw, 56px) !important; }
+  .text-label-counter { line-height: 1.35 !important; }
+
+  /* Footer: the last column ("Erasight Academy") was pushed to the right edge; keep it aligned with the others */
+  .footer-grid-5col .footer-col:last-child { justify-self: start; }
+
+  /* Hero card flip button: hang it off the bottom edge instead of covering the card's text */
+  .hero-flip-btn { top: auto; bottom: -24px; right: 50%; transform: translateX(50%); }
+  .hero-flip-btn:hover, .hero-flip-btn:active { transform: translateX(50%) scale(1.06); }
+  .hero-visual { margin-bottom: 32px; }
+
+  /* Hero mock card: let rows wrap inside the card instead of running off screen */
+  .hero-deck-canvas { padding: 20px 16px 18px; }
+  .deck-topbar { flex-wrap: wrap; gap: 8px; }
+  .dt-head, .dt-flow, .dt-meta { flex-wrap: wrap; }
+  .dt-flow { row-gap: 6px; }
+}
+
+/* ---- 4. Narrow phones (<= 400px) ---------------------------------------- */
+@media (max-width: 400px) {
+  /* Big numeric stats (Giảng viên page): scale with the screen so "3.000+" fits its card */
+  .text-stat-metric { font-size: clamp(24px, 8.5vw, 34px) !important; }
+
+  /* Pricing cards: tighter padding, price + old price may wrap onto two lines */
+  .price-card { padding: 28px 20px; }
+  .price-card .amt { font-size: clamp(24px, 8vw, 32px); white-space: nowrap; }
+  .price-card > div[style*="align-items:baseline"] { flex-wrap: wrap; row-gap: 4px; }
+
+  /* Footer ribbon: "Theo dõi Erasight" + four 44px icons wrap instead of overflowing on 320px screens */
+  .footer-notch-social, .footer-notch-social-icons { flex-wrap: wrap; row-gap: 8px; justify-content: center; }
+
+  /* Giảng viên: mentor filter buttons wrap onto a second line instead of running off screen */
+  .mentor-filter-btn { white-space: normal; }
+  div:has(> .mentor-filter-btn) { display: flex !important; flex-wrap: wrap; align-self: stretch; }
+}
+
+/* ---- 5. Touch comfort on phones (<= 640px) ----------------------------------
+   Tap targets of about 44px, readable badge text, no iOS zoom-on-focus, modals sized to the visible screen. */
+@media (max-width: 640px) {
+  /* Tap targets */
+  .footer-col a { display: inline-flex; align-items: center; min-height: 40px; }
+  .social-icon-btn { width: 44px; height: 44px; }
+  .faq-nav-item { min-height: 44px; }
+  .faq-social-btn { width: 44px; height: 44px; }
+  .login-trigger-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .lib-tag, .btn-text-zoom, .inline-b6-tag, .btn-flip-back-link { display: inline-flex; align-items: center; min-height: 40px; }
+  .lib-select, .lib-view button { min-height: 44px; }
+  .blog-ribbon__item, .blog-category-chip, .blog-pagination__btn { min-height: 40px; }
+
+  /* Decorative badges / labels: never below 12px */
+  .deck-badge span, .deck-term, .dt-pill, .dt-status, .dt-meta b, .node, .arr,
+  .asset-k, .asset-badge-live, .tm-course, .role, .faculty-badge-pill, .flip-btn-tooltip,
+  .lib-panel h4 { font-size: 12px; }
+
+  /* 16px inputs stop iPhones from zooming the page when a field is focused */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  select, textarea { font-size: 16px; }
+
+  /* Pop-ups fit the visible area even when the browser toolbar is showing */
+  .doc-modal-box, .dl-box { max-height: 92dvh; }
+}
