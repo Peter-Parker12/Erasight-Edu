@@ -179,7 +179,7 @@ function assetHash(rel) {
   } catch { return null; }
 }
 function stampAssets(html) {
-  return html.replace(/(["'])(assets\/(?:css|js)\/[\w.-]+\.(?:css|js))(?:\?v=[^"']*)?\1/g, (m, q, rel) => {
+  return html.replace(/(["'])(assets\/(?:css|js|images|logos)\/[\w.-]+\.(?:css|js|png|jpg|jpeg|webp|svg))(?:\?v=[^"']*)?\1/g, (m, q, rel) => {
     const h = assetHash(rel);
     return h ? `${q}${rel}?v=${h}${q}` : m;
   });
