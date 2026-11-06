@@ -17,7 +17,8 @@ module.exports = function init({ ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finali
   const PER_PAGE = 6;
   const FRESH_MS = 2 * 60 * 1000;     // reuse WordPress data for 2 minutes
   const TAG_FRESH_MS = 5 * 60 * 1000;
-  const STATIC_PAGES = ['/Homepage', '/giang-vien', '/san-pham-hoc-vien', '/tai-lieu-ai', '/hoi-dap', '/blog'];
+  const STATIC_PAGES = ['/Homepage', '/giang-vien', '/san-pham-hoc-vien', '/tai-lieu-ai', '/hoi-dap', '/blog',
+    '/dieu-khoan-su-dung', '/chinh-sach-thanh-toan', '/chinh-sach-hoc-lai', '/chinh-sach-quyen-rieng-tu'];
 
   // ---- Text helpers ----------------------------------------------------------
   const NAMED = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', ndash: '–', mdash: '—', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”', laquo: '«', raquo: '»' };

@@ -18,7 +18,7 @@ let chromium;
 try { ({ chromium } = require('playwright-core')); } catch { console.error('Missing dependency: npm i --no-save playwright-core'); process.exit(2); }
 
 const WIDTHS = (process.env.WIDTHS || '320,360,375,390,414,768,1024').split(',').map(Number);
-const PAGES = (process.env.PAGES || '/Homepage,/giang-vien,/san-pham-hoc-vien,/tai-lieu-ai,/hoi-dap,/blog,/demo-page').split(',');
+const PAGES = (process.env.PAGES || '/Homepage,/giang-vien,/san-pham-hoc-vien,/tai-lieu-ai,/hoi-dap,/blog,/demo-page,/dieu-khoan-su-dung,/chinh-sach-thanh-toan,/chinh-sach-hoc-lai,/chinh-sach-quyen-rieng-tu').split(',');
 const PORT = 4300 + Math.floor(Math.random() * 500);
 
 async function startServer() {
