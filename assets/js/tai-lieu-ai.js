@@ -421,7 +421,7 @@
           method: 'POST',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, website: $('dlWebsite').value })
+          body: JSON.stringify({ name, email, phone, website: $('dlWebsite').value, utm: window.ErasightTracking ? window.ErasightTracking.utm() : null })
         });
         if (res.status === 429) throw new Error('Bạn thao tác hơi nhanh, vui lòng thử lại sau ít phút.');
         if (!res.ok) throw new Error('Thông tin chưa hợp lệ hoặc có lỗi hệ thống. Vui lòng kiểm tra lại và thử lần nữa.');

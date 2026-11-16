@@ -90,7 +90,7 @@ function normalizePhone(raw) {
   return { primaryPhoneNumber: d, primaryPhoneCountryCode: 'VN', primaryPhoneCallingCode: '+84' };
 }
 
-async function enroll({ name, phone, email, courses }) {
+async function enroll({ name, phone, email, courses, utmTags }) {
   const map = await courseMap();
   const picked = [...new Set(courses.map(Number))].map((id) => map.get(id));
   if (!picked.length || picked.some((c) => !c)) {
@@ -102,6 +102,7 @@ async function enroll({ name, phone, email, courses }) {
     phones: normalizePhone(phone),
     channel: 'WEBSITE',
     status: 'NEW',
+    ...(utmTags ? { utmTags } : {}),
   });
   const leadId = findId(lead);
   if (!leadId) throw new Error('Lead created but id missing in response');
@@ -156,7 +157,7 @@ async function handleEnroll(req, res) {
       return send(res, 400, { ok: false, error: 'Invalid input' });
     }
     if (!TWENTY_URL || !TWENTY_API_KEY) throw new Error('TWENTY_URL / TWENTY_API_KEY not configured');
-    await enroll({ name, phone, email, courses });
+    await enroll({ name, phone, email, courses, utmTags: attribution.utmTags(b.utm) });
     send(res, 200, { ok: true });
   } catch (e) {
     console.error('enroll failed:', e.message);
@@ -230,6 +231,8 @@ function serveStatic(req, res) {
   else if (!path.extname(p) && fs.existsSync(path.join(ROOT, p + '.html'))) p = p + '.html';
   // Pretty post URLs: /blog-<post-slug> -> blog-post.html (the page reads the slug from the URL)
   else if (/^\/blog-[A-Za-z0-9%_-]+$/.test(p)) p = '/blog-post.html';
+  // Event pages: /su-kien (list) and /su-kien-<slug> (detail) are rendered on the server (events.js)
+  else if (/^\/su-kien-[a-z0-9-]+$/.test(p)) p = '/su-kien-chi-tiet.html';
 
   // Tự động chuyển sang ảnh WebP nếu client hỗ trợ và có file .webp trên đĩa
   let ext = path.extname(p).toLowerCase();
@@ -247,6 +250,12 @@ function serveStatic(req, res) {
   if (p === '/blog-post.html') {
     const m = decodeURIComponent(new URL(req.url, 'http://x').pathname).match(/^\/blog-([A-Za-z0-9%_-]+)\/?$/);
     return blog.post(req, res, m ? m[1] : null);
+  }
+  if (p === '/su-kien.html') return events.list(req, res);
+  if (p === '/su-kien-chi-tiet.html') {
+    const m = decodeURIComponent(new URL(req.url, 'http://x').pathname).match(/^\/su-kien-([a-z0-9-]+)\/?$/);
+    if (!m) { res.writeHead(301, { Location: '/su-kien' }); return res.end(); } // the template opened directly
+    return events.detail(req, res, m[1]);
   }
   if (p === '/sitemap.xml') return blog.sitemap(req, res);
   if (p === '/robots.txt') return blog.robots(req, res);
@@ -302,11 +311,14 @@ async function handleWpProxy(req, res) {
 // ---- Blog (server-side rendered from WordPress) ---------------------------
 const blog = require('./blog-ssr')({
   ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finalize: stampAssets, respond,
+  extraSitemap: () => events.sitemapEntries(),
 });
+
+const attribution = require('./attribution');
 
 // ---- Document library (admin uploads, gallery, gated downloads) -----------
 const documents = require('./documents')({
-  twenty, normalizePhone, send, readJson, rateLimited,
+  twenty, utmTags: attribution.utmTags, normalizePhone, send, readJson, rateLimited,
   twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY),
 });
 
@@ -315,9 +327,16 @@ const showcases = require('./showcases')({
   send, readJson, rateLimited, isAdmin: documents.isAdmin,
 });
 
+// ---- Events (admin-managed listing, per-event pages, on-site registration -> CRM lead) ----
+const events = require('./events')({
+  ROOT, SITE_URL, finalize: stampAssets, respond, twenty, normalizePhone, send, readJson, rateLimited,
+  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isAdmin: documents.isAdmin,
+});
+
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
+  if (pathname.startsWith('/api/events') || pathname.startsWith('/api/admin/events')) return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
   if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });

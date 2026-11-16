@@ -10,14 +10,14 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = function init({ ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finalize, respond }) {
+module.exports = function init({ ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finalize, respond, extraSitemap = () => [] }) {
   const SITE = (SITE_URL || 'https://academy.erasight.net').replace(/\/+$/, '');
   const ORG = 'Erasight Academy';
   const LOGO = `${SITE}/assets/logos/erasight-bieutuong-mau-1024w.png`;
   const PER_PAGE = 6;
   const FRESH_MS = 2 * 60 * 1000;     // reuse WordPress data for 2 minutes
   const TAG_FRESH_MS = 5 * 60 * 1000;
-  const STATIC_PAGES = ['/Homepage', '/giang-vien', '/san-pham-hoc-vien', '/tai-lieu-ai', '/hoi-dap', '/blog',
+  const STATIC_PAGES = ['/Homepage', '/giang-vien', '/san-pham-hoc-vien', '/tai-lieu-ai', '/hoi-dap', '/blog', '/su-kien',
     '/dieu-khoan-su-dung', '/chinh-sach-thanh-toan', '/chinh-sach-hoc-lai', '/chinh-sach-quyen-rieng-tu'];
 
   // ---- Text helpers ----------------------------------------------------------
@@ -436,7 +436,7 @@ module.exports = function init({ ROOT, WP_API_URL, WP_POST_TAG, SITE_URL, finali
       try { list = await posts(); } catch (e) { console.error('sitemap: posts unavailable:', e.message); }
       const entry = (loc, lastmod) => `  <url><loc>${esc(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`;
       const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${
-        [...STATIC_PAGES.map((p) => entry(SITE + p)), ...list.map((p) => entry(SITE + url(p.slug), String(p.modified).slice(0, 10)))].join('\n')}\n</urlset>\n`;
+        [...STATIC_PAGES.map((p) => entry(SITE + p)), ...list.map((p) => entry(SITE + url(p.slug), String(p.modified).slice(0, 10))), ...extraSitemap().map((x) => entry(SITE + x.path, x.lastmod))].join('\n')}\n</urlset>\n`;
       respond(req, res, { buf: Buffer.from(xml), contentType: 'application/xml; charset=utf-8', cacheControl: 'public, max-age=300', isText: true });
     },
 

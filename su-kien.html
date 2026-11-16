@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!--SSR:HEAD-->
+  <link rel="icon" type="image/png" href="assets/logos/erasight-bieutuong-mau-1024w.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/header-footer.css" />
+  <link rel="stylesheet" href="assets/css/resources.css" />
+  <link rel="stylesheet" href="assets/css/events.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body>
+
+  <!-- HEADER DÙNG CHUNG (render bởi components.js) -->
+  <div id="site-header"></div>
+
+  <main id="top">
+    <section class="res-hero res-hero--doc">
+      <div class="wrap">
+        <h1>Sự kiện <span class="hl">Erasight Academy</span></h1>
+        <p class="lead">
+          Workshop, webinar và buổi chia sẻ thực chiến về AI Marketing và tiếng Anh đi làm —
+          đăng ký tham dự các sự kiện sắp tới hoặc xem lại các sự kiện đã diễn ra.
+        </p>
+      </div>
+    </section>
+
+    <!-- Danh sách sự kiện được server render sẵn (events.js) -> bot/AI đọc được mà không cần JS -->
+    <!--SSR:MAIN-->
+  </main>
+
+  <!-- FOOTER DÙNG CHUNG -->
+  <div id="site-footer"></div>
+
+  <script src="assets/js/tracking.js"></script>
+  <script src="assets/js/components.js"></script>
+</body>
+</html>

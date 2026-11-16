@@ -116,6 +116,13 @@
                   <span class="dropdown-desc">Prompt, template, cẩm nang &amp; slide AI chọn lọc để tải về</span>
                 </div>
               </a>
+              <a href="${pageUrl('su-kien')}" class="dropdown-item" role="menuitem" data-nav="su-kien">
+                <span class="dropdown-badge badge-blue">EVENTS</span>
+                <div class="dropdown-info">
+                  <span class="dropdown-title">Sự kiện</span>
+                  <span class="dropdown-desc">Workshop, webinar &amp; Demo Day — đăng ký tham dự</span>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -155,11 +162,12 @@
           <div>
             <a href="${pageUrl('san-pham-hoc-vien')}" class="mobile-nav-item" data-nav="resource">
               <span>Resource</span>
-              <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">2 mục</span>
+              <span style="font-size:12px; color:var(--hf-teal); font-weight:700;">3 mục</span>
             </a>
             <div class="mobile-nav-sublist">
               <a href="${pageUrl('san-pham-hoc-vien')}" class="mobile-nav-sublink" data-nav="san-pham-hoc-vien">✦ Sản phẩm học viên</a>
               <a href="${pageUrl('tai-lieu-ai')}" class="mobile-nav-sublink" data-nav="tai-lieu-ai">✦ Tài liệu AI</a>
+              <a href="${pageUrl('su-kien')}" class="mobile-nav-sublink" data-nav="su-kien">✦ Sự kiện</a>
             </div>
           </div>
           <a href="${pageUrl('hoi-dap')}" target="_blank" rel="noopener noreferrer" class="mobile-nav-item" data-nav="hoi-dap">Hỏi đáp</a>
@@ -271,6 +279,7 @@
                 <li><a href="${pageUrl('Homepage', '#lo-trinh')}">Hướng dẫn thực hành</a></li>
                 <li><a href="${pageUrl('san-pham-hoc-vien')}">Sản phẩm học viên</a></li>
                 <li><a href="${pageUrl('tai-lieu-ai')}">Tài liệu AI</a></li>
+                <li><a href="${pageUrl('su-kien')}">Sự kiện</a></li>
               </ul>
             </div>
 
@@ -293,6 +302,7 @@
                 <li><a href="${pageUrl('chinh-sach-thanh-toan')}">Chính sách thanh toán</a></li>
                 <li><a href="${pageUrl('chinh-sach-hoc-lai')}">Chính sách học lại "Yêu lại từ đầu"</a></li>
                 <li><a href="${pageUrl('chinh-sach-quyen-rieng-tu')}">Chính sách quyền riêng tư</a></li>
+                <li><a href="#cookie-settings" data-cookie-settings>Cài đặt cookie</a></li>
               </ul>
             </div>
 
@@ -503,7 +513,7 @@
       const blogLinks = document.querySelectorAll('[data-nav="blog"]');
       blogLinks.forEach(l => l.classList.add('active'));
     }
-    ['san-pham-hoc-vien', 'tai-lieu-ai'].forEach((page) => {
+    ['san-pham-hoc-vien', 'tai-lieu-ai', 'su-kien'].forEach((page) => {
       if (currentPath.includes(page)) {
         document.querySelectorAll('[data-nav="resource"]').forEach(l => l.classList.add('active'));
         document.querySelectorAll(`[data-nav="${page}"]`).forEach(l => l.classList.add('is-current'));

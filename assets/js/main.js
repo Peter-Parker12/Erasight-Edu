@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       email: document.getElementById('email').value,
       courses: document.getElementById('enrollCourse').value.split(',').map(Number),
       website: document.getElementById('website').value,
+      utm: window.ErasightTracking ? window.ErasightTracking.utm() : null,
     };
 
     try {

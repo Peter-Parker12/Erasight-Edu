@@ -355,6 +355,7 @@
     .form-group-clean input[type=text],
     .form-group-clean input[type=url],
     .form-group-clean input[type=number],
+    .form-group-clean input[type=datetime-local],
     .form-group-clean select,
     .form-group-clean textarea {
       width: 100%;
@@ -774,6 +775,13 @@
             <span>Sản phẩm học viên</span>
             <span class="badge" id="sideShowcaseCount">0</span>
           </button>
+
+          <!-- Button 3: Sự kiện -->
+          <button type="button" class="crm-nav-item" id="tabEventBtn" data-tab="event" role="tab" aria-selected="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Sự kiện</span>
+            <span class="badge" id="sideEventCount">0</span>
+          </button>
         </div>
       </div>
 
@@ -787,6 +795,10 @@
         <a href="/san-pham-hoc-vien" target="_blank" rel="noopener" class="crm-quick-link">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           <span>Xem Sản phẩm học viên</span>
+        </a>
+        <a href="/su-kien" target="_blank" rel="noopener" class="crm-quick-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>Xem Sự kiện</span>
         </a>
         <a href="/Homepage" target="_blank" rel="noopener" class="crm-quick-link">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -1084,6 +1096,73 @@
         </div>
       </section>
 
+      <!-- ====================================================================
+           TAB 3: SỰ KIỆN
+           ==================================================================== -->
+      <section class="tab-pane" id="paneEvent" hidden>
+        <div class="crm-kpi-grid">
+          <div class="crm-kpi-card"><div class="crm-kpi-icon teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg></div><div class="crm-kpi-data"><div class="val" id="kpiEvTotal">0</div><div class="lbl">Tổng sự kiện</div></div></div>
+          <div class="crm-kpi-card"><div class="crm-kpi-icon orange"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><div class="crm-kpi-data"><div class="val" id="kpiEvUpcoming">0</div><div class="lbl">Sắp diễn ra</div></div></div>
+          <div class="crm-kpi-card"><div class="crm-kpi-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div><div class="crm-kpi-data"><div class="val" id="kpiEvPast">0</div><div class="lbl">Đã diễn ra</div></div></div>
+          <div class="crm-kpi-card"><div class="crm-kpi-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="crm-kpi-data"><div class="val" id="kpiEvRegs">0</div><div class="lbl">Lượt đăng ký</div></div></div>
+        </div>
+
+        <div class="crm-split-panel">
+          <div class="crm-card">
+            <div class="crm-card-head"><h2><span id="aeFormTitle">Thêm sự kiện mới</span></h2></div>
+            <form id="aeForm" novalidate>
+              <div class="form-group-clean"><label for="aeTitle">Tiêu đề *</label><input type="text" id="aeTitle" maxlength="150" placeholder="Ví dụ: Workshop: Tự động hoá đăng bài đa kênh với AI" required /></div>
+              <div class="form-group-clean"><label for="aeSummary">Mô tả ngắn (hiện trên thẻ) *</label><textarea id="aeSummary" maxlength="220" placeholder="1–2 câu giới thiệu sự kiện..."></textarea><div class="form-hint" id="aeSummaryHint">0/220 ký tự</div></div>
+              <div class="form-row-2">
+                <div class="form-group-clean"><label for="aeStart">Bắt đầu *</label><input type="datetime-local" id="aeStart" required /></div>
+                <div class="form-group-clean"><label for="aeEnd">Kết thúc</label><input type="datetime-local" id="aeEnd" /><div class="form-hint">Để trống = +2 giờ. Giờ Việt Nam (GMT+7)</div></div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-group-clean"><label for="aeMode">Hình thức</label><select id="aeMode"><option value="online">Online</option><option value="offline">Trực tiếp</option></select></div>
+                <div class="form-group-clean"><label for="aeLocation">Địa điểm / nền tảng</label><input type="text" id="aeLocation" maxlength="200" placeholder="Zoom / 3 Nguyễn Lương Bằng, TP. HCM" /></div>
+              </div>
+              <div class="form-group-clean"><label for="aeBody">Nội dung chi tiết</label><textarea id="aeBody" style="min-height:150px" maxlength="20000" placeholder="## Bạn sẽ học được gì&#10;- Dựng flow tự động từ A đến Z&#10;- Viết prompt cho nội dung đa kênh&#10;&#10;Đoạn văn mới cách một dòng trống."></textarea><div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng</div></div>
+              <div class="form-group-clean"><label for="aeBanner">Banner * <span id="aeBannerNote" style="font-weight:400"></span></label><input type="file" id="aeBanner" accept="image/png,image/jpeg,image/webp" /><div class="form-hint">PNG/JPG/WebP, tỉ lệ 16:9 (khuyến nghị 1280×720), tối đa 3MB</div></div>
+              <div class="form-row-2">
+                <div class="form-group-clean"><label for="aeCapacity">Số chỗ tối đa</label><input type="number" id="aeCapacity" min="1" step="1" placeholder="Để trống = không giới hạn" /></div>
+                <div class="form-group-clean"><label for="aeOpen">Nhận đăng ký</label><select id="aeOpen"><option value="1">Bật</option><option value="0">Tắt</option></select></div>
+              </div>
+              <div class="form-group-clean"><label for="aeStatus">Trạng thái</label><select id="aeStatus"><option value="draft">Bản nháp (chưa hiển thị)</option><option value="published">Xuất bản</option></select></div>
+              <div style="display:flex;gap:8px;"><button type="submit" class="crm-btn accent" id="aeSubmit" style="flex:1;height:44px;font-size:14px;"><span>Lưu sự kiện</span></button><button type="button" class="crm-btn" id="aeCancel" style="height:44px;" hidden>Huỷ sửa</button></div>
+              <div class="adm-progress" id="aeProgress" hidden><i></i></div>
+              <div class="adm-msg" id="aeMsg" role="status" hidden></div>
+            </form>
+          </div>
+
+          <div class="crm-card">
+            <div class="crm-card-head"><h2><span>Danh sách sự kiện</span></h2><span class="count-pill" id="aeCount">0 sự kiện</span></div>
+            <div class="crm-list-box" id="aeList"><div class="adm-empty">Đang tải danh sách sự kiện...</div></div>
+          </div>
+        </div>
+
+        <div class="crm-card" style="margin-top:20px;">
+          <div class="crm-card-head"><h2><span>Tạo link theo dõi (UTM)</span></h2></div>
+          <p class="form-hint" style="margin:0 0 12px;">Gắn link này vào bài đăng Facebook, TikTok, Zalo hoặc email. Khi người xem đăng ký, nguồn sẽ hiện ở cột “UTM tags” của Lead trong Twenty (chỉ khi họ chấp nhận cookie đo lường).</p>
+          <div class="form-row-2">
+            <div class="form-group-clean"><label for="utmEvent">Sự kiện</label><select id="utmEvent"></select></div>
+            <div class="form-group-clean"><label for="utmChannel">Kênh</label><select id="utmChannel">
+              <option value="facebook|social">Facebook</option><option value="tiktok|social">TikTok</option><option value="zalo|social">Zalo</option>
+              <option value="instagram|social">Instagram</option><option value="youtube|social">YouTube</option><option value="email|email">Email</option><option value="custom|">Tuỳ chỉnh…</option></select></div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group-clean"><label for="utmCampaign">Chiến dịch (utm_campaign)</label><input type="text" id="utmCampaign" maxlength="100" placeholder="workshop-t11" /></div>
+            <div class="form-group-clean"><label for="utmContent">Nội dung (utm_content, tuỳ chọn)</label><input type="text" id="utmContent" maxlength="100" placeholder="banner-a" /></div>
+          </div>
+          <div class="form-row-2" id="utmCustomRow" hidden>
+            <div class="form-group-clean"><label for="utmSource">utm_source</label><input type="text" id="utmSource" maxlength="100" placeholder="newsletter" /></div>
+            <div class="form-group-clean"><label for="utmMedium">utm_medium</label><input type="text" id="utmMedium" maxlength="100" placeholder="email" /></div>
+          </div>
+          <div class="form-group-clean"><label for="utmResult">Link kết quả</label><input type="text" id="utmResult" readonly style="background:#f6fafa;font-family:monospace;font-size:12.5px;" /></div>
+          <button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span>
+        </div>
+      </section>
+
+
     </main>
   </div>
 
@@ -1172,6 +1251,7 @@
   </div>
 
   <input type="file" id="admReplaceInput" hidden />
+  <script src="assets/js/admin-events.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

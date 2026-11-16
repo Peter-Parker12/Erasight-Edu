@@ -1,0 +1,77 @@
+/* ==========================================================================
+   ERASIGHT ACADEMY — EVENTS (/su-kien and /su-kien-<slug>)
+   Depends on style.css variables and resources.css (hero, breadcrumb, popup).
+   ========================================================================== */
+
+.ev-section { background: #fff; padding: 48px 0 24px; border-bottom: none; }
+.ev-section--past { background: var(--cloud); padding-bottom: 72px; }
+.ev-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ev-head h2 { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; }
+.ev-count { background: var(--pl); color: var(--pd); font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; }
+.ev-count--muted { background: #e8eef0; color: var(--slate); }
+.ev-sub { color: var(--slate); font-size: 14px; margin: 6px 0 22px; }
+
+.ev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.ev-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ev-empty { padding: 36px 20px; text-align: center; border: 1px dashed var(--line); border-radius: 16px; color: var(--slate); background: var(--cloud); font-size: 14.5px; }
+.ev-section--past .ev-empty { background: #fff; }
+.ev-more-wrap { text-align: center; margin-top: 28px; }
+
+/* Card */
+.ev-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit; transition: transform .2s ease, box-shadow .2s ease; min-width: 0; }
+.ev-card:hover, .ev-card:focus-visible { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(12, 42, 58, .12); }
+.ev-card__banner { position: relative; aspect-ratio: 16 / 9; background: var(--pl); overflow: hidden; }
+.ev-card__banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ev-card.is-past .ev-card__banner img { filter: grayscale(.85) brightness(.92); }
+.ev-card__body { padding: 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.ev-card h3 { margin: 0; font-size: 17px; line-height: 1.35; color: var(--ink); overflow-wrap: anywhere; }
+.ev-card p { margin: 0; color: var(--slate); font-size: 13.5px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.ev-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; font-weight: 700; color: var(--pd); }
+.ev-card.is-past .ev-meta { color: #6b8590; }
+.ev-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.ev-more { margin-top: auto; padding-top: 4px; color: var(--orange); font-weight: 700; font-size: 13.5px; }
+
+.ev-badge { position: absolute; top: 12px; left: 12px; background: #fff; color: var(--ink); font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; box-shadow: 0 2px 8px rgba(12, 42, 58, .15); }
+.ev-badge--soon, .ev-badge--live { background: var(--orange); color: #fff; }
+.ev-badge--end { background: var(--ink); color: #fff; }
+
+/* Detail */
+.ev-detail { padding-bottom: 72px; }
+.ev-crumb { padding: 22px 0 14px; }
+.ev-hero { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 8 / 3; background: var(--pl); }
+.ev-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ev-hero .ev-badge { top: 16px; left: 16px; font-size: 12.5px; padding: 6px 14px; }
+.ev-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; margin-top: 34px; align-items: start; }
+.ev-kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: var(--pd); }
+.ev-content h1 { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 38px; line-height: 1.15; font-weight: 800; color: var(--ink); margin: 8px 0 14px; overflow-wrap: anywhere; }
+.ev-lead { font-size: 17px; line-height: 1.65; color: var(--slate); margin: 0 0 22px; }
+.ev-body { color: #2a4150; font-size: 15.5px; line-height: 1.8; overflow-wrap: anywhere; }
+.ev-body p { margin: 0 0 14px; }
+.ev-body h2 { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 22px; font-weight: 800; color: var(--ink); margin: 28px 0 10px; }
+.ev-body ul { margin: 0 0 14px; padding-left: 22px; }
+.ev-body li { margin-bottom: 4px; }
+
+.ev-side { position: sticky; top: 92px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
+.ev-row { display: flex; gap: 12px; padding: 14px 0; border-top: 1px solid #eef3f3; font-size: 14px; }
+.ev-row:first-child { border-top: 0; padding-top: 0; }
+.ev-row em { display: block; font-style: normal; font-size: 11.5px; color: #6b8590; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.ev-row b { display: block; color: var(--ink); }
+.ev-row span:not(.ev-ic) { color: var(--slate); font-size: 13px; overflow-wrap: anywhere; }
+.ev-ic { width: 34px; height: 34px; border-radius: 10px; background: var(--pl); color: var(--pd); display: grid; place-items: center; flex: none; }
+.ev-cta { display: block; width: 100%; margin-top: 8px; height: 50px; font-size: 15.5px; text-align: center; }
+.ev-cta--off { display: grid; place-items: center; background: #e8eef0; color: #6b8590; font-weight: 700; border-radius: var(--rr, 12px); }
+.ev-others { margin-top: 56px; }
+.ev-others h2 { font-family: var(--font-display, 'Bricolage Grotesque', sans-serif); font-size: 24px; font-weight: 800; color: var(--ink); margin: 0 0 18px; }
+
+@media (max-width: 980px) {
+  .ev-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ev-layout { grid-template-columns: 1fr; gap: 26px; }
+  .ev-side { position: static; }
+}
+@media (max-width: 600px) {
+  .ev-grid, .ev-grid--2 { grid-template-columns: 1fr; }
+  .ev-section { padding-top: 36px; }
+  .ev-head h2 { font-size: 24px; }
+  .ev-hero { aspect-ratio: 16 / 9; border-radius: 16px; }
+  .ev-content h1 { font-size: 28px; }
+}

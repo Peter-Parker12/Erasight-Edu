@@ -51,52 +51,39 @@
     if ($('admMainPanes')) $('admMainPanes').hidden = false;
     loadDocs();
     loadShowcases();
+    if (window.AdminEvents) window.AdminEvents.load();
   }
 
   function initTabs() {
-    const tabDocBtn = $('tabDocBtn');
-    const tabShowcaseBtn = $('tabShowcaseBtn');
-    const paneDoc = $('paneDoc');
-    const paneShowcase = $('paneShowcase');
+    const TABS = {
+      doc: { btn: 'tabDocBtn', pane: 'paneDoc', title: 'Quản trị Thư viện Tài liệu AI', sub: 'Upload file tài liệu, quản lý link trực tuyến và duyệt xuất bản tài liệu công khai.', href: '/tai-lieu-ai', label: 'Xem Thư viện AI' },
+      showcase: { btn: 'tabShowcaseBtn', pane: 'paneShowcase', title: 'Quản trị Sản phẩm Học viên', sub: 'Upload video đồ án, showcase hình ảnh và hồ sơ học viên thực chiến.', href: '/san-pham-hoc-vien', label: 'Xem Sản phẩm học viên' },
+      event: { btn: 'tabEventBtn', pane: 'paneEvent', title: 'Quản trị Sự kiện', sub: 'Thêm, sửa và xuất bản sự kiện hiển thị tại /su-kien; theo dõi đăng ký và nguồn truy cập.', href: '/su-kien', label: 'Xem Sự kiện' },
+    };
     const viewLink = $('admViewPageLink');
     const titleEl = $('crmPaneTitle');
     const subEl = $('crmPaneSub');
 
     function switchTab(tab) {
       currentTab = tab;
-      if (tab === 'doc') {
-        tabDocBtn.classList.add('is-active');
-        tabDocBtn.setAttribute('aria-selected', 'true');
-        tabShowcaseBtn.classList.remove('is-active');
-        tabShowcaseBtn.setAttribute('aria-selected', 'false');
-        paneDoc.hidden = false;
-        paneShowcase.hidden = true;
-        if (titleEl) titleEl.textContent = 'Quản trị Thư viện Tài liệu AI';
-        if (subEl) subEl.textContent = 'Upload file tài liệu, quản lý link trực tuyến và duyệt xuất bản tài liệu công khai.';
-        if (viewLink) {
-          viewLink.href = '/tai-lieu-ai';
-          const span = viewLink.querySelector('span');
-          if (span) span.textContent = 'Xem Thư viện AI';
-        }
-      } else {
-        tabShowcaseBtn.classList.add('is-active');
-        tabShowcaseBtn.setAttribute('aria-selected', 'true');
-        tabDocBtn.classList.remove('is-active');
-        tabDocBtn.setAttribute('aria-selected', 'false');
-        paneDoc.hidden = true;
-        paneShowcase.hidden = false;
-        if (titleEl) titleEl.textContent = 'Quản trị Sản phẩm Học viên';
-        if (subEl) subEl.textContent = 'Upload video đồ án, showcase hình ảnh và hồ sơ học viên thực chiến.';
-        if (viewLink) {
-          viewLink.href = '/san-pham-hoc-vien';
-          const span = viewLink.querySelector('span');
-          if (span) span.textContent = 'Xem Sản phẩm học viên';
-        }
+      Object.keys(TABS).forEach((k) => {
+        const t = TABS[k];
+        const btn = $(t.btn); const pane = $(t.pane);
+        const on = k === tab;
+        if (btn) { btn.classList.toggle('is-active', on); btn.setAttribute('aria-selected', on ? 'true' : 'false'); }
+        if (pane) pane.hidden = !on;
+      });
+      const cur = TABS[tab];
+      if (titleEl) titleEl.textContent = cur.title;
+      if (subEl) subEl.textContent = cur.sub;
+      if (viewLink) {
+        viewLink.href = cur.href;
+        const span = viewLink.querySelector('span');
+        if (span) span.textContent = cur.label;
       }
     }
 
-    if (tabDocBtn) tabDocBtn.addEventListener('click', () => switchTab('doc'));
-    if (tabShowcaseBtn) tabShowcaseBtn.addEventListener('click', () => switchTab('showcase'));
+    Object.keys(TABS).forEach((k) => { const btn = $(TABS[k].btn); if (btn) btn.addEventListener('click', () => switchTab(k)); });
   }
 
   function initLogin() {
