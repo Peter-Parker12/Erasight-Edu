@@ -187,6 +187,217 @@
     opts.forEach((o, i) => o.classList.toggle('on', i === leadIdx)); opts[leadIdx].scrollIntoView({ block: 'nearest' });
   }
 
+  // ---- Rich-text body editor ---------------------------------------------------
+  // contenteditable + toolbar (no library). Whatever is typed, pasted or edited as HTML is cleaned by the server
+  // (/emails/sanitize on paste + source view, email-html.js on save), so the stored body only has allowed tags.
+  const ed = () => $('emEditor');
+  let savedRange = null; let selImg = null; let srcMode = false; let lastField = 'editor';
+  const PRESS = ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList', 'justifyLeft', 'justifyCenter', 'justifyRight'];
+
+  function textToHtml(t) { // older plain-text mails ("## heading", "- item", blank line = paragraph) -> editor html
+    const out = []; let list = [];
+    const flush = () => { if (list.length) { out.push('<ul>' + list.map((x) => '<li>' + x + '</li>').join('') + '</ul>'); list = []; } };
+    const link = (x) => x.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');
+    for (const block of String(t || '').split(/\n{2,}/)) {
+      const lines = block.split('\n').map((l) => l.trim()).filter(Boolean); let para = [];
+      const fp = () => { if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; } };
+      for (const l of lines) {
+        if (/^##\s+/.test(l)) { fp(); flush(); out.push('<h2>' + esc(l.replace(/^##\s+/, '')) + '</h2>'); }
+        else if (/^[-•*]\s+/.test(l)) { fp(); list.push(link(esc(l.replace(/^[-•*]\s+/, '')))); }
+        else { flush(); para.push(link(esc(l))); }
+      }
+      fp(); flush();
+    }
+    return out.join('');
+  }
+
+  const inEditor = (n) => !!n && ed().contains(n.nodeType === 3 ? n.parentNode : n);
+  function saveSel() { const s = window.getSelection(); if (s && s.rangeCount && inEditor(s.getRangeAt(0).commonAncestorContainer)) savedRange = s.getRangeAt(0).cloneRange(); }
+  function restoreSel() {
+    ed().focus();
+    if (!savedRange || !inEditor(savedRange.commonAncestorContainer)) { const r = document.createRange(); r.selectNodeContents(ed()); r.collapse(false); savedRange = r; }
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(savedRange);
+  }
+  function exec(cmd, val) {
+    if (srcMode) return;
+    restoreSel();
+    try { document.execCommand('defaultParagraphSeparator', false, 'p'); document.execCommand('styleWithCSS', false, cmd === 'foreColor' || cmd.indexOf('justify') === 0); } catch (e) { /* ignore */ }
+    document.execCommand(cmd, false, val);
+    afterEdit();
+  }
+  function afterEdit() { saveSel(); refreshToolbar(); schedulePreview(); }
+
+  function blockNow() { try { return String(document.queryCommandValue('formatBlock') || '').replace(/[<>]/g, '').toLowerCase(); } catch (e) { return ''; } }
+  function refreshToolbar() {
+    if (srcMode || document.activeElement !== ed()) return;
+    for (const c of PRESS) { const b = $('emTb').querySelector(`[data-cmd="${c}"]`); if (b) { let on = false; try { on = document.queryCommandState(c); } catch (e) { /* ignore */ } b.setAttribute('aria-pressed', String(on)); } }
+    const blk = blockNow();
+    $('emTb').querySelector('[data-cmd="formatBlockquote"]').setAttribute('aria-pressed', String(blk === 'blockquote'));
+    $('emFmt').value = ['h2', 'h3'].includes(blk) ? blk : 'p';
+  }
+
+  // links and buttons
+  function anchorAtSel() {
+    const s = window.getSelection(); if (!s.rangeCount) return null;
+    let n = s.getRangeAt(0).commonAncestorContainer; if (n.nodeType === 3) n = n.parentNode;
+    const a = n.closest && n.closest('a'); return a && ed().contains(a) ? a : null;
+  }
+  function openLinkBar() {
+    if (srcMode) return;
+    saveSel(); const a = anchorAtSel(); selectImg(null);
+    $('emLinkUrl').value = a ? (a.getAttribute('href') || '') : ''; $('emLinkBtn').checked = !!(a && a.getAttribute('data-btn') === '1');
+    $('emLinkBar').hidden = false; $('emLinkUrl').focus(); $('emLinkUrl').select();
+  }
+  function applyLink() {
+    let url = $('emLinkUrl').value.trim(); if (!url) return;
+    if (!/^(https?:\/\/|mailto:|tel:|\{\{)/i.test(url)) url = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(url) ? 'mailto:' + url : 'https://' + url;
+    const btn = $('emLinkBtn').checked;
+    restoreSel();
+    let a = anchorAtSel(); const tmp = '#em-tmp-' + Date.now();
+    if (!a) {
+      if (window.getSelection().isCollapsed) document.execCommand('insertHTML', false, `<a href="${tmp}">${esc(btn ? 'Đăng ký ngay' : url)}</a>`);
+      else document.execCommand('createLink', false, tmp);
+    }
+    const links = a ? [a] : Array.from(ed().querySelectorAll(`a[href="${tmp}"]`));
+    for (const x of links) { x.setAttribute('href', url); if (btn) x.setAttribute('data-btn', '1'); else x.removeAttribute('data-btn'); }
+    $('emLinkBar').hidden = true; afterEdit();
+  }
+  function removeLink() {
+    restoreSel(); const a = anchorAtSel();
+    if (a) { const r = document.createRange(); r.selectNodeContents(a); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+    document.execCommand('unlink'); $('emLinkBar').hidden = true; afterEdit();
+  }
+
+  // pictures
+  function selectImg(img) {
+    if (selImg) selImg.classList.remove('sel');
+    selImg = img;
+    $('emImgBar').hidden = !img;
+    if (!img) return;
+    img.classList.add('sel'); $('emLinkBar').hidden = true;
+    $('emImgAlt').value = img.getAttribute('alt') || '';
+    const w = img.getAttribute('width') || '100%';
+    $('emImgBar').querySelectorAll('[data-isz]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.isz === w)));
+    const c = img.getAttribute('data-align') === 'center';
+    $('emImgBar').querySelectorAll('[data-ial]').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.ial === 'center') === c)));
+  }
+  async function uploadImage(file) {
+    let ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/jpeg' ? 'jpg' : String(file.name.split('.').pop() || '').toLowerCase();
+    if (ext === 'jpeg') ext = 'jpg';
+    if (!['png', 'jpg', 'webp'].includes(ext)) throw new Error('Ảnh chỉ nhận PNG, JPG hoặc WebP.');
+    if (file.size > 3 * 1024 * 1024) throw new Error('Ảnh vượt quá 3MB.');
+    $('emRt').classList.add('busy');
+    try { return (await api(`/api/admin/events/${evId}/emails/images?ext=${ext}`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/octet-stream' }, HDR), body: file })).url; }
+    finally { $('emRt').classList.remove('busy'); }
+  }
+  async function insertImageFile(file) {
+    $('emErr').hidden = true; saveSel();
+    try {
+      const url = await uploadImage(file);
+      restoreSel(); document.execCommand('insertHTML', false, `<img src="${esc(url)}" alt=""><p><br></p>`); afterEdit();
+      const img = Array.from(ed().querySelectorAll('img')).find((i) => i.getAttribute('src') === url); if (img) selectImg(img);
+    } catch (e) { $('emErr').textContent = e.message; $('emErr').hidden = false; }
+  }
+
+  // HTML source view (also the way to paste a ready-made HTML email)
+  const peekHtml = () => (srcMode ? $('emSrc').value : ed().innerHTML);
+  async function commitSource() {
+    if (!srcMode) return;
+    const d = await api(`/api/admin/events/${evId}/emails/sanitize`, { method: 'POST', headers: JH, body: JSON.stringify({ html: $('emSrc').value }) });
+    ed().innerHTML = d.html; savedRange = null; srcMode = false;
+    ed().hidden = false; $('emSrc').hidden = true; $('emRt').classList.remove('src');
+    $('emTb').querySelector('[data-act="source"]').setAttribute('aria-pressed', 'false'); schedulePreview(0);
+  }
+  async function toggleSource() {
+    $('emErr').hidden = true;
+    try {
+      if (srcMode) return await commitSource();
+      selectImg(null); $('emLinkBar').hidden = true;
+      $('emSrc').value = ed().innerHTML.replace(/(<\/(?:p|h2|h3|ul|ol|li|blockquote)>|<hr>|<br>)/g, '$1\n');
+      srcMode = true; ed().hidden = true; $('emSrc').hidden = false; $('emRt').classList.add('src');
+      $('emTb').querySelector('[data-act="source"]').setAttribute('aria-pressed', 'true'); $('emSrc').focus();
+    } catch (e) { $('emErr').textContent = e.message; $('emErr').hidden = false; }
+  }
+  async function getHtml() { await commitSource(); return ed().innerHTML; }
+  function setHtml(html) {
+    ed().innerHTML = html || ''; savedRange = null; srcMode = false; ed().hidden = false; $('emSrc').hidden = true; $('emRt').classList.remove('src');
+    $('emTb').querySelector('[data-act="source"]').setAttribute('aria-pressed', 'false');
+    $('emLinkBar').hidden = true; selectImg(null);
+  }
+
+  function insertPlaceholder(ph) {
+    if (lastField === 'subject') {
+      const t = $('emSubject'); const i = t.selectionStart == null ? t.value.length : t.selectionStart;
+      t.value = t.value.slice(0, i) + ph + t.value.slice(t.selectionEnd == null ? i : t.selectionEnd); t.focus(); t.setSelectionRange(i + ph.length, i + ph.length);
+    } else if (srcMode) {
+      const t = $('emSrc'); const i = t.selectionStart == null ? t.value.length : t.selectionStart;
+      t.value = t.value.slice(0, i) + ph + t.value.slice(t.selectionEnd == null ? i : t.selectionEnd); t.focus(); t.setSelectionRange(i + ph.length, i + ph.length);
+    } else exec('insertText', ph);
+    schedulePreview();
+  }
+
+  function initEditor() {
+    const tb = $('emTb');
+    tb.addEventListener('mousedown', (e) => { if (!e.target.closest('select')) e.preventDefault(); }); // keep the text selection
+    tb.addEventListener('click', (e) => {
+      const sw = e.target.closest('[data-color]'); if (sw) return exec('foreColor', sw.dataset.color || '#0C2A3A');
+      const b = e.target.closest('[data-cmd],[data-act]'); if (!b) return;
+      if (b.dataset.cmd === 'formatBlockquote') return exec('formatBlock', blockNow() === 'blockquote' ? '<p>' : '<blockquote>');
+      if (b.dataset.cmd) return exec(b.dataset.cmd);
+      if (b.dataset.act === 'link') return openLinkBar();
+      if (b.dataset.act === 'image') { if (!srcMode) { saveSel(); $('emImgFile').click(); } return; }
+      if (b.dataset.act === 'source') return toggleSource();
+    });
+    $('emFmt').addEventListener('change', () => exec('formatBlock', '<' + $('emFmt').value + '>'));
+    document.addEventListener('selectionchange', () => { if (document.activeElement === ed()) { saveSel(); refreshToolbar(); } });
+    ed().addEventListener('input', () => { saveSel(); schedulePreview(); });
+    ed().addEventListener('focus', () => { lastField = 'editor'; });
+    ed().addEventListener('click', (e) => { if (e.target.tagName === 'IMG') selectImg(e.target); else if (selImg) selectImg(null); });
+    ed().addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openLinkBar(); } });
+    $('emSrc').addEventListener('input', () => schedulePreview());
+    $('emSrc').addEventListener('focus', () => { lastField = 'editor'; });
+    $('emSubject').addEventListener('focus', () => { lastField = 'subject'; });
+
+    // link bar
+    $('emLinkApply').addEventListener('click', applyLink); $('emLinkRemove').addEventListener('click', removeLink);
+    $('emLinkClose').addEventListener('click', () => { $('emLinkBar').hidden = true; restoreSel(); });
+    $('emLinkUrl').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyLink(); } else if (e.key === 'Escape') { e.stopPropagation(); $('emLinkBar').hidden = true; restoreSel(); } });
+    $('emLinkBar').addEventListener('click', (e) => { const c = e.target.closest('[data-url]'); if (c) { $('emLinkUrl').value = c.dataset.url; $('emLinkUrl').focus(); } });
+
+    // image bar
+    $('emImgBar').addEventListener('mousedown', (e) => { if (e.target.tagName !== 'INPUT') e.preventDefault(); });
+    $('emImgBar').addEventListener('click', (e) => {
+      if (!selImg) return;
+      const z = e.target.closest('[data-isz]'); const a = e.target.closest('[data-ial]');
+      if (z) { selImg.setAttribute('width', z.dataset.isz); selectImg(selImg); schedulePreview(); }
+      if (a) { if (a.dataset.ial === 'center') selImg.setAttribute('data-align', 'center'); else selImg.removeAttribute('data-align'); selectImg(selImg); schedulePreview(); }
+    });
+    $('emImgAlt').addEventListener('input', () => { if (selImg) { selImg.setAttribute('alt', $('emImgAlt').value); schedulePreview(); } });
+    $('emImgDel').addEventListener('click', () => { if (selImg) { const i = selImg; selectImg(null); i.remove(); afterEdit(); } });
+    $('emImgFile').addEventListener('change', () => { const f = $('emImgFile').files[0]; $('emImgFile').value = ''; if (f) insertImageFile(f); });
+
+    // paste: clean html through the server, pictures are uploaded, everything else as plain text
+    ed().addEventListener('paste', async (e) => {
+      const cd = e.clipboardData; if (!cd) return;
+      const html = cd.getData('text/html'); const text = cd.getData('text/plain');
+      const file = Array.from(cd.files || []).find((f) => /^image\//.test(f.type));
+      e.preventDefault(); saveSel();
+      if (file && !html) return insertImageFile(file);
+      if (html) {
+        try {
+          const d = await api(`/api/admin/events/${evId}/emails/sanitize`, { method: 'POST', headers: JH, body: JSON.stringify({ html }) });
+          restoreSel(); document.execCommand('insertHTML', false, d.html); return afterEdit();
+        } catch (err) { /* fall back to text */ }
+      }
+      if (text) { restoreSel(); document.execCommand('insertText', false, text); afterEdit(); }
+    });
+    ed().addEventListener('dragover', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault(); });
+    ed().addEventListener('drop', (e) => {
+      const f = e.dataTransfer && Array.from(e.dataTransfer.files || []).find((x) => /^image\//.test(x.type));
+      if (!f) return; e.preventDefault(); insertImageFile(f);
+    });
+  }
+
   // ---- Editor ----------------------------------------------------------------
   const field = (id) => $(id);
 
@@ -219,7 +430,8 @@
     $('emSeedF').hidden = t !== 'seeding'; $('emNotF').hidden = t !== 'notification'; $('emLnF').hidden = t !== 'last_notification';
     $('emName').value = m ? m.name : (t === 'last_notification' ? 'Email thông báo cuối' : '');
     $('emSubject').value = m ? m.subject : '';
-    $('emText').value = m ? m.body : '';
+    setHtml(m ? (m.format === 'html' ? m.body : textToHtml(m.body)) : '');
+    $('emSize').textContent = ''; lastField = 'editor';
     $('emEnabled').checked = m ? m.enabled : true;
     if (t === 'seeding') {
       const isAnchor = m ? m.offsetHours === 0 : !ov.emails.some((x) => x.type === 'seeding');
@@ -256,10 +468,15 @@
     const seq = ++previewSeq;
     try {
       const aud = editing.type === 'seeding' ? $('emAud').value : editing.type === 'notification' ? ($('emMode').value === 'on_register' ? 'registered' : $('emNotAud').value) : 'registered';
-      const d = await api(`/api/admin/events/${evId}/emails/preview`, { method: 'POST', headers: JH, body: JSON.stringify({ type: editing.type, subject: $('emSubject').value, body: $('emText').value, audience: aud, name: $('emWho').value }) });
+      const d = await api(`/api/admin/events/${evId}/emails/preview`, { method: 'POST', headers: JH, body: JSON.stringify({ type: editing.type, subject: $('emSubject').value, format: 'html', body: peekHtml(), audience: aud, name: $('emWho').value }) });
       if (seq !== previewSeq) return;
       $('emPvS').textContent = 'Tiêu đề: ' + d.subject;
       $('emPvF').srcdoc = d.html;
+      const kb = new Blob([d.html]).size / 1024;
+      $('emSize').textContent = `Kích thước email: ${kb.toFixed(0)} KB` + (kb > 90 ? ' — gần/vượt giới hạn ~102KB, Gmail sẽ cắt bớt email này. Hãy giảm bớt nội dung.' : '');
+      const noJoin = ov && ov.hasJoinLink === false && /\{\{\s*join_link\s*\}\}/.test(peekHtml());
+      if (noJoin) $('emSize').textContent += ' · ⚠ Sự kiện chưa có “Link tham gia” (tab Thông tin chung): link/nút {{join_link}} sẽ không có địa chỉ.';
+      $('emSize').classList.toggle('warn', kb > 90 || noJoin);
     } catch (e) { $('emPvS').textContent = e.message; }
   }
 
@@ -271,9 +488,9 @@
     } catch (e) { $('emStat').innerHTML = `<span>${esc(e.message)}</span>`; }
   }
 
-  function collect() {
+  async function collect() {
     const t = editing.type;
-    const b = { type: t, name: $('emName').value, subject: $('emSubject').value, body: $('emText').value, enabled: $('emEnabled').checked };
+    const b = { type: t, name: $('emName').value, subject: $('emSubject').value, body: await getHtml(), format: 'html', enabled: $('emEnabled').checked };
     if (t === 'seeding') {
       Object.assign(b, { audience: $('emAud').value, skipRegistered: $('emSkip').checked, isLastCall: $('emLast').checked });
       if (!$('emOffset').disabled) b.offsetHours = $('emOffset').value;
@@ -288,7 +505,7 @@
   async function save() {
     $('emErr').hidden = true; $('emSave').disabled = true;
     try {
-      const b = collect();
+      const b = await collect();
       if (editing.id) ov = await api(`/api/admin/events/${evId}/emails/${editing.id}`, { method: 'PATCH', headers: JH, body: JSON.stringify(b) });
       else ov = await api(`/api/admin/events/${evId}/emails`, { method: 'POST', headers: JH, body: JSON.stringify(b) });
       closeEditor(); render();
@@ -339,17 +556,13 @@
     $('emOv').addEventListener('click', (e) => { if (e.target === $('emOv')) closeEditor(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('emOv').classList.contains('on')) closeEditor(); });
     $('emSave').addEventListener('click', save); $('emDel').addEventListener('click', del);
-    ['emSubject', 'emText', 'emWho', 'emAud', 'emNotAud'].forEach((id) => $(id).addEventListener('input', () => schedulePreview()));
+    ['emSubject', 'emWho', 'emAud', 'emNotAud'].forEach((id) => $(id).addEventListener('input', () => schedulePreview()));
     $('emOffset').addEventListener('input', calc);
     $('emAud').addEventListener('change', () => { $('emSkipRow').hidden = $('emAud').value === 'registered'; });
     $('emMode').addEventListener('change', () => { setMode(); schedulePreview(); });
-    let lastField = $('emText');
-    $('emSubject').addEventListener('focus', () => { lastField = $('emSubject'); }); $('emText').addEventListener('focus', () => { lastField = $('emText'); });
-    $('emChips').addEventListener('click', (e) => {
-      const c = e.target.closest('[data-ph]'); if (!c) return;
-      const t = lastField; const i = t.selectionStart == null ? t.value.length : t.selectionStart;
-      t.value = t.value.slice(0, i) + c.dataset.ph + t.value.slice(t.selectionEnd == null ? i : t.selectionEnd); t.focus(); schedulePreview();
-    });
+    initEditor();
+    $('emChips').addEventListener('mousedown', (e) => e.preventDefault()); // keep the caret where it is
+    $('emChips').addEventListener('click', (e) => { const c = e.target.closest('[data-ph]'); if (c) insertPlaceholder(c.dataset.ph); });
     $('emTestBtn').addEventListener('click', async () => {
       $('emTestOk').hidden = true; $('emErr').hidden = true;
       try { const d = await api(`/api/admin/events/${evId}/emails/${editing.id}/test`, { method: 'POST', headers: JH, body: JSON.stringify({ to: $('emTestTo').value, name: $('emWho').value }) }); $('emTestOk').textContent = d.note; $('emTestOk').hidden = false; }

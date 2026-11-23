@@ -1249,13 +1249,52 @@
             <div id="emLnF" hidden><div class="em-zone" style="margin:0 0 12px;">Gửi cho người đăng ký sau thời điểm last call, thay cho email xác nhận.</div></div>
             <label class="em-check"><input type="checkbox" id="emEnabled" checked /> Bật email này</label>
             <div class="form-group-clean"><label for="emSubject">Tiêu đề</label><input type="text" id="emSubject" maxlength="200" /></div>
-            <div class="form-group-clean"><label for="emText">Nội dung</label><textarea id="emText" style="min-height:150px" maxlength="10000"></textarea></div>
+            <div class="form-group-clean"><label id="emEditorLbl">Nội dung</label>
+              <div class="em-rt" id="emRt">
+                <div class="em-tb" id="emTb" role="toolbar" aria-label="Định dạng nội dung">
+                  <select id="emFmt" aria-label="Kiểu đoạn" title="Kiểu đoạn"><option value="p">Đoạn văn</option><option value="h2">Tiêu đề</option><option value="h3">Tiêu đề phụ</option></select>
+                  <span class="em-tbs"></span>
+                  <button type="button" class="em-tbb" data-cmd="bold" title="Đậm (Ctrl+B)" aria-label="Đậm" aria-pressed="false"><b>B</b></button><button type="button" class="em-tbb" data-cmd="italic" title="Nghiêng (Ctrl+I)" aria-label="Nghiêng" aria-pressed="false"><i>I</i></button><button type="button" class="em-tbb" data-cmd="underline" title="Gạch chân (Ctrl+U)" aria-label="Gạch chân" aria-pressed="false"><u>U</u></button><button type="button" class="em-tbb" data-cmd="strikeThrough" title="Gạch ngang" aria-label="Gạch ngang" aria-pressed="false"><s>S</s></button>
+                  <span class="em-tbs"></span>
+                  <span class="em-sws" role="group" aria-label="Màu chữ"><button type="button" class="em-sw" data-color="#0C2A3A" style="background:#0C2A3A" title="Đen xanh" aria-label="Màu chữ: Đen xanh"></button><button type="button" class="em-sw" data-color="#0DA096" style="background:#0DA096" title="Xanh ngọc" aria-label="Màu chữ: Xanh ngọc"></button><button type="button" class="em-sw" data-color="#E85D04" style="background:#E85D04" title="Cam" aria-label="Màu chữ: Cam"></button><button type="button" class="em-sw" data-color="#C0392B" style="background:#C0392B" title="Đỏ" aria-label="Màu chữ: Đỏ"></button><button type="button" class="em-sw" data-color="#2176C7" style="background:#2176C7" title="Xanh dương" aria-label="Màu chữ: Xanh dương"></button><button type="button" class="em-sw" data-color="#5E7784" style="background:#5E7784" title="Xám" aria-label="Màu chữ: Xám"></button><button type="button" class="em-tbb" data-color="" title="Bỏ màu chữ" aria-label="Bỏ màu chữ">⌫</button></span>
+                  <span class="em-tbs"></span>
+                  <button type="button" class="em-tbb" data-cmd="insertUnorderedList" title="Danh sách gạch đầu dòng" aria-label="Danh sách gạch đầu dòng" aria-pressed="false">•≡</button><button type="button" class="em-tbb" data-cmd="insertOrderedList" title="Danh sách đánh số" aria-label="Danh sách đánh số" aria-pressed="false">1.</button><button type="button" class="em-tbb" data-cmd="formatBlockquote" title="Trích dẫn" aria-label="Trích dẫn" aria-pressed="false">❝</button>
+                  <span class="em-tbs"></span>
+                  <button type="button" class="em-tbb" data-cmd="justifyLeft" title="Căn trái" aria-label="Căn trái" aria-pressed="false">⇤</button><button type="button" class="em-tbb" data-cmd="justifyCenter" title="Căn giữa" aria-label="Căn giữa" aria-pressed="false">↔</button><button type="button" class="em-tbb" data-cmd="justifyRight" title="Căn phải" aria-label="Căn phải" aria-pressed="false">⇥</button>
+                  <span class="em-tbs"></span>
+                  <button type="button" class="em-tbb" data-act="link" title="Chèn liên kết / nút" aria-label="Chèn liên kết hoặc nút">🔗 Link</button>
+                  <button type="button" class="em-tbb" data-act="image" title="Chèn ảnh" aria-label="Chèn ảnh">🖼 Ảnh</button>
+                  <button type="button" class="em-tbb" data-cmd="insertHorizontalRule" title="Đường kẻ ngang" aria-label="Đường kẻ ngang">―</button>
+                  <button type="button" class="em-tbb" data-cmd="removeFormat" title="Xoá định dạng" aria-label="Xoá định dạng">Tx</button>
+                  <span class="em-tbs"></span>
+                  <button type="button" class="em-tbb" data-cmd="undo" title="Hoàn tác (Ctrl+Z)" aria-label="Hoàn tác">↶</button><button type="button" class="em-tbb" data-cmd="redo" title="Làm lại" aria-label="Làm lại">↷</button>
+                  <button type="button" class="em-tbb em-src-btn" data-act="source" title="Xem / sửa mã HTML" aria-label="Xem hoặc sửa mã HTML" aria-pressed="false">&lt;/&gt; HTML</button>
+                </div>
+                <div class="em-bar" id="emLinkBar" hidden>
+                  <input type="text" id="emLinkUrl" placeholder="https://… hoặc {{join_link}}" aria-label="Địa chỉ liên kết" autocomplete="off" />
+                  <span class="em-bar-chips"><button type="button" class="em-chip" data-url="{{join_link}}">{{join_link}}</button><button type="button" class="em-chip" data-url="{{event_url}}">{{event_url}}</button></span>
+                  <label class="em-check" style="margin:0;"><input type="checkbox" id="emLinkBtn" /> Hiển thị dạng nút</label>
+                  <button type="button" class="crm-btn sm accent" id="emLinkApply">Áp dụng</button><button type="button" class="crm-btn sm" id="emLinkRemove">Gỡ link</button><button type="button" class="crm-btn sm" id="emLinkClose">Đóng</button>
+                </div>
+                <div class="em-bar" id="emImgBar" hidden>
+                  <b style="font-size:12.5px;">Ảnh đã chọn</b>
+                  <span class="em-seg" role="group" aria-label="Kích thước ảnh"><button type="button" class="em-tbb" data-isz="33%">Nhỏ</button><button type="button" class="em-tbb" data-isz="66%">Vừa</button><button type="button" class="em-tbb" data-isz="100%">Lớn</button></span>
+                  <span class="em-seg" role="group" aria-label="Căn ảnh"><button type="button" class="em-tbb" data-ial="left">Trái</button><button type="button" class="em-tbb" data-ial="center">Giữa</button></span>
+                  <input type="text" id="emImgAlt" placeholder="Mô tả ảnh (alt)" aria-label="Mô tả ảnh" maxlength="200" />
+                  <button type="button" class="crm-btn sm danger" id="emImgDel">Xoá ảnh</button>
+                </div>
+                <div class="em-edit" id="emEditor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="emEditorLbl" spellcheck="true" data-ph="Soạn nội dung email… (bấm “Chèn nhanh” bên dưới để chèn tên, link tham gia…)"></div>
+                <textarea class="em-srcarea" id="emSrc" hidden spellcheck="false" aria-label="Mã HTML của email"></textarea>
+                <div class="em-rt-foot" id="emRtFoot">Ảnh tối đa 3MB (PNG/JPG/WebP). Email nên dưới ~100KB để Gmail không cắt bớt.</div>
+              </div>
+              <input type="file" id="emImgFile" accept="image/png,image/jpeg,image/webp" hidden />
+            </div>
             <div class="form-hint">Chèn nhanh (bấm để chèn vào ô đang chọn):</div><div class="em-chips" id="emChips"></div>
-            <div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng</div>
           </div><div>
             <div class="form-group-clean"><label for="emWho">Xem trước với người nhận mẫu</label><input type="text" id="emWho" value="Nguyễn Văn An" maxlength="120" /></div>
             <div class="em-pv"><div class="em-pvs" id="emPvS"></div><iframe class="em-pvf" id="emPvF" title="Xem trước email" sandbox=""></iframe></div>
             <div id="emStatWrap"><div class="em-stat" id="emStat"></div><div class="form-hint" id="emSample"></div></div>
+            <div class="form-hint" id="emSize"></div>
             <div class="form-group-clean" id="emTestRow" style="margin-top:12px;"><label for="emTestTo">Gửi thử tới</label><div style="display:flex;gap:8px;"><input type="email" id="emTestTo" placeholder="ban@email.com" /><button type="button" class="crm-btn sm primary" id="emTestBtn">Gửi thử</button></div><div class="form-hint" style="margin-top:4px;">Email thử được gửi ở lần chạy kế tiếp của workflow trong Twenty (tối đa 15 phút).</div><div class="em-ok" id="emTestOk" hidden></div></div>
             <div class="form-group-clean" id="emResendRow"><label for="emResendTo">Gửi lại cho một người</label><div style="display:flex;gap:8px;"><input type="email" id="emResendTo" placeholder="email người nhận" /><button type="button" class="crm-btn sm" id="emResendBtn">Gửi lại</button></div><div style="margin-top:6px;"><button type="button" class="crm-btn sm danger" id="emResendAll">Đặt lại toàn bộ (gửi lại cho tất cả)</button></div></div>
           </div></div>

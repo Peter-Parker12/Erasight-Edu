@@ -330,7 +330,7 @@ const events = require('./events')({
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
-  if (pathname.startsWith('/api/events') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/') || pathname === '/huy-dang-ky-email') return events.handle(req, res, pathname);
+  if (pathname.startsWith('/api/events') || pathname.startsWith('/api/email-images/') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/') || pathname === '/huy-dang-ky-email') return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
   if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });

@@ -12,12 +12,16 @@
 //     GET  .../:mid/preview?name=  GET .../:mid/recipients   preview | counts + sample names
 //     POST .../:mid/resend {email} | {all:true}              clear "already sent" so it goes out again
 //     POST .../:mid/test {to}                                queued into the next poll
+//     PUT  .../emails/images?ext=png|jpg|webp (raw body)     upload a picture -> {url}; public GET /api/email-images/:file
+//     POST .../emails/sanitize {html}                        -> {html} (what the rich-text editor may keep)
+//   A mail has format 'html' (rich-text editor, sanitized by email-html.js) or 'text' (older plain-text mails).
 //     GET  .../emails/leads?q= | ?selected=1                 search CRM leads | status of the test-mode leads
 //   Test mode (PATCH .../emails { testMode: {on, emails[]} }): the real scheduler runs for this event (even as a
 //   draft) but only for the listed leads. Turning it off clears those leads' send history for this event.
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const emailHtml = require('./email-html');
 
 const HOUR = 3600e3;
 const STALE_MS = 6 * HOUR;          // a fixed-time email first seen this late is skipped, not sent back-dated
@@ -25,13 +29,18 @@ const ENROLL_GRACE_MS = 1 * HOUR;   // a lead whose sequence start is further in
 const MAX_EMAILS = 20;
 const MAX_OFFSET_H = 24 * 90;
 const MAX_TESTERS = 20;
+const MAX_IMAGES = 40;                // uploaded pictures per event
+const BODY_LIMIT = 200 * 1024;       // request size for e-mail bodies written in the rich-text editor
+const MAX_HTML = 100000;             // characters of sanitized html per e-mail
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
 module.exports = function init(ctx) {
-  const { DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin, getEvents, saveEvents, helpers: h } = ctx;
+  const { DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin, getEvents, saveEvents, images, helpers: h } = ctx;
   const now = ctx.now || (() => Date.now());
   const LEDGER = path.join(DATA_DIR, 'email-ledger.jsonl');
   const OPTOUT = path.join(DATA_DIR, 'email-optout.json');
+  const IMG_DIR = path.join(DATA_DIR, 'email-images');
+  fs.mkdirSync(IMG_DIR, { recursive: true });
   const BATCH_MAX = Math.max(1, Number(process.env.MAIL_BATCH_MAX) || 50);
   const fail = h.fail;
 
@@ -238,10 +247,12 @@ module.exports = function init(ctx) {
     const footer = marketing
       ? `<p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#8aa0a8">Bạn nhận email này vì đã để lại thông tin tại Erasight Academy. <a href="${p.preview ? '#' : unsubUrl(p.email)}" style="color:#8aa0a8">Hủy nhận email</a></p>`
       : '';
-    return {
-      subject: h.fillTokens(m.subject, vars).replace(/[\r\n]+/g, ' ').trim().slice(0, 200),
-      html: h.renderEmail(h.fillTokens(m.body, vars), footer),
-    };
+    const subject = h.fillTokens(m.subject, vars).replace(/[\r\n]+/g, ' ').trim().slice(0, 200);
+    if (m.format === 'html') { // rich-text body: values are escaped, then the whole thing is re-sanitized with inline styles
+      const safe = {}; for (const k of Object.keys(vars)) safe[k] = emailHtml.esc(vars[k]);
+      return { subject, html: h.wrapEmail(emailHtml.sanitize(h.fillTokens(m.body, safe), { render: true, site: SITE }), footer) };
+    }
+    return { subject, html: h.renderEmail(h.fillTokens(m.body, vars), footer) };
   }
 
   const PRIO = { last_notification: 0, notification: 1, seeding: 2 };
@@ -303,7 +314,7 @@ module.exports = function init(ctx) {
     const start = h.startMs(ev);
     const c = counts.get(m.id) || { sent: 0, cancel: 0 };
     const o = {
-      id: m.id, type: m.type, name: m.name, subject: m.subject, body: m.body, enabled: !!m.enabled,
+      id: m.id, type: m.type, name: m.name, subject: m.subject, body: m.body, format: m.format === 'html' ? 'html' : 'text', enabled: !!m.enabled,
       audience: m.audience, sent: c.sent, cancelled: c.cancel,
     };
     if (m.type === 'seeding') {
@@ -345,7 +356,7 @@ module.exports = function init(ctx) {
       eventId: ev.id, eventTitle: ev.title, eventStartLocal: h.toLocal(ev.startAt), published: ev.status === 'published',
       seedingStartLocal: ev.seedingStartAt ? h.toLocal(ev.seedingStartAt) : '',
       emails: mailsOf(ev).map((m) => adminMail(ev, m)), timeline: timeline(ev), batchMax: BATCH_MAX,
-      testMode: { on: testOn(ev), emails: testers(ev), max: MAX_TESTERS },
+      testMode: { on: testOn(ev), emails: testers(ev), max: MAX_TESTERS }, hasJoinLink: !!ev.joinLink,
     };
   }
 
@@ -371,8 +382,16 @@ module.exports = function init(ctx) {
     if (b.name !== undefined || creating) m.name = h.cleanText(b.name, 100) || (m.type === 'last_notification' ? 'Email thông báo cuối' : 'Email');
     if (b.subject !== undefined || creating) { const s = h.cleanText(b.subject, 200); if (!s) throw fail(400, 'Vui lòng nhập tiêu đề email'); m.subject = s; }
     if (b.body !== undefined || creating) {
-      const t = String(b.body ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 10000);
-      if (!t) throw fail(400, 'Vui lòng nhập nội dung email'); m.body = t;
+      const fmt = b.format === 'html' ? 'html' : b.format === 'text' ? 'text' : (m.format === 'html' ? 'html' : 'text');
+      if (fmt === 'html') {
+        const clean = emailHtml.sanitize(String(b.body ?? '').slice(0, 150000));
+        if (emailHtml.isEmpty(clean)) throw fail(400, 'Vui lòng nhập nội dung email');
+        if (clean.length > MAX_HTML) throw fail(400, 'Nội dung email quá dài');
+        m.body = clean; m.format = 'html';
+      } else {
+        const t = String(b.body ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 10000);
+        if (!t) throw fail(400, 'Vui lòng nhập nội dung email'); m.body = t; m.format = 'text';
+      }
     }
     if (b.enabled !== undefined || creating) {
       const en = b.enabled === undefined ? true : !!b.enabled;
@@ -399,13 +418,28 @@ module.exports = function init(ctx) {
   async function admin(req, res, pathname) {
     if (!isAdmin(req)) return send(res, 401, { error: 'Login required' });
     if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'erasight-admin') return send(res, 403, { error: 'Bad request' });
-    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview|leads)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test))?)?$/);
+    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview|leads|sanitize|images)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test))?)?$/);
     if (!m) return send(res, 404, { error: 'Not found' });
     const [, evId, colPreview, mailId, sub] = m;
     const ev = getEvents().find((x) => x.id === evId);
     if (!ev) return send(res, 404, { error: 'Not found' });
     if (!ev.emails) ev.emails = [];
 
+    if (colPreview === 'sanitize') { // pasted / source-view html -> the sanitized html the editor may show
+      if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+      const b = await readJson(req, BODY_LIMIT);
+      return send(res, 200, { html: emailHtml.sanitize(String(b.html || '').slice(0, 150000)) });
+    }
+    if (colPreview === 'images') { // picture upload from the editor -> public url under /api/email-images/
+      if (req.method !== 'PUT') return send(res, 405, { error: 'Method not allowed' });
+      let ext = String(new URL(req.url, 'http://x').searchParams.get('ext') || '').toLowerCase().replace(/^\./, '');
+      if (ext === 'jpeg') ext = 'jpg';
+      if (!images.TYPES[ext]) throw fail(400, 'Ảnh chỉ nhận PNG, JPG hoặc WebP');
+      if (fs.readdirSync(IMG_DIR).filter((f) => f.startsWith(ev.id + '-')).length >= MAX_IMAGES) throw fail(409, `Mỗi sự kiện tối đa ${MAX_IMAGES} ảnh email`);
+      const name = `${ev.id}-${crypto.randomBytes(6).toString('hex')}.${ext}`;
+      await images.receive(req, path.join(IMG_DIR, name), ext, 'Ảnh');
+      return send(res, 201, { url: '/api/email-images/' + name });
+    }
     if (colPreview === 'leads') { // lead picker for test mode
       if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
       const q = new URL(req.url, 'http://x').searchParams;
@@ -424,8 +458,9 @@ module.exports = function init(ctx) {
     }
     if (colPreview) { // live preview of text that is not saved yet
       if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
-      const b = await readJson(req, 64 * 1024);
-      const tmp = { id: 'preview', type: ['seeding', 'notification', 'last_notification'].includes(b.type) ? b.type : 'notification', subject: h.cleanText(b.subject, 200) || '(chưa có tiêu đề)', body: String(b.body || '').slice(0, 10000) || '(chưa có nội dung)', audience: b.audience === 'all' ? 'all' : 'registered' };
+      const b = await readJson(req, BODY_LIMIT);
+      const html = b.format === 'html';
+      const tmp = { id: 'preview', type: ['seeding', 'notification', 'last_notification'].includes(b.type) ? b.type : 'notification', subject: h.cleanText(b.subject, 200) || '(chưa có tiêu đề)', format: html ? 'html' : 'text', body: String(b.body || '').slice(0, html ? 150000 : 10000) || '(chưa có nội dung)', audience: b.audience === 'all' ? 'all' : 'registered' };
       return send(res, 200, renderFor(ev, tmp, { name: h.cleanText(b.name, 120) || 'Nguyễn Văn An', email: 'an@example.com', item: ev.title, preview: true }));
     }
     if (!mailId) {
@@ -453,7 +488,7 @@ module.exports = function init(ctx) {
         return send(res, 200, overview(ev));
       }
       if (req.method === 'POST') {
-        const b = await readJson(req, 64 * 1024);
+        const b = await readJson(req, BODY_LIMIT);
         const type = ['seeding', 'notification', 'last_notification'].includes(b.type) ? b.type : null;
         if (!type) throw fail(400, 'Loại email không hợp lệ');
         const cand = clone(ev.emails);
@@ -508,7 +543,7 @@ module.exports = function init(ctx) {
     }
 
     if (req.method === 'PATCH') {
-      const b = await readJson(req, 64 * 1024);
+      const b = await readJson(req, BODY_LIMIT);
       fillMail(mail, b, false);
       if (mail.type === 'seeding') {
         if (b.offsetHours !== undefined && mail.offsetHours !== 0) mail.offsetHours = intIn(b.offsetHours, 1, MAX_OFFSET_H, 'Số giờ sau email đầu phải từ 1 đến ' + MAX_OFFSET_H);
@@ -529,6 +564,20 @@ module.exports = function init(ctx) {
       return send(res, 200, overview(ev));
     }
     return send(res, 405, { error: 'Method not allowed' });
+  }
+
+  // ---- Pictures used inside e-mails (public: mail clients fetch them by url) -----------------------
+  function image(req, res, pathname) {
+    const m = pathname.match(/^\/api\/email-images\/([a-f0-9]{16}-[a-f0-9]{12}\.(png|jpg|webp))$/);
+    if (!m || (req.method !== 'GET' && req.method !== 'HEAD')) { res.writeHead(m ? 405 : 404); return res.end(); }
+    const file = path.join(IMG_DIR, m[1]);
+    if (!fs.existsSync(file)) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { 'Content-Type': images.TYPES[m[2]].mime, 'Content-Length': fs.statSync(file).size, 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' });
+    if (req.method === 'HEAD') return res.end();
+    fs.createReadStream(file).pipe(res);
+  }
+  function removeImages(evId) {
+    try { for (const f of fs.readdirSync(IMG_DIR)) if (f.startsWith(evId + '-')) fs.unlink(path.join(IMG_DIR, f), () => {}); } catch { /* nothing to remove */ }
   }
 
   // ---- Public unsubscribe page ---------------------------------------------------
@@ -562,5 +611,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { workflowDue, admin, unsubscribe, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
+  return { workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };

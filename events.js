@@ -147,16 +147,16 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     return s;
   }
 
-  function receiveBanner(req, dest, ext) {
+  function receiveBanner(req, dest, ext, label = 'Banner') {
     return new Promise((resolve, reject) => {
       const type = BANNER_TYPES[ext];
-      if (!type) return reject(fail(400, 'Banner chỉ nhận PNG, JPG hoặc WebP'));
-      if (Number(req.headers['content-length']) > MAX_BANNER) return reject(fail(413, 'Banner quá dung lượng cho phép'));
+      if (!type) return reject(fail(400, label + ' chỉ nhận PNG, JPG hoặc WebP'));
+      if (Number(req.headers['content-length']) > MAX_BANNER) return reject(fail(413, label + ' quá dung lượng cho phép'));
       const tmp = dest + '.tmp';
       const out = fs.createWriteStream(tmp);
       let size = 0; let done = false;
       const abort = (err) => { if (done) return; done = true; out.destroy(); fs.unlink(tmp, () => {}); reject(err); };
-      req.on('data', (c) => { size += c.length; if (size > MAX_BANNER) abort(fail(413, 'Banner quá dung lượng cho phép')); });
+      req.on('data', (c) => { size += c.length; if (size > MAX_BANNER) abort(fail(413, label + ' quá dung lượng cho phép')); });
       req.on('error', abort); out.on('error', abort);
       out.on('finish', () => {
         if (done) return; done = true;
@@ -371,6 +371,11 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       .replace(/<p>/g, '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#0C2A3A">')
       .replace(/<h2>/g, '<h2 style="margin:22px 0 8px;font-size:18px;color:#0C2A3A">')
       .replace(/<ul>/g, '<ul style="margin:0 0 14px;padding-left:22px;font-size:15px;line-height:1.7;color:#0C2A3A">');
+    return wrapEmail(styled, footerHtml);
+  }
+
+  // already-styled body html -> full HTML email (card + signature + footerHtml)
+  function wrapEmail(styled, footerHtml) {
     return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>`
       + `<body style="margin:0;background:#F6FAFA;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;padding:24px 16px">`
       + `<div style="background:#fff;border:1px solid #DDE7E7;border-radius:14px;padding:26px">${styled}`
@@ -471,7 +476,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       return send(res, 200, { event: adminEvent(ev) });
     }
     if (req.method === 'DELETE') {
-      removeBanner(ev.banner);
+      removeBanner(ev.banner); mailer.removeImages(ev.id);
       events = events.filter((x) => x !== ev); save();
       return send(res, 200, { ok: true });
     }
@@ -504,7 +509,8 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   const mailer = require('./event-mailer')({
     DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin,
     getEvents: () => events, saveEvents: save,
-    helpers: { fail, cleanText, clientIp, parseLocal, toLocal, startMs, norm, fillTokens, eventVars, renderEmail, workflowAuthorized },
+    helpers: { fail, cleanText, clientIp, parseLocal, toLocal, startMs, norm, fillTokens, eventVars, renderEmail, wrapEmail, workflowAuthorized },
+    images: { receive: receiveBanner, TYPES: BANNER_TYPES },
   });
 
   return {
@@ -512,6 +518,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       try {
         if (pathname === '/api/workflow/due-emails') return await mailer.workflowDue(req, res);
         if (pathname === '/huy-dang-ky-email') return await mailer.unsubscribe(req, res);
+        if (pathname.startsWith('/api/email-images/')) return mailer.image(req, res, pathname);
         if (/^\/api\/admin\/events\/[a-f0-9]{16}\/emails/.test(pathname)) return await mailer.admin(req, res, pathname);
         if (pathname.startsWith('/api/admin/events')) return await admin(req, res, pathname);
         return await pub(req, res, pathname);
