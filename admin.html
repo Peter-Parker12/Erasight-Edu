@@ -725,6 +725,7 @@
     }
   </style>
   <link rel="stylesheet" href="assets/css/admin-emails.css" />
+  <link rel="stylesheet" href="assets/css/admin-events.css" />
 </head>
 <body>
 
@@ -1108,9 +1109,41 @@
           <div class="crm-kpi-card"><div class="crm-kpi-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><div class="crm-kpi-data"><div class="val" id="kpiEvRegs">0</div><div class="lbl">Lượt đăng ký</div></div></div>
         </div>
 
-        <div class="crm-split-panel">
-          <div class="crm-card">
-            <div class="crm-card-head"><h2><span id="aeFormTitle">Thêm sự kiện mới</span></h2></div>
+        <div class="ev-layout">
+          <aside class="crm-card ev-side" aria-label="Danh sách sự kiện">
+            <div class="ev-side-head"><h2>Sự kiện <span class="count-pill" id="aeCount">0</span></h2><button type="button" class="crm-btn sm accent" id="aeNew">+ Thêm</button></div>
+            <input type="search" class="ev-search" id="aeSearch" placeholder="Tìm theo tên sự kiện..." aria-label="Tìm sự kiện" />
+            <div class="ev-list" id="aeList" role="listbox" aria-label="Sự kiện"><div class="adm-empty">Đang tải danh sách sự kiện...</div></div>
+          </aside>
+
+          <section class="crm-card ev-detail" id="aeDetail" aria-live="polite">
+            <div class="ev-blank" id="aeBlank">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="16" y1="2" x2="16" y2="6"></line></svg>
+              <b>Chọn một sự kiện</b>
+              <span>Bấm vào sự kiện ở danh sách bên trái để xem và sửa, hoặc bấm “+ Thêm” để tạo sự kiện mới.</span>
+            </div>
+            <div id="aeDetailBody" hidden>
+              <div class="ev-head">
+                <div class="ev-head-img" id="aeHeadImg"></div>
+                <div class="ev-head-main">
+                  <div class="crm-row-header" id="aeHeadPills"></div>
+                  <h2 id="aeFormTitle">Sự kiện</h2>
+                  <div class="ev-head-meta" id="aeHeadMeta"></div>
+                </div>
+                <div class="ev-head-actions" id="aeHeadActions">
+                  <a class="crm-btn sm" id="aeView" href="#" target="_blank" rel="noopener" style="text-decoration:none;">Xem trang ↗</a>
+                  <button type="button" class="crm-btn sm primary" id="aeToggle">Xuất bản</button>
+                  <button type="button" class="crm-btn sm danger" id="aeDelete">Xoá</button>
+                </div>
+              </div>
+
+              <div class="ev-tabs" role="tablist" aria-label="Chi tiết sự kiện">
+                <button type="button" class="ev-tab is-active" role="tab" id="evTabInfo" data-etab="info" aria-controls="evPaneInfo" aria-selected="true">Thông tin chung</button>
+                <button type="button" class="ev-tab" role="tab" id="evTabEmails" data-etab="emails" aria-controls="emCard" aria-selected="false">Email theo lịch</button>
+                <button type="button" class="ev-tab" role="tab" id="evTabUtm" data-etab="utm" aria-controls="evPaneUtm" aria-selected="false">Link theo dõi (UTM)</button>
+              </div>
+
+              <div class="ev-pane" id="evPaneInfo" role="tabpanel" aria-labelledby="evTabInfo">
             <form id="aeForm" novalidate>
               <div class="form-group-clean"><label for="aeTitle">Tiêu đề *</label><input type="text" id="aeTitle" maxlength="150" placeholder="Ví dụ: Workshop: Tự động hoá đăng bài đa kênh với AI" required /></div>
               <div class="form-group-clean"><label for="aeSummary">Mô tả ngắn (hiện trên thẻ) *</label><textarea id="aeSummary" maxlength="220" placeholder="1–2 câu giới thiệu sự kiện..."></textarea><div class="form-hint" id="aeSummaryHint">0/220 ký tự</div></div>
@@ -1130,22 +1163,14 @@
                 <div class="form-group-clean"><label for="aeOpen">Nhận đăng ký</label><select id="aeOpen"><option value="1">Bật</option><option value="0">Tắt</option></select></div>
               </div>
               <div class="form-group-clean"><label for="aeStatus">Trạng thái</label><select id="aeStatus"><option value="draft">Bản nháp (chưa hiển thị)</option><option value="published">Xuất bản</option></select></div>
-              <div style="display:flex;gap:8px;"><button type="submit" class="crm-btn accent" id="aeSubmit" style="flex:1;height:44px;font-size:14px;"><span>Lưu sự kiện</span></button><button type="button" class="crm-btn" id="aeCancel" style="height:44px;" hidden>Huỷ sửa</button></div>
+              <div style="display:flex;gap:8px;"><button type="submit" class="crm-btn accent" id="aeSubmit" style="flex:1;height:44px;font-size:14px;"><span id="aeSubmitLbl">Lưu thay đổi</span></button><button type="button" class="crm-btn" id="aeCancel" style="height:44px;" hidden>Huỷ</button></div>
               <div class="adm-progress" id="aeProgress" hidden><i></i></div>
               <div class="adm-msg" id="aeMsg" role="status" hidden></div>
             </form>
-          </div>
+              </div>
 
-          <div class="crm-card">
-            <div class="crm-card-head"><h2><span>Danh sách sự kiện</span></h2><span class="count-pill" id="aeCount">0 sự kiện</span></div>
-            <div class="crm-list-box" id="aeList"><div class="adm-empty">Đang tải danh sách sự kiện...</div></div>
-          </div>
-        </div>
-
-        <div class="crm-card em-card" id="emCard" style="margin-top:20px;">
-          <div class="crm-card-head"><h2><span>Email theo lịch</span> <span class="em-badge g">Giờ Việt Nam (GMT+7)</span></h2></div>
-          <p class="em-hint">Soạn sẵn email seeding / thông báo cho từng sự kiện. Twenty CRM kiểm tra mỗi 15 phút và gửi cho các lead đến hạn (tên và email lấy từ CRM).</p>
-          <div class="em-pick"><div class="form-group-clean"><label for="emEvent">Sự kiện</label><select id="emEvent"></select></div><div id="emEventInfo"></div></div>
+              <div class="ev-pane em-card" id="emCard" role="tabpanel" aria-labelledby="evTabEmails" hidden>
+                <div class="ev-pane-intro"><p class="em-hint" style="margin:0;">Soạn sẵn email seeding / thông báo cho sự kiện này. Twenty CRM kiểm tra mỗi 15 phút và gửi cho các lead đến hạn (tên và email lấy từ CRM).</p><div id="emEventInfo"></div></div>
           <div id="emBody" hidden>
             <h2 style="margin:18px 0 4px;font-size:15px;">Timeline</h2>
             <p class="em-hint" style="margin-bottom:6px;">Email nằm sau thời điểm sự kiện bắt đầu sẽ bị huỷ tự động (gạch ngang).</p>
@@ -1166,6 +1191,28 @@
             <p class="em-hint" id="emLastHint">Gửi cho mọi người đăng ký sau thời điểm last call, thay cho email xác nhận. Mỗi sự kiện có một email này.</p>
             <div class="em-scroll" id="emLastBox"></div>
           </div>
+              </div>
+
+              <div class="ev-pane" id="evPaneUtm" role="tabpanel" aria-labelledby="evTabUtm" hidden>
+          <p class="form-hint" style="margin:0 0 12px;">Gắn link này vào bài đăng Facebook, TikTok, Zalo hoặc email. Khi người xem đăng ký, nguồn sẽ hiện ở cột “UTM tags” của Lead trong Twenty (chỉ khi họ chấp nhận cookie đo lường).</p>
+          <input type="hidden" id="utmEvent" value="" />
+          <div class="em-zone" id="utmNote" style="margin:0 0 12px;" hidden>Sự kiện đang là bản nháp — link chỉ hoạt động sau khi xuất bản.</div>
+          <div class="form-group-clean"><label for="utmChannel">Kênh</label><select id="utmChannel">
+              <option value="facebook|social">Facebook</option><option value="tiktok|social">TikTok</option><option value="zalo|social">Zalo</option>
+              <option value="instagram|social">Instagram</option><option value="youtube|social">YouTube</option><option value="email|email">Email</option><option value="custom|">Tuỳ chỉnh…</option></select></div>
+          <div class="form-row-2">
+            <div class="form-group-clean"><label for="utmCampaign">Chiến dịch (utm_campaign)</label><input type="text" id="utmCampaign" maxlength="100" placeholder="workshop-t11" /></div>
+            <div class="form-group-clean"><label for="utmContent">Nội dung (utm_content, tuỳ chọn)</label><input type="text" id="utmContent" maxlength="100" placeholder="banner-a" /></div>
+          </div>
+          <div class="form-row-2" id="utmCustomRow" hidden>
+            <div class="form-group-clean"><label for="utmSource">utm_source</label><input type="text" id="utmSource" maxlength="100" placeholder="newsletter" /></div>
+            <div class="form-group-clean"><label for="utmMedium">utm_medium</label><input type="text" id="utmMedium" maxlength="100" placeholder="email" /></div>
+          </div>
+          <div class="form-group-clean"><label for="utmResult">Link kết quả</label><input type="text" id="utmResult" readonly style="background:#f6fafa;font-family:monospace;font-size:12.5px;" /></div>
+          <button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span>
+              </div>
+            </div>
+          </section>
         </div>
 
         <div class="em-ov" id="emOv" role="dialog" aria-modal="true" aria-labelledby="emTitle"><div class="em-md">
@@ -1199,27 +1246,6 @@
           </div></div>
           <div class="em-mdf"><button type="button" class="crm-btn sm danger" id="emDel">Xoá email</button><div style="display:flex;gap:8px;"><button type="button" class="crm-btn sm" id="emCancel">Huỷ</button><button type="button" class="crm-btn sm accent" id="emSave">Lưu</button></div></div>
         </div></div>
-
-        <div class="crm-card" style="margin-top:20px;">
-          <div class="crm-card-head"><h2><span>Tạo link theo dõi (UTM)</span></h2></div>
-          <p class="form-hint" style="margin:0 0 12px;">Gắn link này vào bài đăng Facebook, TikTok, Zalo hoặc email. Khi người xem đăng ký, nguồn sẽ hiện ở cột “UTM tags” của Lead trong Twenty (chỉ khi họ chấp nhận cookie đo lường).</p>
-          <div class="form-row-2">
-            <div class="form-group-clean"><label for="utmEvent">Sự kiện</label><select id="utmEvent"></select></div>
-            <div class="form-group-clean"><label for="utmChannel">Kênh</label><select id="utmChannel">
-              <option value="facebook|social">Facebook</option><option value="tiktok|social">TikTok</option><option value="zalo|social">Zalo</option>
-              <option value="instagram|social">Instagram</option><option value="youtube|social">YouTube</option><option value="email|email">Email</option><option value="custom|">Tuỳ chỉnh…</option></select></div>
-          </div>
-          <div class="form-row-2">
-            <div class="form-group-clean"><label for="utmCampaign">Chiến dịch (utm_campaign)</label><input type="text" id="utmCampaign" maxlength="100" placeholder="workshop-t11" /></div>
-            <div class="form-group-clean"><label for="utmContent">Nội dung (utm_content, tuỳ chọn)</label><input type="text" id="utmContent" maxlength="100" placeholder="banner-a" /></div>
-          </div>
-          <div class="form-row-2" id="utmCustomRow" hidden>
-            <div class="form-group-clean"><label for="utmSource">utm_source</label><input type="text" id="utmSource" maxlength="100" placeholder="newsletter" /></div>
-            <div class="form-group-clean"><label for="utmMedium">utm_medium</label><input type="text" id="utmMedium" maxlength="100" placeholder="email" /></div>
-          </div>
-          <div class="form-group-clean"><label for="utmResult">Link kết quả</label><input type="text" id="utmResult" readonly style="background:#f6fafa;font-family:monospace;font-size:12.5px;" /></div>
-          <button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span>
-        </div>
       </section>
 
 

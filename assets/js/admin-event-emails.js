@@ -1,8 +1,8 @@
 /**
  * ERASIGHT ADMIN — "Email theo lịch" (scheduled event emails)
  * Seeding sequence (+ last call), event notifications and the last notification. Config is stored by the
- * website (/api/admin/events/:id/emails...); a Twenty workflow sends what is due. Loaded before admin.js,
- * which calls AdminEventEmails.load() after login.
+ * website (/api/admin/events/:id/emails...); a Twenty workflow sends what is due. Shown as the "Email theo lịch"
+ * tab of the event detail panel: admin-events.js calls AdminEventEmails.show(eventId) when that tab opens.
  */
 (function () {
   'use strict';
@@ -12,7 +12,7 @@
   const JH = Object.assign({ 'Content-Type': 'application/json' }, HDR);
   const FIELDS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url'];
 
-  let events = []; let ov = null; let evId = null; let editing = null; let previewTimer = null; let previewSeq = 0;
+  let ov = null; let evId = null; let editing = null; let previewTimer = null; let previewSeq = 0;
 
   async function api(url, opts) {
     const res = await fetch(url, opts);
@@ -27,25 +27,19 @@
   const fmtFull = (l) => { const m = parts(l); return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : ''; };
   const addHours = (l, h) => { const m = parts(l); if (!m) return ''; return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) + h * 3600e3).toISOString().slice(0, 16); };
 
-  // ---- Load ------------------------------------------------------------------
-  async function load() {
-    try {
-      events = (await api('/api/admin/events', { cache: 'no-store' })).events || [];
-    } catch (e) { events = []; }
-    const sel = $('emEvent'); const keep = evId || sel.value;
-    sel.innerHTML = events.length
-      ? events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} — ${esc(fmtFull(e.startLocal))}${e.status === 'published' ? '' : ' (nháp)'}</option>`).join('')
-      : '<option value="">(chưa có sự kiện)</option>';
-    if (keep && events.some((e) => e.id === keep)) sel.value = keep;
-    evId = sel.value || null;
+  // ---- Load (the event is chosen in the event detail panel, admin-events.js) ----
+  async function show(id) {
+    if (id !== evId) closeEditor();
+    evId = id || null;
     await loadOverview();
   }
 
   async function loadOverview() {
     $('emBody').hidden = !evId;
     if (!evId) { $('emEventInfo').innerHTML = ''; return; }
-    try { ov = await api(`/api/admin/events/${evId}/emails`, { cache: 'no-store' }); render(); }
-    catch (e) { $('emBody').hidden = true; $('emEventInfo').innerHTML = `<span class="em-badge r">${esc(e.message)}</span>`; }
+    const want = evId;
+    try { const d = await api(`/api/admin/events/${want}/emails`, { cache: 'no-store' }); if (want !== evId) return; ov = d; render(); }
+    catch (e) { if (want !== evId) return; $('emBody').hidden = true; $('emEventInfo').innerHTML = `<span class="em-badge r">${esc(e.message)}</span>`; }
   }
 
   // ---- Render ----------------------------------------------------------------
@@ -214,7 +208,6 @@
   function init() {
     if (!$('emCard')) return;
     buildChips();
-    $('emEvent').addEventListener('change', () => { evId = $('emEvent').value || null; loadOverview(); });
     $('emSeedSave').addEventListener('click', saveStart);
     $('emAddSeed').addEventListener('click', () => openEditor('seeding'));
     $('emAddNot').addEventListener('click', () => openEditor('notification'));
@@ -253,6 +246,6 @@
     });
   }
 
-  window.AdminEventEmails = { load };
+  window.AdminEventEmails = { show, reload: loadOverview };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

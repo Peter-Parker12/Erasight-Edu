@@ -99,7 +99,9 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     return {
       id: e.id, slug: e.slug, title: e.title, summary: e.summary, body: e.body, mode: e.mode, location: e.location,
       startLocal: toLocal(e.startAt), endLocal: toLocal(e.endAt), capacity: e.capacity || null, registrationOpen: !!e.registrationOpen,
-      status: e.status, hasBanner: !!e.banner, bannerUrl: e.banner ? bannerUrl(e) : null, url: eventUrl(e), phase: phase(e),
+      status: e.status, hasBanner: !!e.banner, url: eventUrl(e), phase: phase(e),
+      // served from the admin route: the admin cookie is scoped to /api/admin, so drafts' banners show here too
+      bannerUrl: e.banner ? `/api/admin/events/${e.id}/banner?v=${encodeURIComponent(e.updatedAt)}` : null,
       registrations: r ? r.count : 0, bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
       joinLink: e.joinLink || '', previousTitles: e.previousTitles || [],
     };
@@ -444,6 +446,12 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     if (!ev) return send(res, 404, { error: 'Not found' });
 
     if (sub === 'banner') {
+      if (req.method === 'GET') {
+        const file = ev.banner && path.join(BANNERS_DIR, path.basename(ev.banner));
+        if (!file || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
+        res.writeHead(200, { 'Content-Type': BANNER_TYPES[path.extname(file).slice(1)].mime, 'Content-Length': fs.statSync(file).size, 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
+        return fs.createReadStream(file).pipe(res);
+      }
       if (req.method !== 'PUT') return send(res, 405, { error: 'Method not allowed' });
       let ext = String(new URL(req.url, 'http://x').searchParams.get('ext') || '').toLowerCase().replace(/^\./, '');
       if (ext === 'jpeg') ext = 'jpg';
