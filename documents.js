@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-module.exports = function init({ twenty, utmTags, twentyReady, normalizePhone, send, readJson, rateLimited }) {
+module.exports = function init({ twenty, leadFields, twentyReady, normalizePhone, send, readJson, rateLimited }) {
   const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
   const FILES_DIR = path.join(DATA_DIR, 'files');
   const COVERS_DIR = path.join(DATA_DIR, 'covers');
@@ -265,13 +265,12 @@ module.exports = function init({ twenty, utmTags, twentyReady, normalizePhone, s
       if (!twentyReady()) throw new Error('TWENTY_URL / TWENTY_API_KEY not configured');
       await twenty('POST', '/leads', {
         name, emails: { primaryEmail: email }, phones: normalizePhone(phone),
-        channel: 'WEBSITE', status: 'NEW', requestedDocument: doc.title,
-        ...(utmTags(b.utm) ? { utmTags: utmTags(b.utm) } : {}),
+        status: 'NEW', ...leadFields({ type: 'document', requestedItem: doc.title, utm: b.utm }),
       });
     } catch (e) {
       // Never block the visitor on a CRM outage; keep the lead so it can be recovered.
       console.error('document lead failed (access still granted):', e.message);
-      fs.appendFile(FAILED_LEADS, JSON.stringify({ at: new Date().toISOString(), name, phone, email, document: doc.title, utmTags: utmTags(b.utm) }) + '\n', () => {});
+      fs.appendFile(FAILED_LEADS, JSON.stringify({ at: new Date().toISOString(), name, phone, email, document: doc.title, utm: b.utm || null }) + '\n', () => {});
     }
     const t = sign('access', ACCESS_TTL_MS);
     setCookie(req, res, 'lib_access', t.value, ACCESS_TTL_MS, '/api/documents');

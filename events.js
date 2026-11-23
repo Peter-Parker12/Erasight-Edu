@@ -4,9 +4,11 @@
 //   /su-kien                   list                          <- su-kien.html (template)
 //   /su-kien-<slug>            detail                        <- su-kien-chi-tiet.html (template)
 // Public:  GET  /api/events/:id/banner
-//          POST /api/events/:id/register   {name, phone, email, website, utm} -> Lead (requestedEvent, utmTags)
+//          POST /api/events/:id/register   {name, phone, email, website, utm} -> Lead (type, requestedItem, source, utmTagList)
+// Workflow: POST /api/workflow/event-email  {event, name} + X-API-Key -> {found, subject, html}  (Twenty email flow)
 // Admin:   GET|POST /api/admin/events, GET|PATCH|DELETE /api/admin/events/:id
 //          PUT  /api/admin/events/:id/banner?ext=png|jpg|webp   (raw body)
+//          GET  /api/admin/events/:id/email-preview?name=...
 // Pages are rendered on the server (like the blog) so crawlers and AI bots read them without JavaScript.
 const fs = require('fs');
 const path = require('path');
@@ -99,11 +101,15 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       startLocal: toLocal(e.startAt), endLocal: toLocal(e.endAt), capacity: e.capacity || null, registrationOpen: !!e.registrationOpen,
       status: e.status, hasBanner: !!e.banner, bannerUrl: e.banner ? bannerUrl(e) : null, url: eventUrl(e), phase: phase(e),
       registrations: r ? r.count : 0, bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
+      emailSubject: e.emailSubject || '', emailBody: e.emailBody || '', joinLink: e.joinLink || '', previousTitles: e.previousTitles || [],
     };
   }
 
   function applyFields(e, b, creating) {
-    if (b.title !== undefined || creating) { const t = cleanText(b.title, 150); if (!t) throw fail(400, 'Vui lòng nhập tiêu đề sự kiện'); e.title = t; }
+    if (b.title !== undefined || creating) { const t = cleanText(b.title, 150); if (!t) throw fail(400, 'Vui lòng nhập tiêu đề sự kiện');
+      // Leads store the event title they registered under: remember old titles so the email lookup still finds the event after a rename.
+      if (e.title && e.title !== t) e.previousTitles = [...new Set([...(e.previousTitles || []), e.title])].filter((x) => x !== t).slice(-20);
+      e.title = t; }
     if (b.summary !== undefined || creating) e.summary = cleanText(b.summary, 220);
     if (b.body !== undefined || creating) e.body = String(b.body ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 20000);
     if (b.mode !== undefined || creating) e.mode = b.mode === 'offline' ? 'offline' : 'online';
@@ -121,6 +127,13 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       else { const n = Number(b.capacity); if (!Number.isInteger(n) || n < 1 || n > 100000) throw fail(400, 'Số chỗ tối đa chưa hợp lệ'); e.capacity = n; }
     }
     if (b.registrationOpen !== undefined || creating) e.registrationOpen = b.registrationOpen === undefined ? true : !!b.registrationOpen;
+    if (b.emailSubject !== undefined || creating) e.emailSubject = cleanText(b.emailSubject, 200);
+    if (b.emailBody !== undefined || creating) e.emailBody = String(b.emailBody ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, 10000);
+    if (b.joinLink !== undefined || creating) {
+      const l = cleanText(b.joinLink, 500);
+      if (l && !/^https?:\/\/[^\s]+$/i.test(l)) throw fail(400, 'Link tham gia phải bắt đầu bằng http:// hoặc https://');
+      e.joinLink = l;
+    }
     if (b.status !== undefined || creating) {
       const st = b.status === 'published' ? 'published' : 'draft';
       if (st === 'published' && !e.banner) throw fail(400, 'Cần tải banner trước khi xuất bản');
@@ -341,6 +354,73 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     respond(req, res, { status, buf: Buffer.from(html), contentType: 'text/html; charset=utf-8', cacheControl: status === 200 ? 'public, max-age=0, must-revalidate' : 'no-store', isText: true });
   }
 
+  // ---- Confirmation email content (used by the Twenty email flow) -----------
+  const norm = (t) => String(t || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  // Match by the title stored on the Lead: the current title or any earlier one.
+  function findByTitle(title) {
+    const t = norm(title);
+    if (!t) return null;
+    const hits = events.filter((e) => norm(e.title) === t || (e.previousTitles || []).some((x) => norm(x) === t));
+    if (!hits.length) return null;
+    // Same title used twice: prefer the soonest upcoming one, else the most recent.
+    return hits.filter((e) => phase(e) !== 'past').sort((a, b) => startMs(a) - startMs(b))[0] || hits.sort((a, b) => startMs(b) - startMs(a))[0];
+  }
+
+  const linkify = (html) => html.replace(/(https?:\/\/[^\s<]+)/g, (u) => `<a href="${u}" style="color:#07736C">${u}</a>`);
+  const fillTokens = (text, vars) => String(text).replace(/\{\{\s*([a-z_]+)\s*\}\}/g, (m, k) => (k in vars ? vars[k] : m));
+
+  const DEFAULT_SUBJECT = 'Xác nhận đăng ký sự kiện: {{event_title}}';
+  function defaultBody(ev) {
+    const lines = ['Chào {{name}},', '', 'Erasight Academy đã nhận đăng ký tham dự sự kiện {{event_title}} của bạn. Cảm ơn bạn đã quan tâm!', ''];
+    if (ev) {
+      lines.push('- Thời gian: {{event_date}} · {{event_time}} (GMT+7)', '- Hình thức: {{event_mode}}');
+      if (ev.location) lines.push('- Địa điểm / nền tảng: {{event_location}}');
+      if (ev.joinLink) lines.push('- Link tham gia: {{join_link}}');
+      lines.push('', 'Giáo vụ sẽ liên hệ nếu có cập nhật thêm qua Zalo hoặc email của bạn.', '', 'Xem chi tiết sự kiện: {{event_url}}');
+    } else {
+      lines.push('Giáo vụ sẽ liên hệ xác nhận và gửi thông tin tham dự qua Zalo hoặc email của bạn trong vòng 2 giờ làm việc.');
+    }
+    return lines.join('\n');
+  }
+
+  // -> { found, subject, html }. Unknown event -> generic message (never fails the flow).
+  function buildEmail(ev, title, name) {
+    const vars = {
+      name: cleanText(name, 120) || 'bạn', event_title: ev ? ev.title : cleanText(title, 150),
+      event_date: ev ? `${fmtWeekday(ev.startAt)}, ${fmtDate(ev.startAt)}` : '', event_time: ev ? `${fmtTime(ev.startAt)} – ${fmtTime(ev.endAt)}` : '',
+      event_mode: ev ? modeLabel(ev) : '', event_location: ev ? ev.location : '', join_link: ev ? ev.joinLink : '', event_url: ev ? SITE + eventUrl(ev) : SITE + '/su-kien',
+    };
+    const subject = fillTokens((ev && ev.emailSubject) || DEFAULT_SUBJECT, vars).replace(/[\r\n]+/g, ' ').trim().slice(0, 200);
+    const text = fillTokens((ev && ev.emailBody) || defaultBody(ev), vars);
+    const styled = linkify(renderBody(text))
+      .replace(/<p>/g, '<p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#0C2A3A">')
+      .replace(/<h2>/g, '<h2 style="margin:22px 0 8px;font-size:18px;color:#0C2A3A">')
+      .replace(/<ul>/g, '<ul style="margin:0 0 14px;padding-left:22px;font-size:15px;line-height:1.7;color:#0C2A3A">');
+    const html = `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>`
+      + `<body style="margin:0;background:#F6FAFA;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;padding:24px 16px">`
+      + `<div style="background:#fff;border:1px solid #DDE7E7;border-radius:14px;padding:26px">${styled}`
+      + `<p style="margin:22px 0 0;padding-top:14px;border-top:1px solid #eef3f3;font-size:13px;color:#6b8590">Trân trọng,<br>Erasight Academy · <a href="${SITE}" style="color:#6b8590">${SITE.replace(/^https?:\/\//, '')}</a></p>`
+      + `</div></div></body></html>`;
+    return { found: !!ev, subject, html };
+  }
+
+  function workflowAuthorized(req) {
+    const key = process.env.WORKFLOW_API_KEY || '';
+    if (!key) throw fail(503, 'WORKFLOW_API_KEY is not configured');
+    const got = String(req.headers['x-api-key'] || '');
+    const a = crypto.createHash('sha256').update(got).digest(); const b = crypto.createHash('sha256').update(key).digest();
+    return crypto.timingSafeEqual(a, b);
+  }
+
+  async function workflowEventEmail(req, res) {
+    if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+    if (rateLimited(clientIp(req), 'workflow-email', 120, 60_000)) return send(res, 429, { error: 'Too many requests' });
+    if (!workflowAuthorized(req)) return send(res, 401, { error: 'Invalid API key' });
+    const b = await readJson(req);
+    const title = cleanText(b.event, 300);
+    return send(res, 200, buildEmail(findByTitle(title), title, b.name));
+  }
+
   // ---- Registration ----------------------------------------------------------
   async function register(req, res, ev) {
     if (rateLimited(clientIp(req), 'event-register', 5, 60_000)) return send(res, 429, { ok: false, error: 'Too many requests' });
@@ -359,17 +439,16 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     indexReg(rec);
     fs.appendFile(REG_FILE, JSON.stringify(rec) + '\n', () => {});
 
-    const utmTags = attribution.utmTags(b.utm);
     try {
       if (!twentyReady()) throw new Error('TWENTY_URL / TWENTY_API_KEY not configured');
       await twenty('POST', '/leads', {
         name, emails: { primaryEmail: email }, phones: normalizePhone(phone),
-        channel: 'WEBSITE', status: 'NEW', requestedEvent: ev.title, ...(utmTags ? { utmTags } : {}),
+        status: 'NEW', ...attribution.leadFields({ type: 'event', requestedItem: ev.title, utm: b.utm }),
       });
     } catch (e) {
       // The registration is already saved in event-registrations.jsonl; keep the lead for recovery too.
       console.error('event lead failed (registration kept):', e.message);
-      fs.appendFile(FAILED_LEADS, JSON.stringify({ at: rec.at, name, phone, email, event: ev.title, utmTags }) + '\n', () => {});
+      fs.appendFile(FAILED_LEADS, JSON.stringify({ at: rec.at, name, phone, email, event: ev.title, utm: rec.utm }) + '\n', () => {});
     }
     return send(res, 200, { ok: true, seatsLeft: seatsLeft(ev) });
   }
@@ -378,7 +457,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   async function admin(req, res, pathname) {
     if (!isAdmin(req)) return send(res, 401, { error: 'Login required' });
     if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'erasight-admin') return send(res, 403, { error: 'Bad request' });
-    const m = pathname.match(/^\/api\/admin\/events(?:\/([a-f0-9]{16})(?:\/(banner))?)?$/);
+    const m = pathname.match(/^\/api\/admin\/events(?:\/([a-f0-9]{16})(?:\/(banner|email-preview))?)?$/);
     if (!m) return send(res, 404, { error: 'Not found' });
     const [, id, sub] = m;
 
@@ -398,6 +477,13 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
 
     const ev = events.find((x) => x.id === id);
     if (!ev) return send(res, 404, { error: 'Not found' });
+
+    if (sub === 'email-preview') {
+      if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
+      const q = new URL(req.url, 'http://x').searchParams;
+      // Preview with unsaved text from the form is not supported; this renders what is saved on the event.
+      return send(res, 200, buildEmail(ev, ev.title, q.get('name') || 'Nguyễn Văn An'));
+    }
 
     if (sub === 'banner') {
       if (req.method !== 'PUT') return send(res, 405, { error: 'Method not allowed' });
@@ -452,6 +538,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   return {
     async handle(req, res, pathname) {
       try {
+        if (pathname === '/api/workflow/event-email') return await workflowEventEmail(req, res);
         if (pathname.startsWith('/api/admin/events')) return await admin(req, res, pathname);
         return await pub(req, res, pathname);
       } catch (e) {

@@ -90,7 +90,7 @@ function normalizePhone(raw) {
   return { primaryPhoneNumber: d, primaryPhoneCountryCode: 'VN', primaryPhoneCallingCode: '+84' };
 }
 
-async function enroll({ name, phone, email, courses, utmTags }) {
+async function enroll({ name, phone, email, courses, utm }) {
   const map = await courseMap();
   const picked = [...new Set(courses.map(Number))].map((id) => map.get(id));
   if (!picked.length || picked.some((c) => !c)) {
@@ -100,9 +100,8 @@ async function enroll({ name, phone, email, courses, utmTags }) {
     name,
     emails: { primaryEmail: email },
     phones: normalizePhone(phone),
-    channel: 'WEBSITE',
     status: 'NEW',
-    ...(utmTags ? { utmTags } : {}),
+    ...attribution.leadFields({ type: 'course', requestedItem: picked.map((c) => c.name).join(' + '), utm }),
   });
   const leadId = findId(lead);
   if (!leadId) throw new Error('Lead created but id missing in response');
@@ -157,7 +156,7 @@ async function handleEnroll(req, res) {
       return send(res, 400, { ok: false, error: 'Invalid input' });
     }
     if (!TWENTY_URL || !TWENTY_API_KEY) throw new Error('TWENTY_URL / TWENTY_API_KEY not configured');
-    await enroll({ name, phone, email, courses, utmTags: attribution.utmTags(b.utm) });
+    await enroll({ name, phone, email, courses, utm: b.utm });
     send(res, 200, { ok: true });
   } catch (e) {
     console.error('enroll failed:', e.message);
@@ -318,7 +317,7 @@ const attribution = require('./attribution');
 
 // ---- Document library (admin uploads, gallery, gated downloads) -----------
 const documents = require('./documents')({
-  twenty, utmTags: attribution.utmTags, normalizePhone, send, readJson, rateLimited,
+  twenty, leadFields: attribution.leadFields, normalizePhone, send, readJson, rateLimited,
   twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY),
 });
 
@@ -336,7 +335,7 @@ const events = require('./events')({
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
-  if (pathname.startsWith('/api/events') || pathname.startsWith('/api/admin/events')) return events.handle(req, res, pathname);
+  if (pathname.startsWith('/api/events') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/')) return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);
   if (pathname === '/api/blog-config' && req.method === 'GET') return send(res, 200, { tag: WP_POST_TAG });

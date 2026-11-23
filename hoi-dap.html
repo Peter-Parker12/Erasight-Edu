@@ -1024,6 +1024,7 @@
             email: document.getElementById('email').value.trim(),
             courses: document.getElementById('enrollCourse').value.split(',').map(Number),
             website: document.getElementById('website').value,
+            utm: window.ErasightTracking ? window.ErasightTracking.utm() : null,
           };
 
           try {
