@@ -724,6 +724,7 @@
       .crm-kpi-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="assets/css/admin-emails.css" />
 </head>
 <body>
 
@@ -1122,11 +1123,7 @@
                 <div class="form-group-clean"><label for="aeLocation">Địa điểm / nền tảng</label><input type="text" id="aeLocation" maxlength="200" placeholder="Zoom / 3 Nguyễn Lương Bằng, TP. HCM" /></div>
               </div>
               <div class="form-group-clean"><label for="aeBody">Nội dung chi tiết</label><textarea id="aeBody" style="min-height:150px" maxlength="20000" placeholder="## Bạn sẽ học được gì&#10;- Dựng flow tự động từ A đến Z&#10;- Viết prompt cho nội dung đa kênh&#10;&#10;Đoạn văn mới cách một dòng trống."></textarea><div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng</div></div>
-              <div class="form-group-clean" style="border-top:1px solid var(--crm-line);padding-top:14px;margin-top:4px;"><label style="font-size:13px;">Email xác nhận gửi từ Twenty (riêng cho sự kiện này)</label><div class="form-hint" style="margin:0 0 8px;">Để trống = dùng nội dung mặc định (có thời gian, hình thức, địa điểm và link tham gia). Có thể dùng: <code>{{name}}</code> <code>{{event_title}}</code> <code>{{event_date}}</code> <code>{{event_time}}</code> <code>{{event_mode}}</code> <code>{{event_location}}</code> <code>{{join_link}}</code> <code>{{event_url}}</code></div></div>
-              <div class="form-group-clean"><label for="aeJoinLink">Link tham gia (riêng tư, chỉ gửi trong email)</label><input type="url" id="aeJoinLink" maxlength="500" placeholder="https://zoom.us/j/... hoặc Google Meet" /></div>
-              <div class="form-group-clean"><label for="aeEmailSubject">Tiêu đề email</label><input type="text" id="aeEmailSubject" maxlength="200" placeholder="Xác nhận đăng ký sự kiện: {{event_title}}" /></div>
-              <div class="form-group-clean"><label for="aeEmailBody">Nội dung email</label><textarea id="aeEmailBody" style="min-height:150px" maxlength="10000" placeholder="Chào {{name}},&#10;&#10;Cảm ơn bạn đã đăng ký {{event_title}}.&#10;- Thời gian: {{event_date}} · {{event_time}}&#10;- Link tham gia: {{join_link}}"></textarea><div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng. Lưu sự kiện rồi bấm “Xem trước email”.</div></div>
-              <div style="margin:-4px 0 14px;"><button type="button" class="crm-btn sm" id="aeEmailPreviewBtn" hidden>Xem trước email (bản đã lưu)</button><div id="aeEmailPreview" hidden style="margin-top:10px;border:1px solid var(--crm-line);border-radius:10px;overflow:hidden;"><div id="aeEmailPreviewSubject" style="padding:8px 12px;font-size:12.5px;font-weight:700;background:#f6fafa;border-bottom:1px solid var(--crm-line);"></div><iframe id="aeEmailPreviewFrame" title="Xem trước email" sandbox="" style="width:100%;height:340px;border:0;background:#fff;"></iframe></div></div>
+              <div class="form-group-clean"><label for="aeJoinLink">Link tham gia (riêng tư, chỉ dùng trong email: {{join_link}})</label><input type="url" id="aeJoinLink" maxlength="500" placeholder="https://zoom.us/j/... hoặc Google Meet" /></div>
               <div class="form-group-clean"><label for="aeBanner">Banner * <span id="aeBannerNote" style="font-weight:400"></span></label><input type="file" id="aeBanner" accept="image/png,image/jpeg,image/webp" /><div class="form-hint">PNG/JPG/WebP, tỉ lệ 16:9 (khuyến nghị 1280×720), tối đa 3MB</div></div>
               <div class="form-row-2">
                 <div class="form-group-clean"><label for="aeCapacity">Số chỗ tối đa</label><input type="number" id="aeCapacity" min="1" step="1" placeholder="Để trống = không giới hạn" /></div>
@@ -1144,6 +1141,64 @@
             <div class="crm-list-box" id="aeList"><div class="adm-empty">Đang tải danh sách sự kiện...</div></div>
           </div>
         </div>
+
+        <div class="crm-card em-card" id="emCard" style="margin-top:20px;">
+          <div class="crm-card-head"><h2><span>Email theo lịch</span> <span class="em-badge g">Giờ Việt Nam (GMT+7)</span></h2></div>
+          <p class="em-hint">Soạn sẵn email seeding / thông báo cho từng sự kiện. Twenty CRM kiểm tra mỗi 15 phút và gửi cho các lead đến hạn (tên và email lấy từ CRM).</p>
+          <div class="em-pick"><div class="form-group-clean"><label for="emEvent">Sự kiện</label><select id="emEvent"></select></div><div id="emEventInfo"></div></div>
+          <div id="emBody" hidden>
+            <h2 style="margin:18px 0 4px;font-size:15px;">Timeline</h2>
+            <p class="em-hint" style="margin-bottom:6px;">Email nằm sau thời điểm sự kiện bắt đầu sẽ bị huỷ tự động (gạch ngang).</p>
+            <div class="em-tl" id="emTimeline"></div><div class="em-zone" id="emZone"></div>
+
+            <h2 style="margin:24px 0 4px;font-size:15px;"><span>1 · Seeding sequence</span> <span class="em-badge" id="emSeedCount"></span></h2>
+            <p class="em-hint">Email đầu gửi vào giờ bạn chọn; các email sau gửi sau email đầu N giờ. Lead tạo sau giờ bắt đầu vẫn nhận cả sequence (tính từ lúc lead xuất hiện).</p>
+            <div class="em-start"><div class="form-group-clean"><label for="emSeedStart">Email đầu gửi lúc</label><input type="datetime-local" id="emSeedStart" style="width:230px" /></div><button type="button" class="crm-btn sm primary" id="emSeedSave">Lưu giờ bắt đầu</button><span class="form-hint" id="emSeedMsg"></span></div>
+            <div class="em-scroll" id="emSeedList"></div>
+            <p style="margin:12px 0 0;"><button type="button" class="crm-btn sm accent" id="emAddSeed">+ Thêm email vào sequence</button></p>
+
+            <h2 style="margin:26px 0 4px;font-size:15px;"><span>2 · Email thông báo sự kiện</span> <span class="em-badge" id="emNotCount"></span></h2>
+            <p class="em-hint">Xác nhận đăng ký, nhắc lịch, link tham gia.</p>
+            <div class="em-scroll" id="emNotList"></div>
+            <p style="margin:12px 0 0;"><button type="button" class="crm-btn sm accent" id="emAddNot">+ Thêm email thông báo</button></p>
+
+            <h2 style="margin:26px 0 4px;font-size:15px;"><span>3 · Email thông báo cuối</span> <span class="em-badge o">sau last call</span></h2>
+            <p class="em-hint" id="emLastHint">Gửi cho mọi người đăng ký sau thời điểm last call, thay cho email xác nhận. Mỗi sự kiện có một email này.</p>
+            <div class="em-scroll" id="emLastBox"></div>
+          </div>
+        </div>
+
+        <div class="em-ov" id="emOv" role="dialog" aria-modal="true" aria-labelledby="emTitle"><div class="em-md">
+          <div class="em-mdh"><h3 id="emTitle">Sửa email</h3><button type="button" class="crm-btn sm" id="emClose">✕ Đóng</button></div>
+          <div class="em-mdb"><div>
+            <div class="em-err" id="emErr" hidden></div>
+            <div class="form-group-clean"><label for="emName">Tên nội bộ</label><input type="text" id="emName" maxlength="100" /></div>
+            <div id="emSeedF" hidden>
+              <div class="em-row2"><div class="form-group-clean"><label for="emOffset">Gửi sau email đầu (giờ)</label><input type="number" id="emOffset" min="1" max="2160" step="1" /><div class="em-calc" id="emCalc"></div></div>
+              <div class="form-group-clean"><label for="emAud">Đối tượng</label><select id="emAud"><option value="all">Tất cả lead trong Twenty</option><option value="registered">Chỉ lead đã đăng ký</option></select></div></div>
+              <label class="em-check" id="emSkipRow"><input type="checkbox" id="emSkip" checked /> Bỏ qua người đã đăng ký sự kiện này</label>
+              <label class="em-check"><input type="checkbox" id="emLast" /> <b>★ Đánh dấu là LAST CALL</b> (phải là email cuối của sequence)</label>
+            </div>
+            <div id="emNotF" hidden>
+              <div class="em-row2"><div class="form-group-clean"><label for="emMode">Thời điểm gửi</label><select id="emMode"><option value="on_register">Ngay khi đăng ký</option><option value="before">N giờ trước sự kiện</option><option value="at">Vào giờ cố định</option></select></div>
+              <div class="form-group-clean"><label for="emModeV" id="emModeL">Trễ (giờ)</label><input type="number" id="emModeV" /></div></div>
+              <div class="form-group-clean" id="emNotAudRow"><label for="emNotAud">Đối tượng</label><select id="emNotAud"><option value="registered">Người đã đăng ký sự kiện</option><option value="all">Tất cả lead trong Twenty</option></select></div>
+            </div>
+            <div id="emLnF" hidden><div class="em-zone" style="margin:0 0 12px;">Gửi cho người đăng ký sau thời điểm last call, thay cho email xác nhận.</div></div>
+            <label class="em-check"><input type="checkbox" id="emEnabled" checked /> Bật email này</label>
+            <div class="form-group-clean"><label for="emSubject">Tiêu đề</label><input type="text" id="emSubject" maxlength="200" /></div>
+            <div class="form-group-clean"><label for="emText">Nội dung</label><textarea id="emText" style="min-height:150px" maxlength="10000"></textarea></div>
+            <div class="form-hint">Chèn nhanh (bấm để chèn vào ô đang chọn):</div><div class="em-chips" id="emChips"></div>
+            <div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng</div>
+          </div><div>
+            <div class="form-group-clean"><label for="emWho">Xem trước với người nhận mẫu</label><input type="text" id="emWho" value="Nguyễn Văn An" maxlength="120" /></div>
+            <div class="em-pv"><div class="em-pvs" id="emPvS"></div><iframe class="em-pvf" id="emPvF" title="Xem trước email" sandbox=""></iframe></div>
+            <div id="emStatWrap"><div class="em-stat" id="emStat"></div><div class="form-hint" id="emSample"></div></div>
+            <div class="form-group-clean" id="emTestRow" style="margin-top:12px;"><label for="emTestTo">Gửi thử tới</label><div style="display:flex;gap:8px;"><input type="email" id="emTestTo" placeholder="ban@email.com" /><button type="button" class="crm-btn sm primary" id="emTestBtn">Gửi thử</button></div><div class="form-hint" style="margin-top:4px;">Email thử được gửi ở lần chạy kế tiếp của workflow trong Twenty (tối đa 15 phút).</div><div class="em-ok" id="emTestOk" hidden></div></div>
+            <div class="form-group-clean" id="emResendRow"><label for="emResendTo">Gửi lại cho một người</label><div style="display:flex;gap:8px;"><input type="email" id="emResendTo" placeholder="email người nhận" /><button type="button" class="crm-btn sm" id="emResendBtn">Gửi lại</button></div><div style="margin-top:6px;"><button type="button" class="crm-btn sm danger" id="emResendAll">Đặt lại toàn bộ (gửi lại cho tất cả)</button></div></div>
+          </div></div>
+          <div class="em-mdf"><button type="button" class="crm-btn sm danger" id="emDel">Xoá email</button><div style="display:flex;gap:8px;"><button type="button" class="crm-btn sm" id="emCancel">Huỷ</button><button type="button" class="crm-btn sm accent" id="emSave">Lưu</button></div></div>
+        </div></div>
 
         <div class="crm-card" style="margin-top:20px;">
           <div class="crm-card-head"><h2><span>Tạo link theo dõi (UTM)</span></h2></div>
@@ -1257,6 +1312,7 @@
 
   <input type="file" id="admReplaceInput" hidden />
   <script src="assets/js/admin-events.js"></script>
+  <script src="assets/js/admin-event-emails.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

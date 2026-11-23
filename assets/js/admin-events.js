@@ -77,7 +77,7 @@
   }
 
   async function load() {
-    try { events = (await api('/api/admin/events', { cache: 'no-store' })).events || []; updateKpis(); render(); }
+    try { events = (await api('/api/admin/events', { cache: 'no-store' })).events || []; updateKpis(); render(); if (window.AdminEventEmails) window.AdminEventEmails.load(); }
     catch (err) { $('aeList').innerHTML = `<div class="adm-empty">Lỗi tải dữ liệu: ${esc(err.message)}</div>`; }
   }
 
@@ -87,7 +87,6 @@
     $('aeForm').reset();
     $('aeFormTitle').textContent = 'Thêm sự kiện mới';
     $('aeCancel').hidden = true; $('aeBannerNote').textContent = '';
-    $('aeEmailPreviewBtn').hidden = true; $('aeEmailPreview').hidden = true;
     $('aeSummaryHint').textContent = '0/220 ký tự';
     $('aeMsg').hidden = true;
   }
@@ -98,8 +97,7 @@
     $('aeTitle').value = e.title; $('aeSummary').value = e.summary || ''; $('aeBody').value = e.body || '';
     $('aeStart').value = e.startLocal; $('aeEnd').value = e.endLocal; $('aeMode').value = e.mode; $('aeLocation').value = e.location || '';
     $('aeCapacity').value = e.capacity || ''; $('aeOpen').value = e.registrationOpen ? '1' : '0'; $('aeStatus').value = e.status;
-    $('aeJoinLink').value = e.joinLink || ''; $('aeEmailSubject').value = e.emailSubject || ''; $('aeEmailBody').value = e.emailBody || '';
-    $('aeEmailPreviewBtn').hidden = false; $('aeEmailPreview').hidden = true;
+    $('aeJoinLink').value = e.joinLink || '';
     $('aeBanner').value = ''; $('aeBannerNote').textContent = e.hasBanner ? '(đã có — chọn ảnh mới để thay)' : '';
     $('aeSummaryHint').textContent = `${$('aeSummary').value.length}/220 ký tự`;
     $('aeCancel').hidden = false; $('aeMsg').hidden = true;
@@ -125,7 +123,7 @@
       title: $('aeTitle').value, summary: $('aeSummary').value, body: $('aeBody').value,
       startLocal: $('aeStart').value, endLocal: $('aeEnd').value, mode: $('aeMode').value, location: $('aeLocation').value,
       capacity: $('aeCapacity').value, registrationOpen: $('aeOpen').value === '1',
-      joinLink: $('aeJoinLink').value, emailSubject: $('aeEmailSubject').value, emailBody: $('aeEmailBody').value,
+      joinLink: $('aeJoinLink').value,
     };
     const btn = $('aeSubmit'); const prog = $('aeProgress');
     btn.disabled = true; prog.hidden = false; prog.querySelector('i').style.width = '15%'; $('aeMsg').hidden = true;
@@ -186,15 +184,6 @@
     if (!$('aeForm')) return;
     $('aeForm').addEventListener('submit', submit);
     $('aeCancel').addEventListener('click', resetForm);
-    $('aeEmailPreviewBtn').addEventListener('click', async () => {
-      if (!editingId) return;
-      try {
-        const d = await api(`/api/admin/events/${editingId}/email-preview`, { cache: 'no-store' });
-        $('aeEmailPreviewSubject').textContent = 'Tiêu đề: ' + d.subject;
-        $('aeEmailPreviewFrame').srcdoc = d.html;
-        $('aeEmailPreview').hidden = false;
-      } catch (err) { msg(err.message, true); }
-    });
     $('aeList').addEventListener('click', onListClick);
     $('aeSummary').addEventListener('input', () => { $('aeSummaryHint').textContent = `${$('aeSummary').value.length}/220 ký tự`; });
     ['utmEvent', 'utmChannel', 'utmCampaign', 'utmContent', 'utmSource', 'utmMedium'].forEach((id) => $(id).addEventListener('input', buildLink));

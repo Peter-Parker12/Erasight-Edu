@@ -1,0 +1,45 @@
+/* Admin: "Email theo lịch" (scheduled event emails) */
+.em-card h2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.em-hint { color: #4A6572; font-size: 12.5px; margin: 0 0 14px; }
+.em-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: #E2F5F3; color: #07736C; white-space: nowrap; }
+.em-badge.o { background: #FDE7D6; color: #b34700; } .em-badge.g { background: #e8eef0; color: #4A6572; } .em-badge.r { background: #fde8e8; color: #9b1c1c; }
+.em-pick { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; }
+.em-pick .form-group-clean { margin: 0; min-width: 280px; flex: 1 1 280px; }
+.em-tl { display: flex; align-items: flex-start; overflow-x: auto; padding: 8px 0 4px; }
+.em-nd { flex: 1 0 118px; min-width: 118px; text-align: center; position: relative; }
+.em-nd:before { content: ''; position: absolute; top: 11px; left: -50%; right: 50%; height: 3px; background: #0DA096; }
+.em-nd:first-child:before { display: none; }
+.em-nd.cut:before { background: repeating-linear-gradient(90deg, #c7d3d3 0 6px, transparent 6px 11px); }
+.em-dot { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 50%; background: #0DA096; color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center; margin: 0 auto 6px; }
+.em-nd.lc .em-dot { background: #E85D04; width: 28px; height: 28px; margin-top: -2px; } .em-nd.ev .em-dot { background: #0C2A3A; border-radius: 8px; }
+.em-nd.no .em-dot { background: #9fb8c0; } .em-nd.x .em-dot { background: #c7d3d3; } .em-nd.off .em-dot { opacity: .45; }
+.em-nd b { display: block; font-size: 12.5px; overflow-wrap: anywhere; padding: 0 4px; } .em-nd small { color: #4A6572; font-size: 11.5px; }
+.em-nd.x b, .em-nd.x small { text-decoration: line-through; color: #98a9ad; }
+.em-zone { background: #E2F5F3; border: 1px dashed #0DA096; color: #07736C; border-radius: 10px; padding: 8px 12px; margin-top: 10px; font-size: 12.5px; }
+.em-start { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 12px; }
+.em-start .form-group-clean { margin: 0; }
+.em-tbl { width: 100%; border-collapse: collapse; }
+.em-tbl th { font-size: 11.5px; text-align: left; color: #4A6572; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid #DDE7E7; }
+.em-tbl td { padding: 10px 8px; border-bottom: 1px solid #eef3f3; vertical-align: middle; font-size: 13px; }
+.em-tbl tr.x td { color: #98a9ad; } .em-tbl tr.x .em-t { text-decoration: line-through; } .em-t { font-weight: 600; overflow-wrap: anywhere; } .em-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.em-empty { padding: 16px; text-align: center; color: #6b8590; font-size: 13px; border: 1px dashed #DDE7E7; border-radius: 10px; }
+.em-scroll { overflow-x: auto; }
+.em-ov { position: fixed; inset: 0; background: rgba(12,42,58,.6); z-index: 3000; display: none; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow: auto; }
+.em-ov.on { display: flex; }
+.em-md { background: #fff; border-radius: 18px; max-width: 1080px; width: 100%; }
+.em-mdh { display: flex; justify-content: space-between; align-items: center; padding: 16px 22px; border-bottom: 1px solid #DDE7E7; } .em-mdh h3 { margin: 0; font-size: 16px; }
+.em-mdb { display: grid; grid-template-columns: 1fr 1fr; } .em-mdb > div { padding: 20px 22px; min-width: 0; }
+.em-mdb > div + div { background: #f6fafa; border-left: 1px solid #DDE7E7; border-radius: 0 0 18px 0; }
+@media (max-width: 900px) { .em-mdb { grid-template-columns: 1fr; } .em-mdb > div + div { border-left: 0; border-top: 1px solid #DDE7E7; border-radius: 0 0 18px 18px; } }
+.em-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } @media (max-width: 560px) { .em-row2 { grid-template-columns: 1fr; } }
+.em-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
+.em-chip { font: 600 11.5px monospace; background: #E2F5F3; color: #07736C; border: 0; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+.em-calc { background: #E2F5F3; color: #07736C; border-radius: 8px; padding: 7px 10px; font-size: 12.5px; font-weight: 600; margin-top: 6px; }
+.em-check { display: flex; gap: 8px; align-items: center; font-size: 13px; margin: 0 0 12px; font-weight: 500; } .em-check input { width: auto; }
+.em-pv { background: #fff; border: 1px solid #DDE7E7; border-radius: 12px; overflow: hidden; }
+.em-pvs { padding: 9px 14px; background: #f1f6f6; border-bottom: 1px solid #DDE7E7; font-weight: 700; font-size: 13px; overflow-wrap: anywhere; }
+.em-pvf { width: 100%; height: 400px; border: 0; background: #fff; display: block; }
+.em-stat { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; } .em-stat span { background: #fff; border: 1px solid #DDE7E7; border-radius: 10px; padding: 7px 11px; font-size: 12.5px; } .em-stat b { font-size: 15px; }
+.em-mdf { padding: 14px 22px; border-top: 1px solid #DDE7E7; display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.em-err { background: #FDECEC; color: #8A1F1F; border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 10px; } .em-ok { background: #E2F5F3; color: #07736C; border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-top: 8px; }
+.em-ov [hidden], .em-card [hidden] { display: none !important; }
