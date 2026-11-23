@@ -294,7 +294,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     const main = `
     <div class="wrap ev-detail">
       <nav class="res-breadcrumb ev-crumb" aria-label="Breadcrumb"><a href="/Homepage">Trang chủ</a><span>›</span><a href="/su-kien">Sự kiện</a><span>›</span><span aria-current="page">${esc(cut(e.title, 60))}</span></nav>
-      <div class="ev-hero"><img src="${bannerUrl(e)}" alt="${esc(e.title)}" width="1280" height="480" />${badge(e)}</div>
+      <div class="ev-hero"><img src="${bannerUrl(e)}" alt="${esc(e.title)}" width="1280" height="720" />${badge(e)}</div>
       <div class="ev-layout">
         <article class="ev-content">
           <div class="ev-kicker">${modeLabel(e).toUpperCase()}${p === 'past' ? ' · ĐÃ DIỄN RA' : ''}</div>

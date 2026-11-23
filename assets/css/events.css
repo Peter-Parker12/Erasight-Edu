@@ -38,7 +38,7 @@
 /* Detail */
 .ev-detail { padding-bottom: 72px; }
 .ev-crumb { padding: 22px 0 14px; }
-.ev-hero { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 8 / 3; background: var(--pl); }
+.ev-hero { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--pl); } /* same ratio as the recommended banner (1280x720): shown in full, never cropped */
 .ev-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ev-hero .ev-badge { top: 16px; left: 16px; font-size: 12.5px; padding: 6px 14px; }
 .ev-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; margin-top: 34px; align-items: start; }
@@ -72,6 +72,6 @@
   .ev-grid, .ev-grid--2 { grid-template-columns: 1fr; }
   .ev-section { padding-top: 36px; }
   .ev-head h2 { font-size: 24px; }
-  .ev-hero { aspect-ratio: 16 / 9; border-radius: 16px; }
+  .ev-hero { border-radius: 16px; }
   .ev-content h1 { font-size: 28px; }
 }
