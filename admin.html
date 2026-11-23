@@ -1172,6 +1172,21 @@
               <div class="ev-pane em-card" id="emCard" role="tabpanel" aria-labelledby="evTabEmails" hidden>
                 <div class="ev-pane-intro"><p class="em-hint" style="margin:0;">Soạn sẵn email seeding / thông báo cho sự kiện này. Twenty CRM kiểm tra mỗi 15 phút và gửi cho các lead đến hạn (tên và email lấy từ CRM).</p><div id="emEventInfo"></div></div>
           <div id="emBody" hidden>
+            <div class="em-test" id="emTest">
+              <div class="em-test-head">
+                <label class="em-switch"><input type="checkbox" id="emTestOn" role="switch" /><span class="em-switch-ui" aria-hidden="true"></span><b>Chế độ thử nghiệm</b></label>
+                <span class="em-badge o" id="emTestBadge" hidden></span>
+                <button type="button" class="crm-btn sm" id="emTestRefresh" style="margin-left:auto;">↻ Cập nhật trạng thái</button>
+              </div>
+              <p class="em-hint">Khi bật, lịch gửi chạy thật (đúng giờ, tên lấy từ CRM, gửi qua workflow Twenty) nhưng <b>chỉ gửi cho các lead dưới đây</b> — kể cả khi sự kiện còn là bản nháp. Email “ngay khi đăng ký” chỉ gửi cho lead <b>đăng ký sự kiện này sau khi email được tạo</b>: hãy đăng ký trên trang sự kiện bằng email thử.</p>
+              <div class="em-testers" id="emTesters"></div>
+              <div class="em-lead-pick">
+                <input type="search" id="emLeadQ" placeholder="Thêm lead: tìm theo tên hoặc email trong Twenty, hoặc gõ email rồi Enter" autocomplete="off" aria-label="Tìm lead thử nghiệm" aria-controls="emLeadRes" />
+                <div class="em-lead-res" id="emLeadRes" role="listbox" hidden></div>
+              </div>
+              <div class="em-err" id="emTestErr" hidden></div>
+            </div>
+
             <h2 style="margin:18px 0 4px;font-size:15px;">Timeline</h2>
             <p class="em-hint" style="margin-bottom:6px;">Email nằm sau thời điểm sự kiện bắt đầu sẽ bị huỷ tự động (gạch ngang).</p>
             <div class="em-tl" id="emTimeline"></div><div class="em-zone" id="emZone"></div>

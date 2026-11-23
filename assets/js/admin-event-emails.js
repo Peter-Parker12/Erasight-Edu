@@ -12,6 +12,7 @@
   const JH = Object.assign({ 'Content-Type': 'application/json' }, HDR);
   const FIELDS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url'];
 
+  let testerInfo = new Map(); let leadTimer = null; let leadSeq = 0; let leadIdx = -1;
   let ov = null; let evId = null; let editing = null; let previewTimer = null; let previewSeq = 0;
 
   async function api(url, opts) {
@@ -29,7 +30,7 @@
 
   // ---- Load (the event is chosen in the event detail panel, admin-events.js) ----
   async function show(id) {
-    if (id !== evId) closeEditor();
+    if (id !== evId) { closeEditor(); testerInfo = new Map(); hideLeads(); $('emLeadQ').value = ''; $('emTestErr').hidden = true; }
     evId = id || null;
     await loadOverview();
   }
@@ -38,13 +39,16 @@
     $('emBody').hidden = !evId;
     if (!evId) { $('emEventInfo').innerHTML = ''; return; }
     const want = evId;
-    try { const d = await api(`/api/admin/events/${want}/emails`, { cache: 'no-store' }); if (want !== evId) return; ov = d; render(); }
+    try { const d = await api(`/api/admin/events/${want}/emails`, { cache: 'no-store' }); if (want !== evId) return; ov = d; render(); loadTesters(false); }
     catch (e) { if (want !== evId) return; $('emBody').hidden = true; $('emEventInfo').innerHTML = `<span class="em-badge r">${esc(e.message)}</span>`; }
   }
 
   // ---- Render ----------------------------------------------------------------
   function render() {
-    $('emEventInfo').innerHTML = `<span class="em-badge ${ov.published ? '' : 'g'}">${ov.published ? 'Đã xuất bản' : 'Bản nháp — chưa gửi email'}</span> <span class="em-badge g">Sự kiện: ${esc(fmtFull(ov.eventStartLocal))}</span>`;
+    const tm = ov.testMode || { on: false, emails: [] };
+    const pub = ov.published ? '<span class="em-badge">Đã xuất bản</span>' : `<span class="em-badge g">${tm.on ? 'Bản nháp' : 'Bản nháp — chưa gửi email'}</span>`;
+    $('emEventInfo').innerHTML = `${pub} ${tm.on ? `<span class="em-badge o">Thử nghiệm: chỉ gửi cho ${tm.emails.length} lead</span> ` : ''}<span class="em-badge g">Sự kiện: ${esc(fmtFull(ov.eventStartLocal))}</span>`;
+    renderTest();
     // timeline
     const nodes = ov.timeline.nodes;
     $('emTimeline').innerHTML = nodes.length ? nodes.map((n, i) => {
@@ -82,6 +86,105 @@
     $('emLastBox').innerHTML = ln
       ? `<table class="em-tbl"><tr><td class="em-t">${esc(ln.name)}</td><td>Gửi ngay sau khi đăng ký</td><td>${ln.enabled ? '<span class="em-badge">Bật</span>' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${ln.sent} đã gửi</td><td style="text-align:right"><button type="button" class="crm-btn sm" data-edit="${esc(ln.id)}">Sửa</button></td></tr></table>`
       : '<div class="em-empty">Chưa có. <button type="button" class="crm-btn sm accent" id="emAddLast">+ Tạo email thông báo cuối</button></div>';
+  }
+
+  // ---- Test mode -------------------------------------------------------------
+  function testTags(em) {
+    const i = testerInfo.get(em);
+    if (!i) return '<span class="em-badge g">…</span>';
+    if (!i.inCrm) return '<span class="em-badge r">Không có trong CRM</span>';
+    const reg = i.registered ? '<span class="em-badge">Đã đăng ký sự kiện</span>' : '<span class="em-badge g">Chưa đăng ký sự kiện</span>';
+    return reg + (i.optOut ? ' <span class="em-badge r">Đã huỷ nhận email</span>' : '');
+  }
+  function leadRow(name, email, tags) {
+    return `<span class="em-tester-main"><b>${esc(name || email)}</b>${name ? `<small>${esc(email)}</small>` : ''}</span><span class="em-tester-tags">${tags}</span>`;
+  }
+
+  function renderTest() {
+    const tm = ov.testMode || { on: false, emails: [], max: 20 };
+    $('emTest').classList.toggle('on', tm.on);
+    $('emTestOn').checked = tm.on;
+    $('emTestBadge').hidden = !tm.on;
+    $('emTestBadge').textContent = `Đang bật — chỉ gửi cho ${tm.emails.length} lead`;
+    $('emTesters').innerHTML = tm.emails.length
+      ? tm.emails.map((em) => `<div class="em-tester">${leadRow((testerInfo.get(em) || {}).name, em, testTags(em))}<button type="button" class="em-x" data-unt="${esc(em)}" aria-label="Bỏ ${esc(em)} khỏi danh sách thử">×</button></div>`).join('')
+      : '<div class="em-empty">Chưa có lead thử nghiệm. Tìm và thêm lead bên dưới (ví dụ chính email của bạn).</div>';
+    const full = tm.emails.length >= (tm.max || 20);
+    $('emLeadQ').disabled = full;
+    $('emLeadQ').placeholder = full ? `Đã đủ ${tm.max} lead thử nghiệm` : 'Thêm lead: tìm theo tên hoặc email trong Twenty, hoặc gõ email rồi Enter';
+  }
+
+  function testErr(text) { $('emTestErr').textContent = text || ''; $('emTestErr').hidden = !text; }
+
+  async function loadTesters(fresh) {
+    if (!evId || !ov || !(ov.testMode && ov.testMode.emails.length)) return;
+    const want = evId;
+    try {
+      const d = await api(`/api/admin/events/${want}/emails/leads?selected=1${fresh ? '&fresh=1' : ''}`, { cache: 'no-store' });
+      if (want !== evId) return;
+      for (const l of d.leads) testerInfo.set(l.email, l);
+      renderTest(); testErr('');
+    } catch (e) { if (want === evId) testErr(e.message); }
+  }
+
+  async function saveTest(patch) {
+    testErr('');
+    try { ov = await api(`/api/admin/events/${evId}/emails`, { method: 'PATCH', headers: JH, body: JSON.stringify({ testMode: patch }) }); render(); loadTesters(false); return true; }
+    catch (e) { testErr(e.message); render(); return false; }
+  }
+
+  function addTester(email) {
+    email = String(email || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { testErr('Email không hợp lệ.'); return; }
+    const list = ov.testMode.emails;
+    if (list.includes(email)) { testErr('Lead này đã có trong danh sách thử.'); return; }
+    $('emLeadQ').value = ''; hideLeads();
+    saveTest({ emails: [...list, email] });
+  }
+
+  function removeTester(email) {
+    const list = ov.testMode.emails.filter((x) => x !== email);
+    if (ov.testMode.on && !list.length) {
+      if (!confirm('Đây là lead thử cuối cùng. Bỏ lead này sẽ tắt chế độ thử nghiệm. Tiếp tục?')) return;
+      return toggleTest(false, list);
+    }
+    saveTest({ emails: list });
+  }
+
+  async function toggleTest(on, emails) {
+    if (!on) {
+      const warn = ov.published
+        ? 'Tắt chế độ thử nghiệm?\n\nSự kiện đã xuất bản: từ lần chạy tiếp theo, email sẽ gửi cho TẤT CẢ lead đủ điều kiện.\nLịch sử gửi của các lead thử sẽ được xoá (họ được tính như người nhận thật).'
+        : 'Tắt chế độ thử nghiệm?\n\nSự kiện đang là bản nháp nên sẽ không gửi email nào cho đến khi xuất bản.\nLịch sử gửi của các lead thử sẽ được xoá.';
+      if (!confirm(warn)) { $('emTestOn').checked = true; return; }
+    }
+    await saveTest(emails ? { on, emails } : { on });
+  }
+
+  // lead search dropdown
+  function hideLeads() { $('emLeadRes').hidden = true; leadIdx = -1; }
+  function queueSearch() { clearTimeout(leadTimer); leadTimer = setTimeout(searchLeads, 250); }
+  async function searchLeads() {
+    if (!evId || $('emLeadQ').disabled) return;
+    const seq = ++leadSeq; const q = $('emLeadQ').value.trim();
+    const box = $('emLeadRes');
+    box.hidden = false; box.innerHTML = '<div class="em-lead-none">Đang tìm trong Twenty...</div>';
+    try {
+      const d = await api(`/api/admin/events/${evId}/emails/leads?q=${encodeURIComponent(q)}`, { cache: 'no-store' });
+      if (seq !== leadSeq) return;
+      const taken = new Set(ov.testMode.emails);
+      for (const l of d.leads) if (!testerInfo.has(l.email)) testerInfo.set(l.email, l);
+      const typed = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(q) && !d.leads.some((l) => l.email === q.toLowerCase());
+      box.innerHTML = (d.leads.length ? d.leads.map((l) => `<button type="button" class="em-lead-opt" role="option" data-add="${esc(l.email)}" ${taken.has(l.email) ? 'disabled' : ''}>${leadRow(l.name, l.email, taken.has(l.email) ? '<span class="em-badge g">Đã thêm</span>' : (l.registered ? '<span class="em-badge">Đã đăng ký</span>' : ''))}</button>`).join('') : '')
+        + (typed ? `<button type="button" class="em-lead-opt" role="option" data-add="${esc(q.toLowerCase())}">${leadRow('', q.toLowerCase(), '<span class="em-badge r">Không có trong CRM</span>')}</button>` : '')
+        || `<div class="em-lead-none">${q ? 'Không tìm thấy lead nào.' : 'Chưa có lead trong Twenty.'}</div>`;
+      leadIdx = -1;
+    } catch (e) { if (seq === leadSeq) box.innerHTML = `<div class="em-lead-none">${esc(e.message)}</div>`; }
+  }
+  function moveLead(dir) {
+    const opts = Array.from($('emLeadRes').querySelectorAll('.em-lead-opt:not([disabled])')); if (!opts.length) return;
+    leadIdx = (leadIdx + dir + opts.length) % opts.length;
+    opts.forEach((o, i) => o.classList.toggle('on', i === leadIdx)); opts[leadIdx].scrollIntoView({ block: 'nearest' });
   }
 
   // ---- Editor ----------------------------------------------------------------
@@ -209,6 +312,23 @@
     if (!$('emCard')) return;
     buildChips();
     $('emSeedSave').addEventListener('click', saveStart);
+    $('emTestOn').addEventListener('change', () => toggleTest($('emTestOn').checked));
+    $('emTestRefresh').addEventListener('click', () => loadTesters(true));
+    $('emTesters').addEventListener('click', (e) => { const b = e.target.closest('[data-unt]'); if (b) removeTester(b.dataset.unt); });
+    $('emLeadQ').addEventListener('input', queueSearch);
+    $('emLeadQ').addEventListener('focus', () => { if ($('emLeadRes').hidden) queueSearch(); });
+    $('emLeadQ').addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if ($('emLeadRes').hidden) searchLeads(); else moveLead(e.key === 'ArrowDown' ? 1 : -1); }
+      else if (e.key === 'Escape') hideLeads();
+      else if (e.key === 'Enter') {
+        e.preventDefault();
+        const hl = $('emLeadRes').querySelector('.em-lead-opt.on');
+        if (hl) addTester(hl.dataset.add); else if ($('emLeadQ').value.trim()) addTester($('emLeadQ').value);
+      }
+    });
+    $('emLeadRes').addEventListener('mousedown', (e) => e.preventDefault()); // keep focus in the input
+    $('emLeadRes').addEventListener('click', (e) => { const b = e.target.closest('[data-add]'); if (b && !b.disabled) addTester(b.dataset.add); });
+    $('emLeadQ').addEventListener('blur', () => setTimeout(hideLeads, 120));
     $('emAddSeed').addEventListener('click', () => openEditor('seeding'));
     $('emAddNot').addEventListener('click', () => openEditor('notification'));
     $('emCard').addEventListener('click', (e) => {

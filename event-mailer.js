@@ -12,6 +12,9 @@
 //     GET  .../:mid/preview?name=  GET .../:mid/recipients   preview | counts + sample names
 //     POST .../:mid/resend {email} | {all:true}              clear "already sent" so it goes out again
 //     POST .../:mid/test {to}                                queued into the next poll
+//     GET  .../emails/leads?q= | ?selected=1                 search CRM leads | status of the test-mode leads
+//   Test mode (PATCH .../emails { testMode: {on, emails[]} }): the real scheduler runs for this event (even as a
+//   draft) but only for the listed leads. Turning it off clears those leads' send history for this event.
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -21,6 +24,7 @@ const STALE_MS = 6 * HOUR;          // a fixed-time email first seen this late i
 const ENROLL_GRACE_MS = 1 * HOUR;   // a lead whose sequence start is further in the past than this starts "now"
 const MAX_EMAILS = 20;
 const MAX_OFFSET_H = 24 * 90;
+const MAX_TESTERS = 20;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
 module.exports = function init(ctx) {
@@ -123,6 +127,24 @@ module.exports = function init(ctx) {
     return [...byEmail.values()].map((p) => Object.assign(p, {
       name: p.regName || p.name, item: p.regItem || p.item, optOut: p.optOut || optOut.has(p.email),
     }));
+  }
+
+  // ---- Test mode: only the listed leads are considered ------------------------------
+  const testOn = (ev) => !!(ev.testMode && ev.testMode.on);
+  const testers = (ev) => (ev.testMode && Array.isArray(ev.testMode.emails) ? ev.testMode.emails : []);
+  function audienceFor(ev, leads) {
+    const people = peopleFor(ev, leads);
+    if (!testOn(ev)) return people;
+    const only = new Set(testers(ev));
+    return people.filter((p) => only.has(p.email));
+  }
+  // An event takes part in sending when it is published, or when it is in test mode (drafts can be tested).
+  const sendable = (ev) => ev.status === 'published' || testOn(ev);
+
+  // Forget what was sent / cancelled / enrolled for these addresses on this event, so they start fresh.
+  function resetFor(ev, emails) {
+    const ids = ['seq:' + ev.id, ...mailsOf(ev).map((m) => m.id)];
+    for (const em of emails) for (const id of ids) if (state.has(key(id, em))) ledger({ k: 'reset', e: id, r: em });
   }
 
   // ---- Scheduling ------------------------------------------------------------------
@@ -230,7 +252,7 @@ module.exports = function init(ctx) {
   function dueBatch() {
     const run = async () => {
       const t = now();
-      const evs = getEvents().filter((e) => e.status === 'published' && t < h.startMs(e) && mailsOf(e).some((m) => m.enabled));
+      const evs = getEvents().filter((e) => sendable(e) && t < h.startMs(e) && mailsOf(e).some((m) => m.enabled));
       const items = [];
       const tests = testQueue; testQueue = [];
       for (const q of tests) {
@@ -242,7 +264,7 @@ module.exports = function init(ctx) {
       if (evs.length) {
         const leads = await fetchLeads(); // throws -> nothing is claimed
         for (const ev of evs) {
-          const people = peopleFor(ev, leads);
+          const people = audienceFor(ev, leads);
           for (const en of evaluate(ev, people, t, true)) if (en.status === 'due') due.push(Object.assign(en, { ev }));
         }
       }
@@ -252,7 +274,7 @@ module.exports = function init(ctx) {
       for (const en of take) {
         ledger({ k: 'sent', e: en.mail.id, r: en.person.email });
         const r = renderFor(en.ev, en.mail, en.person);
-        items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id });
+        items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
       }
       return { ok: true, count: items.length, remaining: due.length - take.length, items };
     };
@@ -323,6 +345,7 @@ module.exports = function init(ctx) {
       eventId: ev.id, eventTitle: ev.title, eventStartLocal: h.toLocal(ev.startAt), published: ev.status === 'published',
       seedingStartLocal: ev.seedingStartAt ? h.toLocal(ev.seedingStartAt) : '',
       emails: mailsOf(ev).map((m) => adminMail(ev, m)), timeline: timeline(ev), batchMax: BATCH_MAX,
+      testMode: { on: testOn(ev), emails: testers(ev), max: MAX_TESTERS },
     };
   }
 
@@ -376,13 +399,29 @@ module.exports = function init(ctx) {
   async function admin(req, res, pathname) {
     if (!isAdmin(req)) return send(res, 401, { error: 'Login required' });
     if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'erasight-admin') return send(res, 403, { error: 'Bad request' });
-    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test))?)?$/);
+    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview|leads)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test))?)?$/);
     if (!m) return send(res, 404, { error: 'Not found' });
     const [, evId, colPreview, mailId, sub] = m;
     const ev = getEvents().find((x) => x.id === evId);
     if (!ev) return send(res, 404, { error: 'Not found' });
     if (!ev.emails) ev.emails = [];
 
+    if (colPreview === 'leads') { // lead picker for test mode
+      if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
+      const q = new URL(req.url, 'http://x').searchParams;
+      let people;
+      try { people = peopleFor(ev, await fetchLeads(q.get('fresh') === '1')); } catch (e) { if (e.status) throw e; return send(res, 502, { error: 'Không đọc được danh sách lead từ Twenty' }); }
+      const view = (p) => ({ email: p.email, name: p.name || '', registered: p.registeredAt != null, registeredAt: p.registeredAt ? new Date(p.registeredAt).toISOString() : null, optOut: !!p.optOut, inCrm: true });
+      if (q.get('selected') === '1') {
+        const byEmail = new Map(people.map((p) => [p.email, p]));
+        return send(res, 200, { leads: testers(ev).map((em) => (byEmail.has(em) ? view(byEmail.get(em)) : { email: em, name: '', registered: false, optOut: optOut.has(em), inCrm: false })) });
+      }
+      const fold = (x) => h.norm(x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'); // "nguyen" finds "Nguyễn"
+      const term = fold(q.get('q') || '');
+      const hits = people.filter((p) => !term || fold(p.email).includes(term) || fold(p.name).includes(term))
+        .sort((a, b) => (b.registeredAt != null) - (a.registeredAt != null) || b.created - a.created).slice(0, 12);
+      return send(res, 200, { leads: hits.map(view) });
+    }
     if (colPreview) { // live preview of text that is not saved yet
       if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
       const b = await readJson(req, 64 * 1024);
@@ -396,6 +435,19 @@ module.exports = function init(ctx) {
         if (b.seedingStartLocal !== undefined) {
           if (b.seedingStartLocal === '') ev.seedingStartAt = null;
           else { const at = h.parseLocal(b.seedingStartLocal); if (!at) throw fail(400, 'Thời gian bắt đầu sequence chưa hợp lệ'); ev.seedingStartAt = at; }
+        }
+        if (b.testMode !== undefined) {
+          const tm = b.testMode || {};
+          const list = [...new Set((Array.isArray(tm.emails) ? tm.emails : testers(ev)).map((x) => String(x || '').trim().toLowerCase()).filter(Boolean))];
+          const bad = list.find((x) => !EMAIL_RE.test(x));
+          if (bad) throw fail(400, `Email không hợp lệ: ${bad}`);
+          if (list.length > MAX_TESTERS) throw fail(400, `Tối đa ${MAX_TESTERS} lead thử nghiệm`);
+          const on = tm.on === undefined ? testOn(ev) : !!tm.on;
+          if (on && !list.length) throw fail(400, 'Hãy thêm ít nhất một lead thử nghiệm trước khi bật');
+          const before = testers(ev);
+          if (testOn(ev) && !on) resetFor(ev, before);                                   // leaving test mode: testers start fresh
+          else if (on) resetFor(ev, before.filter((x) => !list.includes(x)));            // removed testers start fresh too
+          ev.testMode = { on, emails: list };
         }
         saveEvents();
         return send(res, 200, overview(ev));
@@ -432,7 +484,7 @@ module.exports = function init(ctx) {
     }
     if (sub === 'recipients') {
       let people;
-      try { people = peopleFor(ev, await fetchLeads(true)); } catch (e) { if (e.status) throw e; return send(res, 502, { error: 'Không đọc được danh sách lead từ Twenty' }); }
+      try { people = audienceFor(ev, await fetchLeads(true)); } catch (e) { if (e.status) throw e; return send(res, 502, { error: 'Không đọc được danh sách lead từ Twenty' }); }
       const ens = evaluate(ev, people, now(), false, real).filter((e) => e.mail.id === real.id);
       const by = (s) => ens.filter((e) => e.status === s);
       const sample = ens.filter((e) => e.status === 'due' || e.status === 'wait').slice(0, 8).map((e) => ({ name: e.person.name || '(không tên)', email: e.person.email }));
@@ -510,5 +562,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { workflowDue, admin, unsubscribe, dueBatch, evaluate, peopleFor, _state: state, _counts: counts, _optOut: optOut };
+  return { workflowDue, admin, unsubscribe, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };
