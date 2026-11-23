@@ -96,23 +96,18 @@ async function enroll({ name, phone, email, courses, utm }) {
   if (!picked.length || picked.some((c) => !c)) {
     const err = new Error('Unknown course'); err.status = 400; throw err;
   }
+  // Everything about the registration lives on the Lead itself (the Lead Course junction is gone):
+  // one chip per course in `courseList`, plus the joined names in `requestedItem`.
+  const names = picked.map((c) => c.name);
   const lead = await twenty('POST', '/leads', {
     name,
     emails: { primaryEmail: email },
     phones: normalizePhone(phone),
     status: 'NEW',
-    ...attribution.leadFields({ type: 'course', requestedItem: picked.map((c) => c.name).join(' + '), utm }),
+    courseList: names,
+    ...attribution.leadFields({ type: 'course', requestedItem: names.join(' + '), utm }),
   });
-  const leadId = findId(lead);
-  if (!leadId) throw new Error('Lead created but id missing in response');
-  for (const c of picked) {
-    try {
-      await twenty('POST', '/leadCourses', { name: `${name} - ${c.name}`, leadId, courseId: c.id });
-    } catch (e) {
-      console.error('leadCourse link failed (lead kept):', leadId, e.message);
-    }
-  }
-  return leadId;
+  return findId(lead);
 }
 
 // ---- HTTP -----------------------------------------------------------------
