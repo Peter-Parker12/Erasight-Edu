@@ -434,7 +434,9 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     // Reserve synchronously (before any await) so concurrent requests can never exceed the capacity.
     const idx = regEntry(ev.id);
     const rec = { at: new Date().toISOString(), eventId: ev.id, event: ev.title, name, phone, email, utm: attribution.parse(b.utm) };
-    if (keysOf(rec).some((k) => idx.keys.has(k))) return send(res, 200, { ok: true, duplicate: true, seatsLeft: seatsLeft(ev) }); // already registered: no second lead
+    // TODO(TESTING): duplicate-registration rule is switched off so the same phone/email can register repeatedly while testing.
+    // RE-ENABLE AFTER THE PRODUCTION DEPLOYMENT (uncomment the next line):
+    // if (keysOf(rec).some((k) => idx.keys.has(k))) return send(res, 200, { ok: true, duplicate: true, seatsLeft: seatsLeft(ev) }); // already registered: no second lead
     if (ev.capacity && idx.count >= ev.capacity) throw fail(409, 'Sự kiện đã đủ chỗ');
     indexReg(rec);
     fs.appendFile(REG_FILE, JSON.stringify(rec) + '\n', () => {});
