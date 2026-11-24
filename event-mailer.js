@@ -466,7 +466,7 @@ module.exports = function init(ctx) {
   async function admin(req, res, pathname) {
     if (!isAdmin(req)) return send(res, 401, { error: 'Login required' });
     if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'erasight-admin') return send(res, 403, { error: 'Bad request' });
-    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview|leads|sanitize|images)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test))?)?$/);
+    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/emails(?:\/(preview|leads|sanitize|images)|\/([a-f0-9]{12})(?:\/(preview|recipients|resend|test|sent))?)?$/);
     if (!m) return send(res, 404, { error: 'Not found' });
     const [, evId, colPreview, mailId, sub] = m;
     const ev = getEvents().find((x) => x.id === evId);
@@ -580,10 +580,23 @@ module.exports = function init(ctx) {
       const sample = ens.filter((e) => e.status === 'due' || e.status === 'wait').slice(0, 8).map((e) => ({ name: e.person.name || '(không tên)', email: e.person.email }));
       return send(res, 200, { eligible: ens.length, sent: by('sent').length, cancelled: by('cancelled').length + by('cancel').length, due: by('due').length, pending: by('pending').length, failed: by('failed').length, waiting: by('wait').length, sample, enabled: !!real.enabled });
     }
+    if (sub === 'sent') { // who the server has handed this mail to, oldest first (ledger order = the order the workflow loops over them)
+      const t = now(); const pre = mailId + '|'; const rows = [];
+      for (const [k, st] of state) {
+        if (!k.startsWith(pre)) continue; const em = k.slice(pre.length);
+        if (em.startsWith('cc:') || !(st.sentAt || st.claimAt)) continue;
+        rows.push({ email: em, status: st.sentAt ? 'sent' : pendingNow(st, t) ? 'pending' : failedNow(st, t) ? 'failed' : 'unconfirmed', at: new Date(st.sentAt || st.claimAt).toISOString(), attempts: st.attempts || 0 });
+      }
+      return send(res, 200, { total: rows.length, recipients: rows });
+    }
     if (sub === 'resend') {
       if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
       const b = await readJson(req, 4096);
-      if (b.all === true) ledger({ k: 'reset', e: mailId, r: '*' });
+      if (Array.isArray(b.emails)) {
+        const list = [...new Set(b.emails.map((x) => String(x || '').trim().toLowerCase()))];
+        if (!list.length || list.length > 500 || list.some((x) => !EMAIL_RE.test(x))) throw fail(400, 'Danh sách email không hợp lệ (1–500 email)');
+        for (const em of list) if (state.has(key(mailId, em))) ledger({ k: 'reset', e: mailId, r: em });
+      } else if (b.all === true) ledger({ k: 'reset', e: mailId, r: '*' });
       else { const em = String(b.email || '').trim().toLowerCase(); if (!EMAIL_RE.test(em)) throw fail(400, 'Email không hợp lệ'); ledger({ k: 'reset', e: mailId, r: em }); }
       return send(res, 200, overview(ev));
     }
