@@ -53,7 +53,7 @@ module.exports = function init(ctx) {
   function drop(k) {
     const s = state.get(k); if (!s) return;
     const id = k.slice(0, k.indexOf('|'));
-    if (s.sentAt) cnt(id).sent -= 1;
+    if (s.sentAt && !s.cc) cnt(id).sent -= 1;
     if (s.cancelAt) cnt(id).cancel -= 1;
     state.delete(k);
   }
@@ -66,6 +66,7 @@ module.exports = function init(ctx) {
     const k = key(row.e, row.r);
     const s = state.get(k) || {};
     if (row.k === 'enroll') s.enrolledAt = at;
+    else if (row.k === 'cc' && !s.sentAt) { s.sentAt = at; s.cc = true; } // internal copy: not counted as a lead send
     else if (row.k === 'sent' && !s.sentAt) { s.sentAt = at; cnt(row.e).sent += 1; }
     else if (row.k === 'cancel' && !s.cancelAt) { s.cancelAt = at; cnt(row.e).cancel += 1; }
     state.set(k, s);
@@ -137,6 +138,11 @@ module.exports = function init(ctx) {
       name: p.regName || p.name, item: p.regItem || p.item, optOut: p.optOut || optOut.has(p.email),
     }));
   }
+
+  // ---- Internal copies: staff who receive one copy of every seeding / notification mail when it goes out ----
+  const envCopy = () => String(process.env.INTERNAL_COPY_EMAILS || '').split(/[\s,;]+/).map((x) => x.trim().toLowerCase()).filter((x) => EMAIL_RE.test(x));
+  const copyList = (ev) => (ev.internalCopy && Array.isArray(ev.internalCopy) ? ev.internalCopy : []);
+  const copyAll = (ev) => [...new Set([...envCopy(), ...copyList(ev)])];
 
   // ---- Test mode: only the listed leads are considered ------------------------------
   const testOn = (ev) => !!(ev.testMode && ev.testMode.on);
@@ -287,6 +293,15 @@ module.exports = function init(ctx) {
         const r = renderFor(en.ev, en.mail, en.person);
         items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
       }
+      const mailsSent = new Map(); for (const en of take) mailsSent.set(en.mail.id, en);
+      for (const en of mailsSent.values()) {
+        for (const to of copyAll(en.ev)) {
+          if ((state.get(key(en.mail.id, 'cc:' + to)) || {}).sentAt) continue;
+          ledger({ k: 'cc', e: en.mail.id, r: 'cc:' + to });
+          const r = renderFor(en.ev, en.mail, { name: 'Erasight', email: to, item: en.ev.title, preview: true });
+          items.push({ to, name: 'Erasight', subject: '[BẢN SAO NỘI BỘ] ' + r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, internalCopy: true });
+        }
+      }
       return { ok: true, count: items.length, remaining: due.length - take.length, items };
     };
     const p = busy.then(run, run);
@@ -357,6 +372,7 @@ module.exports = function init(ctx) {
       seedingStartLocal: ev.seedingStartAt ? h.toLocal(ev.seedingStartAt) : '',
       emails: mailsOf(ev).map((m) => adminMail(ev, m)), timeline: timeline(ev), batchMax: BATCH_MAX,
       testMode: { on: testOn(ev), emails: testers(ev), max: MAX_TESTERS }, hasJoinLink: !!ev.joinLink,
+      internalCopy: { emails: copyList(ev), fromEnv: envCopy(), max: MAX_TESTERS },
     };
   }
 
@@ -483,6 +499,13 @@ module.exports = function init(ctx) {
           if (testOn(ev) && !on) resetFor(ev, before);                                   // leaving test mode: testers start fresh
           else if (on) resetFor(ev, before.filter((x) => !list.includes(x)));            // removed testers start fresh too
           ev.testMode = { on, emails: list };
+        }
+        if (b.internalCopy !== undefined) {
+          const list = [...new Set((Array.isArray(b.internalCopy) ? b.internalCopy : []).map((x) => String(x || '').trim().toLowerCase()).filter(Boolean))];
+          const bad = list.find((x) => !EMAIL_RE.test(x));
+          if (bad) throw fail(400, `Email không hợp lệ: ${bad}`);
+          if (list.length > MAX_TESTERS) throw fail(400, `Tối đa ${MAX_TESTERS} người nhận nội bộ`);
+          ev.internalCopy = list;
         }
         saveEvents();
         return send(res, 200, overview(ev));

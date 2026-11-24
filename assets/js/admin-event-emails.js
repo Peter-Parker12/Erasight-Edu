@@ -110,10 +110,18 @@
       ? tm.emails.map((em) => `<div class="em-tester">${leadRow((testerInfo.get(em) || {}).name, em, testTags(em))}<button type="button" class="em-x" data-unt="${esc(em)}" aria-label="Bỏ ${esc(em)} khỏi danh sách thử">×</button></div>`).join('')
       : '<div class="em-empty">Chưa có lead thử nghiệm. Tìm và thêm lead bên dưới (ví dụ chính email của bạn).</div>';
     const full = tm.emails.length >= (tm.max || 20);
+    renderCopy();
     $('emLeadQ').disabled = full;
     $('emLeadQ').placeholder = full ? `Đã đủ ${tm.max} lead thử nghiệm` : 'Thêm lead: tìm theo tên hoặc email trong Twenty, hoặc gõ email rồi Enter';
   }
 
+  function renderCopy() {
+    const c = ov.internalCopy || { emails: [], fromEnv: [] };
+    if (document.activeElement !== $('emCopyList')) $('emCopyList').value = c.emails.join('\n');
+    $('emCopyBadge').hidden = !(c.emails.length + c.fromEnv.length);
+    $('emCopyBadge').textContent = `${c.emails.length + c.fromEnv.length} người nhận`;
+    $('emCopyMsg').textContent = c.fromEnv.length ? `Mặc định cho mọi sự kiện (INTERNAL_COPY_EMAILS): ${c.fromEnv.join(', ')}` : '';
+  }
   function testErr(text) { $('emTestErr').textContent = text || ''; $('emTestErr').hidden = !text; }
 
   async function loadTesters(fresh) {
@@ -543,6 +551,11 @@
     if (!$('emCard')) return;
     buildChips();
     $('emSeedSave').addEventListener('click', saveStart);
+    $('emCopySave').addEventListener('click', async () => {
+      const list = $('emCopyList').value.split(/[\s,;]+/).filter(Boolean);
+      try { ov = await api(`/api/admin/events/${evId}/emails`, { method: 'PATCH', headers: JH, body: JSON.stringify({ internalCopy: list }) }); render(); $('emCopyMsg').textContent = 'Đã lưu.'; }
+      catch (e) { $('emCopyMsg').textContent = e.message; }
+    });
     $('emTestOn').addEventListener('change', () => toggleTest($('emTestOn').checked));
     $('emTestRefresh').addEventListener('click', () => loadTesters(true));
     $('emTesters').addEventListener('click', (e) => { const b = e.target.closest('[data-unt]'); if (b) removeTester(b.dataset.unt); });
