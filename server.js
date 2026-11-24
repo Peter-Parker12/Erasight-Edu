@@ -333,13 +333,24 @@ const showcases = require('./showcases')({
 });
 
 // ---- Events (admin-managed listing, per-event pages, on-site registration -> CRM lead) ----
+// The MCP server (mcp.js) calls the events admin API over loopback with a random per-process secret, accepted here as "admin".
+const MCP_INTERNAL = crypto.randomBytes(24).toString('hex');
+const eventsAdmin = (req) => {
+  const got = String(req.headers['x-mcp-internal'] || '');
+  if (got.length === MCP_INTERNAL.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(MCP_INTERNAL))) return true;
+  return documents.isAdmin(req);
+};
 const events = require('./events')({
   ROOT, SITE_URL, finalize: stampAssets, respond, twenty, normalizePhone, send, readJson, rateLimited,
-  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isAdmin: documents.isAdmin,
+  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isAdmin: eventsAdmin,
 });
+
+// ---- MCP server for the admin end (events + scheduled emails); off unless MCP_TOKEN is set ----
+const mcp = require('./mcp')({ PORT, INTERNAL: MCP_INTERNAL, rateLimited, send, readJson });
 
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
+  if (pathname === '/mcp' || pathname === '/mcp/') return mcp.handle(req, res, pathname).catch((e) => { console.error('mcp error:', e); if (!res.headersSent) send(res, 500, { error: 'Server error' }); else res.end(); });
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
   if (pathname.startsWith('/api/events') || pathname.startsWith('/api/email-images/') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/') || pathname === '/huy-dang-ky-email') return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
