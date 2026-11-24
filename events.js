@@ -517,6 +517,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     async handle(req, res, pathname) {
       try {
         if (pathname === '/api/workflow/due-emails') return await mailer.workflowDue(req, res);
+        if (pathname === '/api/workflow/email-sent') return await mailer.workflowSent(req, res);
         if (pathname === '/huy-dang-ky-email') return await mailer.unsubscribe(req, res);
         if (pathname.startsWith('/api/email-images/')) return mailer.image(req, res, pathname);
         if (/^\/api\/admin\/events\/[a-f0-9]{16}\/emails/.test(pathname)) return await mailer.admin(req, res, pathname);

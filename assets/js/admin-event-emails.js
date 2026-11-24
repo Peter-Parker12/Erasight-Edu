@@ -69,7 +69,7 @@
     $('emSeedList').innerHTML = seeds.length ? `<table class="em-tbl"><tr><th>#</th><th>Gửi lúc</th><th>Tiêu đề</th><th>Trạng thái</th><th class="em-num">Đã gửi</th><th></th></tr>${seeds.map((m, i) => {
       const when = m.plannedLocal ? `${m.offsetHours === 0 ? 'Bắt đầu' : '+' + m.offsetHours + ' giờ'} · ${fmt(m.plannedLocal)}` : (m.offsetHours === 0 ? 'Bắt đầu' : '+' + m.offsetHours + ' giờ') + ' · chưa đặt giờ';
       const st = m.afterEvent ? '<span class="em-badge r">Huỷ — sau sự kiện</span>' : !m.enabled ? '<span class="em-badge g">Tắt</span>' : m.sent > 0 ? '<span class="em-badge">Đã gửi</span>' : '<span class="em-badge g">Chờ gửi</span>';
-      return `<tr class="${m.afterEvent ? 'x' : ''}"><td>${i + 1}${m.isLastCall ? ' <span class="em-badge o">★ Last call</span>' : ''}</td><td class="em-num">${esc(when)}</td><td class="em-t">${esc(m.subject)}</td><td>${st}</td><td class="em-num">${m.sent}</td><td><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
+      return `<tr class="${m.afterEvent ? 'x' : ''}"><td>${i + 1}${m.isLastCall ? ' <span class="em-badge o">★ Last call</span>' : ''}</td><td class="em-num">${esc(when)}</td><td class="em-t">${esc(m.subject)}</td><td>${st}</td><td class="em-num">${m.sent}${m.pending ? ` <small title="chờ xác nhận">(+${m.pending}⏳)</small>` : ''}${m.failed ? ` <small style="color:#b3261e" title="lỗi">(${m.failed}⚠)</small>` : ''}</td><td><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
     }).join('')}</table>` : '<div class="em-empty">Chưa có email seeding. Bấm “Thêm email vào sequence”.</div>';
 
     // notifications
@@ -78,7 +78,7 @@
     $('emNotList').innerHTML = nots.length ? `<table class="em-tbl"><tr><th>Tên</th><th>Thời điểm gửi</th><th>Đối tượng</th><th>Trạng thái</th><th class="em-num">Đã gửi</th><th></th></tr>${nots.map((m) => {
       const t = m.timing;
       const when = t.mode === 'on_register' ? 'Ngay khi đăng ký' + (t.delayHours ? ` (+${t.delayHours} giờ)` : '') : t.mode === 'before' ? `${t.hours} giờ trước · ${fmt(m.plannedLocal)}` : `Cố định · ${fmt(m.plannedLocal)}`;
-      return `<tr class="${m.afterEvent ? 'x' : ''}"><td class="em-t">${esc(m.name)}</td><td class="em-num">${esc(when)}</td><td>${m.audience === 'all' ? 'Tất cả lead' : 'Đã đăng ký'}</td><td>${m.enabled ? '<span class="em-badge">Bật</span>' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${m.sent}</td><td><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
+      return `<tr class="${m.afterEvent ? 'x' : ''}"><td class="em-t">${esc(m.name)}</td><td class="em-num">${esc(when)}</td><td>${m.audience === 'all' ? 'Tất cả lead' : 'Đã đăng ký'}</td><td>${m.enabled ? '<span class="em-badge">Bật</span>' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${m.sent}${m.pending ? ` <small title="chờ xác nhận">(+${m.pending}⏳)</small>` : ''}${m.failed ? ` <small style="color:#b3261e" title="lỗi">(${m.failed}⚠)</small>` : ''}</td><td><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
     }).join('')}</table>` : '<div class="em-empty">Chưa có email thông báo. Người đăng ký sẽ không nhận email nào cho đến khi bạn thêm.</div>';
 
     // last notification
@@ -505,7 +505,7 @@
   async function loadStats(mid) {
     try {
       const d = await api(`/api/admin/events/${evId}/emails/${mid}/recipients`, { cache: 'no-store' });
-      $('emStat').innerHTML = `<span>Đủ điều kiện <b>${d.eligible}</b></span><span>Đã gửi <b>${d.sent}</b></span><span>Đến hạn <b>${d.due}</b></span><span>Chờ <b>${d.waiting}</b></span><span>Huỷ <b>${d.cancelled}</b></span>`;
+      $('emStat').innerHTML = `<span>Đủ điều kiện <b>${d.eligible}</b></span><span>Đã gửi <b>${d.sent}</b></span>${d.pending ? `<span title="Đã giao cho workflow nhưng chưa được xác nhận gửi xong">Chờ xác nhận <b>${d.pending}</b></span>` : ''}${d.failed ? `<span style="color:#b3261e" title="Không xác nhận được sau nhiều lần thử — dùng “Gửi lại” nếu cần">Lỗi <b>${d.failed}</b></span>` : ''}<span>Đến hạn <b>${d.due}</b></span><span>Chờ <b>${d.waiting}</b></span><span>Huỷ <b>${d.cancelled}</b></span>`;
       $('emSample').textContent = d.sample.length ? 'Ví dụ người nhận tiếp theo: ' + d.sample.map((s) => s.name).join(', ') : (d.enabled ? '' : 'Email đang tắt — chưa tính người nhận.');
     } catch (e) { $('emStat').innerHTML = `<span>${esc(e.message)}</span>`; }
   }

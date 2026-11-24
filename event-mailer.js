@@ -4,6 +4,7 @@
 // Zero dependencies. State lives in DATA_DIR (events.json holds the config, email-ledger.jsonl the history).
 //
 //   POST /api/workflow/due-emails            X-API-Key -> { items: [{to, name, subject, html, ...}], remaining }
+//   POST /api/workflow/email-sent            X-API-Key { mailId, to } -> confirms delivery of one item (until then it is only "claimed"; unconfirmed claims are retried after MAIL_CLAIM_TTL_MIN, up to MAIL_MAX_ATTEMPTS times)
 //   GET|POST /huy-dang-ky-email?e=&t=        public unsubscribe page (signed link)
 //   Admin (cookie + X-Requested-With):
 //     GET|PATCH /api/admin/events/:id/emails                 list + timeline | { seedingStartLocal }
@@ -25,6 +26,10 @@ const emailHtml = require('./email-html');
 
 const HOUR = 3600e3;
 const STALE_MS = 6 * HOUR;          // a fixed-time email first seen this late is skipped, not sent back-dated
+const CLAIM_TTL_MS = Math.max(16, Number(process.env.MAIL_CLAIM_TTL_MIN) || 30) * 60 * 1000; // handed to Twenty but never confirmed this long -> try again
+// Off by default: the Twenty workflow must have the "Confirm sent" step first, otherwise every mail would be retried as unconfirmed.
+const REQUIRE_CONFIRM = /^(1|true|yes)$/i.test(process.env.MAIL_REQUIRE_CONFIRM || '');
+const MAX_ATTEMPTS = Math.max(1, Number(process.env.MAIL_MAX_ATTEMPTS) || 3);               // ... at most this many times, then "failed"
 const ENROLL_GRACE_MS = 1 * HOUR;   // a lead whose sequence start is further in the past than this starts "now"
 const MAX_EMAILS = 20;
 const MAX_OFFSET_H = 24 * 90;
@@ -66,11 +71,14 @@ module.exports = function init(ctx) {
     const k = key(row.e, row.r);
     const s = state.get(k) || {};
     if (row.k === 'enroll') s.enrolledAt = at;
+    else if (row.k === 'claim') { s.claimAt = at; s.attempts = (s.attempts || 0) + 1; if (row.cc) s.cc = true; } // handed to the workflow, delivery not yet confirmed
     else if (row.k === 'cc' && !s.sentAt) { s.sentAt = at; s.cc = true; } // internal copy: not counted as a lead send
-    else if (row.k === 'sent' && !s.sentAt) { s.sentAt = at; cnt(row.e).sent += 1; }
+    else if (row.k === 'sent' && !s.sentAt) { s.sentAt = at; if (!s.cc) cnt(row.e).sent += 1; }
     else if (row.k === 'cancel' && !s.cancelAt) { s.cancelAt = at; cnt(row.e).cancel += 1; }
     state.set(k, s);
   }
+  const pendingNow = (s, t) => !s.sentAt && s.claimAt && t - s.claimAt < CLAIM_TTL_MS;
+  const failedNow = (s, t) => !s.sentAt && !pendingNow(s, t) && (s.attempts || 0) >= MAX_ATTEMPTS;
   function ledger(row) {
     row.at = row.at || new Date(now()).toISOString();
     apply(row);
@@ -196,6 +204,8 @@ module.exports = function init(ctx) {
       const s = state.get(key(m.id, p.email)) || {};
       let status;
       if (s.sentAt) status = 'sent';
+      else if (pendingNow(s, t)) status = 'pending';
+      else if (failedNow(s, t)) status = 'failed';
       else if (s.cancelAt) status = 'cancelled';
       else if (cancelIfLate && planned >= start) status = 'cancel';
       else status = planned <= t ? 'due' : 'wait';
@@ -289,15 +299,16 @@ module.exports = function init(ctx) {
       const room = Math.max(0, BATCH_MAX - items.length);
       const take = due.slice(0, room);
       for (const en of take) {
-        ledger({ k: 'sent', e: en.mail.id, r: en.person.email });
+        ledger({ k: REQUIRE_CONFIRM ? 'claim' : 'sent', e: en.mail.id, r: en.person.email }); // with MAIL_REQUIRE_CONFIRM: confirmed later by POST /api/workflow/email-sent
         const r = renderFor(en.ev, en.mail, en.person);
         items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
       }
       const mailsSent = new Map(); for (const en of take) mailsSent.set(en.mail.id, en);
       for (const en of mailsSent.values()) {
         for (const to of copyAll(en.ev)) {
-          if ((state.get(key(en.mail.id, 'cc:' + to)) || {}).sentAt) continue;
-          ledger({ k: 'cc', e: en.mail.id, r: 'cc:' + to });
+          const cs = state.get(key(en.mail.id, 'cc:' + to)) || {};
+          if (cs.sentAt || pendingNow(cs, t) || failedNow(cs, t)) continue;
+          ledger(REQUIRE_CONFIRM ? { k: 'claim', e: en.mail.id, r: 'cc:' + to, cc: true } : { k: 'cc', e: en.mail.id, r: 'cc:' + to });
           const r = renderFor(en.ev, en.mail, { name: 'Erasight', email: to, item: en.ev.title, preview: true });
           items.push({ to, name: 'Erasight', subject: '[BẢN SAO NỘI BỘ] ' + r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, internalCopy: true });
         }
@@ -307,6 +318,22 @@ module.exports = function init(ctx) {
     const p = busy.then(run, run);
     busy = p.catch(() => {});
     return p;
+  }
+
+  // The Twenty workflow calls this after its "Send email" step succeeded for one item: only now is the mail "sent".
+  async function workflowSent(req, res) {
+    if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+    if (rateLimited(h.clientIp(req), 'workflow-sent', 600, 60_000)) return send(res, 429, { error: 'Too many requests' });
+    if (!h.workflowAuthorized(req)) return send(res, 401, { error: 'Invalid API key' });
+    const b = await readJson(req, 4096);
+    const mailId = String(b.mailId || ''); const to = String(b.to || '').trim().toLowerCase();
+    if (!/^[a-f0-9]{12}$/.test(mailId) || !EMAIL_RE.test(to)) return send(res, 400, { error: 'mailId / to invalid' });
+    let confirmed = false;
+    for (const r of [to, 'cc:' + to]) {
+      const s = state.get(key(mailId, r));
+      if (s && s.claimAt && !s.sentAt) { ledger({ k: 'sent', e: mailId, r }); confirmed = true; }
+    }
+    return send(res, 200, { ok: true, confirmed });
   }
 
   async function workflowDue(req, res) {
@@ -324,13 +351,18 @@ module.exports = function init(ctx) {
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const newId = () => crypto.randomBytes(6).toString('hex');
 
+  function flight(mailId) { // claimed-but-unconfirmed / given-up counts for one mail (lead rows only)
+    const t = now(); let pending = 0; let failed = 0; const pre = mailId + '|';
+    for (const [k, s] of state) { if (!k.startsWith(pre) || s.cc || k.startsWith(pre + 'cc:')) continue; if (pendingNow(s, t)) pending += 1; else if (failedNow(s, t)) failed += 1; }
+    return { pending, failed };
+  }
   function adminMail(ev, m) {
     const seed = seedStartOf(ev);
     const start = h.startMs(ev);
     const c = counts.get(m.id) || { sent: 0, cancel: 0 };
     const o = {
       id: m.id, type: m.type, name: m.name, subject: m.subject, body: m.body, format: m.format === 'html' ? 'html' : 'text', enabled: !!m.enabled,
-      audience: m.audience, sent: c.sent, cancelled: c.cancel,
+      audience: m.audience, sent: c.sent, cancelled: c.cancel, ...flight(m.id),
     };
     if (m.type === 'seeding') {
       Object.assign(o, { offsetHours: m.offsetHours, isLastCall: !!m.isLastCall, skipRegistered: m.skipRegistered !== false });
@@ -546,7 +578,7 @@ module.exports = function init(ctx) {
       const ens = evaluate(ev, people, now(), false, real).filter((e) => e.mail.id === real.id);
       const by = (s) => ens.filter((e) => e.status === s);
       const sample = ens.filter((e) => e.status === 'due' || e.status === 'wait').slice(0, 8).map((e) => ({ name: e.person.name || '(không tên)', email: e.person.email }));
-      return send(res, 200, { eligible: ens.length, sent: by('sent').length, cancelled: by('cancelled').length + by('cancel').length, due: by('due').length, waiting: by('wait').length, sample, enabled: !!real.enabled });
+      return send(res, 200, { eligible: ens.length, sent: by('sent').length, cancelled: by('cancelled').length + by('cancel').length, due: by('due').length, pending: by('pending').length, failed: by('failed').length, waiting: by('wait').length, sample, enabled: !!real.enabled });
     }
     if (sub === 'resend') {
       if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
@@ -634,5 +666,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
+  return { workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };
