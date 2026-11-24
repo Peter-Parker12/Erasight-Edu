@@ -13,6 +13,7 @@ services:
       WP_API_URL: ${WP_API_URL}
       WP_POST_TAG: ${WP_POST_TAG:-erasight-education}
       SITE_URL: ${SITE_URL:-https://academy.erasight.net}
+      GTM_ID: ${GTM_ID:-}
       # AI document library (see .env.example)
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       SESSION_SECRET: ${SESSION_SECRET:-}

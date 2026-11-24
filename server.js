@@ -34,6 +34,16 @@ const TWENTY_URL = (process.env.TWENTY_URL || '').replace(/\/+$/, '');
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY || '';
 // WordPress REST API base URL (e.g. https://blog.erasight.vn/wp-json/wp/v2)
 const WP_API_URL = (process.env.WP_API_URL || '').replace(/\/+$/, '');
+// Google Tag Manager container (optional, e.g. GTM-ABC1234). Empty = no Google tags at all. The container is NOT loaded
+// until the visitor accepts measurement in the cookie banner (assets/js/tracking.js loads it); the bootstrap below only
+// declares the dataLayer + Consent Mode defaults (everything denied) and the container id, and goes into the public pages
+// that carry the cookie banner script - never into the admin.
+const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(process.env.GTM_ID || '') ? process.env.GTM_ID : '';
+if (process.env.GTM_ID && !GTM_ID) console.error('GTM_ID ignored: expected a container id like GTM-ABC1234');
+const GTM_BOOT = GTM_ID
+  ? `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied'});window.ERASIGHT_GTM='${GTM_ID}';</script>\n`
+  : '';
+
 // Public URL of the site, used for canonical links, Open Graph tags, JSON-LD and sitemap.xml
 const SITE_URL = (process.env.SITE_URL || 'https://academy.erasight.net').replace(/\/+$/, '');
 // Only posts carrying this WordPress tag are shown on the blog pages. Accepts the tag's slug or its
@@ -174,6 +184,7 @@ function assetHash(rel) {
   } catch { return null; }
 }
 function stampAssets(html) {
+  if (GTM_BOOT && html.includes('assets/js/tracking.js') && !html.includes('window.ERASIGHT_GTM')) html = html.replace('</head>', GTM_BOOT + '</head>');
   return html.replace(/(["'])(assets\/(?:css|js|images|logos)\/[\w.-]+\.(?:css|js|png|jpg|jpeg|webp|svg))(?:\?v=[^"']*)?\1/g, (m, q, rel) => {
     const h = assetHash(rel);
     return h ? `${q}${rel}?v=${h}${q}` : m;

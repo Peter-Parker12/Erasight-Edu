@@ -276,10 +276,21 @@
     if (!img) return;
     img.classList.add('sel'); $('emLinkBar').hidden = true;
     $('emImgAlt').value = img.getAttribute('alt') || '';
+    const la = img.parentElement && img.parentElement.closest('a'); $('emImgLink').value = la ? (la.getAttribute('href') || '') : '';
     const w = img.getAttribute('width') || '100%';
     $('emImgBar').querySelectorAll('[data-isz]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.isz === w)));
     const c = img.getAttribute('data-align') === 'center';
     $('emImgBar').querySelectorAll('[data-ial]').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.ial === 'center') === c)));
+  }
+  function setImgLink(raw) {
+    if (!selImg) return;
+    let url = String(raw || '').trim();
+    if (url && !/^(https?:\/\/|mailto:|tel:|\{\{)/i.test(url)) url = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(url) ? 'mailto:' + url : 'https://' + url;
+    const a = selImg.parentElement && selImg.parentElement.closest('a');
+    if (!url) { if (a && a.querySelector('img') === selImg && a.textContent.trim() === '') a.replaceWith(selImg); else if (a) a.removeAttribute('href'); }
+    else if (a) a.setAttribute('href', url);
+    else { const w = document.createElement('a'); w.setAttribute('href', url); selImg.replaceWith(w); w.appendChild(selImg); }
+    schedulePreview();
   }
   async function uploadImage(file) {
     let ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/jpeg' ? 'jpg' : String(file.name.split('.').pop() || '').toLowerCase();
@@ -373,6 +384,9 @@
       if (a) { if (a.dataset.ial === 'center') selImg.setAttribute('data-align', 'center'); else selImg.removeAttribute('data-align'); selectImg(selImg); schedulePreview(); }
     });
     $('emImgAlt').addEventListener('input', () => { if (selImg) { selImg.setAttribute('alt', $('emImgAlt').value); schedulePreview(); } });
+    $('emImgLink').addEventListener('input', () => setImgLink($('emImgLink').value));
+    $('emImgLink').addEventListener('blur', () => { if (selImg) { const a = selImg.parentElement && selImg.parentElement.closest('a'); $('emImgLink').value = a ? (a.getAttribute('href') || '') : ''; } });
+    $('emImgBar').addEventListener('click', (e) => { const c = e.target.closest('[data-imgurl]'); if (c) { $('emImgLink').value = c.dataset.imgurl; setImgLink(c.dataset.imgurl); } });
     $('emImgDel').addEventListener('click', () => { if (selImg) { const i = selImg; selectImg(null); i.remove(); afterEdit(); } });
     $('emImgFile').addEventListener('change', () => { const f = $('emImgFile').files[0]; $('emImgFile').value = ''; if (f) insertImageFile(f); });
 

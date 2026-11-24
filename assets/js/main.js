@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (window.ErasightTracking) window.ErasightTracking.track('generate_lead', { lead_type: 'course_enrolment', item_id: payload.courses.join(',') });
       enrollForm.reset();
       if (successMsg) {
         successMsg.style.display = 'block';

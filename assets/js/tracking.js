@@ -1,7 +1,8 @@
 /**
  * ERASIGHT — CAMPAIGN TRACKING + COOKIE CONSENT
  * Remembers where a visitor came from (utm_source / utm_medium / utm_campaign / utm_content, or the
- * referring site) so lead forms can send it to the CRM. First-party only: nothing is sent to third parties.
+ * referring site) so lead forms can send it to the CRM. First-party by default. If the server was started with GTM_ID,
+ * Google Tag Manager is loaded ONLY after the visitor accepts measurement (see gtmLoad below); until then nothing goes to Google.
  *
  * Nothing is stored until the visitor accepts "Đo lường nguồn truy cập" in the cookie banner.
  * The choice and the tags live in this browser's localStorage (consent kept 12 months, tags 90 days).
@@ -17,6 +18,31 @@
   const UTM_KEY = 'erasight_utm';
   const CONSENT_MS = 365 * 864e5;
   const UTM_MS = 90 * 864e5;
+
+  // ---- Google Tag Manager (only when the server injected window.ERASIGHT_GTM) ---------
+  const GTM = /^GTM-[A-Z0-9]{4,12}$/.test(window.ERASIGHT_GTM || '') ? window.ERASIGHT_GTM : '';
+  let gtmLoaded = false;
+  const gtagSafe = function () { window.dataLayer = window.dataLayer || []; window.dataLayer.push(arguments); };
+  function gtmLoad() {
+    if (!GTM) return;
+    gtagSafe('consent', 'update', { analytics_storage: 'granted' }); // ads stay denied: needs its own consent choice
+    if (gtmLoaded) return;
+    gtmLoaded = true;
+    window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+    const s = document.createElement('script');
+    s.async = true; s.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(GTM);
+    document.head.appendChild(s);
+  }
+  function gtmRevoke() {
+    if (!GTM) return;
+    gtagSafe('consent', 'update', { analytics_storage: 'denied' });
+    // remove Google Analytics cookies set while consent was on (this host and its parent domains)
+    const host = location.hostname.split('.');
+    const domains = ['', location.hostname].concat(host.length > 2 ? ['.' + host.slice(-2).join('.'), '.' + host.slice(1).join('.')] : []);
+    document.cookie.split(';').map((c) => c.split('=')[0].trim()).filter((n) => /^(_ga|_gid|_gat|_gcl)/.test(n)).forEach((n) => {
+      domains.forEach((d) => { document.cookie = n + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + (d ? '; domain=' + d : ''); });
+    });
+  }
 
   const store = {
     get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
@@ -65,7 +91,16 @@
 
   function choose(measure) {
     store.set(CONSENT_KEY, { v: 1, measure: !!measure, at: Date.now() });
-    if (measure) persist(); else store.del(UTM_KEY);
+    if (measure) { persist(); gtmLoad(); } else { store.del(UTM_KEY); gtmRevoke(); }
+  }
+
+  // Report a conversion to the dataLayer (e.g. 'generate_lead'). Never include personal data in params.
+  // Only when GTM is configured AND the visitor accepted measurement; otherwise it is dropped.
+  function track(name, params) {
+    const c = consent();
+    if (!GTM || !c || !c.measure || !name) return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(Object.assign({ event: String(name) }, params || {}));
   }
 
   function utm() {
@@ -78,6 +113,7 @@
   }
 
   persist(); // returning visitor who already accepted
+  { const c0 = consent(); if (c0 && c0.measure) gtmLoad(); }
 
   // ---- UI: banner + options panel ------------------------------------------
   const CSS = `
@@ -109,14 +145,14 @@
     const policy = '/chinh-sach-quyen-rieng-tu';
     banner = document.createElement('div');
     banner.className = 'ck-banner'; banner.setAttribute('role', 'region'); banner.setAttribute('aria-label', 'Cookie'); banner.hidden = true;
-    banner.innerHTML = `<div class="ck-txt"><b>🍪 Erasight dùng cookie</b><p>Cookie thiết yếu giúp trang hoạt động. Với sự đồng ý của bạn, chúng tôi còn lưu <b>nguồn truy cập</b> (UTM) trên trình duyệt để biết bạn biết đến Erasight từ đâu. Xem <a href="${policy}">Chính sách quyền riêng tư</a>.</p></div>
+    banner.innerHTML = `<div class="ck-txt"><b>🍪 Erasight dùng cookie</b><p>Cookie thiết yếu giúp trang hoạt động. Với sự đồng ý của bạn, chúng tôi còn lưu <b>nguồn truy cập</b> (UTM) trên trình duyệt${GTM ? ' và dùng <b>Google Tag Manager</b> để thống kê lượt truy cập' : ''} để biết bạn biết đến Erasight từ đâu. Xem <a href="${policy}">Chính sách quyền riêng tư</a>.</p></div>
       <div class="ck-actions"><button type="button" class="ck-btn" data-ck="reject">Từ chối</button><button type="button" class="ck-btn" data-ck="options">Tuỳ chọn</button><button type="button" class="ck-btn ck-btn--pri" data-ck="accept">Chấp nhận</button></div>`;
     modal = document.createElement('div');
     modal.className = 'ck-modal'; modal.hidden = true; modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-labelledby', 'ckTitle');
     modal.innerHTML = `<div class="ck-box"><button type="button" class="ck-x" data-ck="close" aria-label="Đóng">×</button>
       <h3 id="ckTitle">Tuỳ chọn cookie</h3><p>Bạn có thể thay đổi bất cứ lúc nào qua liên kết “Cài đặt cookie” ở chân trang.</p>
       <div class="ck-row"><div><b>Thiết yếu</b><p>Quyền tải tài liệu trong 7 ngày và phiên quản trị. Luôn bật.</p></div><label class="ck-sw"><input type="checkbox" checked disabled aria-label="Cookie thiết yếu (luôn bật)"><i></i></label></div>
-      <div class="ck-row"><div><b>Đo lường nguồn truy cập</b><p>Lưu tham số chiến dịch (utm_source, utm_campaign…) hoặc trang giới thiệu trong trình duyệt, gắn kèm khi bạn gửi form để biết kênh nào hiệu quả. Lưu 90 ngày. Không chia sẻ cho bên thứ ba.</p></div><label class="ck-sw"><input type="checkbox" id="ckMeasure" aria-label="Đo lường nguồn truy cập"><i></i></label></div>
+      <div class="ck-row"><div><b>Đo lường nguồn truy cập</b><p>Lưu tham số chiến dịch (utm_source, utm_campaign…) hoặc trang giới thiệu trong trình duyệt, gắn kèm khi bạn gửi form để biết kênh nào hiệu quả. Lưu 90 ngày. ${GTM ? 'Khi bật, trang còn tải Google Tag Manager (các thẻ thống kê như Google Analytics) và dữ liệu truy cập được gửi tới Google.' : 'Không chia sẻ cho bên thứ ba.'}</p></div><label class="ck-sw"><input type="checkbox" id="ckMeasure" aria-label="Đo lường nguồn truy cập"><i></i></label></div>
       <div class="ck-foot"><button type="button" class="ck-btn" data-ck="rejectAll">Từ chối tất cả</button><button type="button" class="ck-btn ck-btn--pri" data-ck="save">Lưu lựa chọn</button></div></div>`;
     document.body.appendChild(banner); document.body.appendChild(modal);
     toggle = modal.querySelector('#ckMeasure');
@@ -151,6 +187,6 @@
     if (!consent()) banner.hidden = false;
   }
 
-  window.ErasightTracking = { utm, openSettings, consent };
+  window.ErasightTracking = { utm, openSettings, consent, track };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

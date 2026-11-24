@@ -427,6 +427,7 @@
         if (!res.ok) throw new Error('Thông tin chưa hợp lệ hoặc có lỗi hệ thống. Vui lòng kiểm tra lại và thử lần nữa.');
         const data = await res.json();
         state.hasAccess = !!data.downloadUrl; // honeypot trả về ok nhưng không có downloadUrl
+        if (state.hasAccess && window.ErasightTracking) window.ErasightTracking.track('generate_lead', { lead_type: 'material_download', item_id: doc.id });
         $('dlForm').reset();
         closeModal();
         if (state.hasAccess) {

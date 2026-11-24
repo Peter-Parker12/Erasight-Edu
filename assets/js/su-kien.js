@@ -68,6 +68,7 @@
       if (res.status === 409) throw new Error(data.error || 'Sự kiện hiện không nhận thêm đăng ký.');
       if (!res.ok) throw new Error('Thông tin chưa hợp lệ hoặc có lỗi hệ thống. Vui lòng kiểm tra lại và thử lần nữa.');
       form.reset();
+      if (!data.duplicate && window.ErasightTracking) window.ErasightTracking.track('generate_lead', { lead_type: 'event_registration', item_id: eventId });
       $('evDoneTitle').textContent = data.duplicate ? 'Bạn đã đăng ký rồi' : 'Đăng ký thành công!';
       $('evDoneText').textContent = data.duplicate
         ? 'Chúng tôi đã có thông tin của bạn cho sự kiện này. Giáo vụ sẽ liên hệ qua Zalo/email.'

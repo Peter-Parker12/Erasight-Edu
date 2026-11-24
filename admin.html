@@ -1281,6 +1281,8 @@
                   <span class="em-seg" role="group" aria-label="Kích thước ảnh"><button type="button" class="em-tbb" data-isz="33%">Nhỏ</button><button type="button" class="em-tbb" data-isz="66%">Vừa</button><button type="button" class="em-tbb" data-isz="100%">Lớn</button></span>
                   <span class="em-seg" role="group" aria-label="Căn ảnh"><button type="button" class="em-tbb" data-ial="left">Trái</button><button type="button" class="em-tbb" data-ial="center">Giữa</button></span>
                   <input type="text" id="emImgAlt" placeholder="Mô tả ảnh (alt)" aria-label="Mô tả ảnh" maxlength="200" />
+                  <input type="text" id="emImgLink" placeholder="Link khi bấm vào ảnh: https://… hoặc {{join_link}}" aria-label="Liên kết khi bấm vào ảnh" autocomplete="off" />
+                  <span class="em-bar-chips"><button type="button" class="em-chip" data-imgurl="{{join_link}}">{{join_link}}</button><button type="button" class="em-chip" data-imgurl="{{event_url}}">{{event_url}}</button></span>
                   <button type="button" class="crm-btn sm danger" id="emImgDel">Xoá ảnh</button>
                 </div>
                 <div class="em-edit" id="emEditor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="emEditorLbl" spellcheck="true" data-ph="Soạn nội dung email… (bấm “Chèn nhanh” bên dưới để chèn tên, link tham gia…)"></div>
