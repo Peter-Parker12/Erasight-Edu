@@ -142,6 +142,13 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => ovView(await api('PATCH', EM(a), { testMode: pick({ on: a.on, emails: a.emails }, ['on', 'emails']) })) },
     { name: 'set_internal_copy', description: 'Internal recipients (max 20) who each get ONE copy of every seeding / notification email when it goes out ("[BẢN SAO NỘI BỘ]" prefix). Replaces the per-event list; the server-wide INTERNAL_COPY_EMAILS list is added on top.', props: { event_id: S, emails: { type: 'array', items: S } }, req: ['event_id', 'emails'],
       run: async (a) => ovView(await api('PATCH', EM(a), { internalCopy: a.emails })) },
+    // ---- short links ----
+    { name: 'create_short_link', description: 'Shorten a campaign link: returns a short URL (https://…/s/abc123) that redirects to the full URL with all its utm_* tags kept, and counts clicks. Only links on the Erasight Academy site can be shortened. The same URL always gives the same short link.', props: { url: { ...S, description: 'Full URL (or a path like /su-kien/x?utm_source=facebook&utm_medium=social&utm_campaign=t11)' }, label: { ...S, description: 'Optional name; defaults to source/medium · campaign · content' } }, req: ['url'],
+      run: async (a) => api('POST', '/api/admin/short-links', pick(a, ['url', 'label'])) },
+    { name: 'list_short_links', description: 'Short links with their click counts, newest first (max 200). Optionally only those pointing at one page path, e.g. /su-kien/my-event.', props: { path: { ...S, description: 'Page path to filter on' } }, req: [],
+      run: async (a) => api('GET', '/api/admin/short-links' + (a.path ? '?path=' + encodeURIComponent(a.path) : '')) },
+    { name: 'delete_short_link', description: 'Delete a short link (anyone who still has it is redirected to the home page).', props: { code: S }, req: ['code'],
+      run: async (a) => { if (!/^[a-z0-9]{4,12}$/i.test(String(a.code))) throw new Error('code is invalid'); return api('DELETE', '/api/admin/short-links/' + a.code); } },
     { name: 'upload_email_image', description: 'Upload a picture from a public https URL for use inside an email body; returns the src to put in <img src="…"> (max 40 per event).', props: { event_id: S, image_url: S }, req: ['event_id', 'image_url'],
       run: async (a) => { const img = await fetchImage(a.image_url); const d = await api('PUT', `${EM(a)}/images?ext=${img.ext}`, undefined, img); return { src: d.url, example: `<img src="${d.url}" alt="">` }; } },
   ];

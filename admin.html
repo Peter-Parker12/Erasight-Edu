@@ -1231,7 +1231,15 @@
             <div class="form-group-clean"><label for="utmMedium">utm_medium</label><input type="text" id="utmMedium" maxlength="100" placeholder="email" /></div>
           </div>
           <div class="form-group-clean"><label for="utmResult">Link kết quả</label><input type="text" id="utmResult" readonly style="background:#f6fafa;font-family:monospace;font-size:12.5px;" /></div>
-          <button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span>
+          <div class="utm-actions"><button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <button type="button" class="crm-btn" id="utmShorten">Rút gọn link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span></div>
+          <div class="utm-short" id="utmShortBox" hidden>
+            <div class="form-group-clean"><label for="utmShortResult">Link rút gọn</label><input type="text" id="utmShortResult" readonly /></div>
+            <button type="button" class="crm-btn primary" id="utmShortCopy">Sao chép link rút gọn</button> <span class="form-hint" id="utmShortCopied" hidden>Đã sao chép ✓</span>
+            <p class="form-hint" style="margin:8px 0 0;">Khi người xem mở link rút gọn, họ được chuyển tới link đầy đủ phía trên — các thẻ UTM vẫn được giữ nguyên để hệ thống ghi nhận nguồn.</p>
+          </div>
+          <div class="em-zone" id="utmShortErr" style="margin:12px 0 0;background:#fdecea;color:#8a1c12;" hidden></div>
+          <h3 style="margin:22px 0 6px;font-size:14px;">Link rút gọn đã tạo cho sự kiện này</h3>
+          <div id="utmShortList" class="utm-list"><div class="form-hint">Chưa có link rút gọn nào.</div></div>
               </div>
             </div>
           </section>

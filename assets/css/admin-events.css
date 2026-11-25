@@ -67,3 +67,10 @@
   .ev-pane .form-row-2 { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .ev-pane input, .ev-pane select, .ev-pane textarea { max-width: 100%; min-width: 0; }
 }
+
+/* ---- UTM short links ---------------------------------------------------- */
+.utm-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.utm-short { margin-top: 14px; padding: 14px; border: 1px solid #A9DDD8; background: var(--crm-p-light); border-radius: 12px; }
+.utm-short input { background: #fff; font-family: monospace; font-size: 12.5px; }
+.utm-list { overflow-x: auto; }
+.utm-list code { font-size: 12px; word-break: break-all; }

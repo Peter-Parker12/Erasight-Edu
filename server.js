@@ -345,12 +345,18 @@ const events = require('./events')({
   twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isAdmin: eventsAdmin,
 });
 
+// ---- Link shortener for UTM links (/s/<code> -> destination with its utm_* tags; admin API under /api/admin/short-links) ----
+const shortLinks = require('./short-links')({
+  DATA_DIR: process.env.DATA_DIR || path.join(__dirname, 'data'), SITE_URL, send, readJson, rateLimited, isAdmin: eventsAdmin,
+});
+
 // ---- MCP server for the admin end (events + scheduled emails); off unless MCP_TOKEN is set ----
 const mcp = require('./mcp')({ PORT, INTERNAL: MCP_INTERNAL, rateLimited, send, readJson });
 
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');
   if (pathname === '/mcp' || pathname === '/mcp/') return mcp.handle(req, res, pathname).catch((e) => { console.error('mcp error:', e); if (!res.headersSent) send(res, 500, { error: 'Server error' }); else res.end(); });
+  if (pathname.startsWith('/s/') || pathname === '/api/admin/short-links' || pathname.startsWith('/api/admin/short-links/')) return shortLinks.handle(req, res, pathname);
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
   if (pathname.startsWith('/api/events') || pathname.startsWith('/api/email-images/') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/') || pathname === '/huy-dang-ky-email') return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);

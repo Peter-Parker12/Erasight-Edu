@@ -255,7 +255,7 @@
     const e = current();
     $('utmEvent').value = e ? e.url : '';
     $('utmNote').hidden = !e || e.status === 'published';
-    buildLink();
+    buildLink(); shortErr(''); loadShortList();
   }
   function buildLink() {
     const path = $('utmEvent').value;
@@ -269,6 +269,38 @@
     if (slug($('utmCampaign').value)) p.set('utm_campaign', slug($('utmCampaign').value));
     if (slug($('utmContent').value)) p.set('utm_content', slug($('utmContent').value));
     $('utmResult').value = path ? `${location.origin}${path}?${p.toString()}` : '';
+    syncShortBox();
+  }
+
+  // ---- short links (the UTM link above, shortened; the short link redirects to the full URL so UTM tags are kept) ----
+  let shortFor = '';   // the long link the visible short link was made for
+  const fmtDay = (iso) => { try { return new Date(iso).toLocaleDateString('vi-VN'); } catch (e) { return ''; } };
+  function shortErr(text) { $('utmShortErr').textContent = text || ''; $('utmShortErr').hidden = !text; }
+  function syncShortBox() { if ($('utmResult').value !== shortFor) $('utmShortBox').hidden = true; }
+  async function loadShortList() {
+    const e = current(); const box = $('utmShortList');
+    if (!e) { box.innerHTML = ''; return; }
+    try {
+      const d = await api('/api/admin/short-links?path=' + encodeURIComponent(e.url), { cache: 'no-store', headers: HDR });
+      if (!d.links.length) { box.innerHTML = '<div class="form-hint">Chưa có link rút gọn nào.</div>'; return; }
+      box.innerHTML = '<table class="em-tbl"><tr><th>Link rút gọn</th><th>Nguồn / chiến dịch</th><th>Lượt bấm</th><th></th></tr>' + d.links.map((l) =>
+        `<tr><td class="em-t"><code>${esc(location.origin + l.path)}</code></td><td>${esc(l.label || '—')}<br><small class="form-hint">${esc(fmtDay(l.createdAt))}</small></td><td class="em-num">${l.clicks}</td>`
+        + `<td style="white-space:nowrap"><button type="button" class="crm-btn sm" data-scopy="${esc(l.path)}">Sao chép</button> <button type="button" class="crm-btn sm danger" data-sdel="${esc(l.code)}">Xoá</button></td></tr>`).join('') + '</table>';
+    } catch (err) { box.innerHTML = `<div class="form-hint">${esc(err.message)}</div>`; }
+  }
+  async function shorten() {
+    const url = $('utmResult').value; if (!url) return;
+    shortErr(''); $('utmShorten').disabled = true;
+    try {
+      const l = await api('/api/admin/short-links', { method: 'POST', headers: JSON_HDR, body: JSON.stringify({ url }) });
+      $('utmShortResult').value = location.origin + l.path; shortFor = url; $('utmShortBox').hidden = false;
+      loadShortList();
+    } catch (err) { shortErr(err.message); }
+    finally { $('utmShorten').disabled = false; }
+  }
+  async function copyText(text, input, flag) {
+    try { await navigator.clipboard.writeText(text); } catch (e) { if (input) { input.select(); document.execCommand('copy'); } }
+    flag.hidden = false; setTimeout(() => { flag.hidden = true; }, 1800);
   }
 
   function init() {
@@ -301,6 +333,15 @@
       const v = $('utmResult').value; if (!v) return;
       try { await navigator.clipboard.writeText(v); } catch (e) { $('utmResult').select(); document.execCommand('copy'); }
       $('utmCopied').hidden = false; setTimeout(() => { $('utmCopied').hidden = true; }, 1800);
+    });
+    $('utmShorten').addEventListener('click', shorten);
+    $('utmShortCopy').addEventListener('click', () => copyText($('utmShortResult').value, $('utmShortResult'), $('utmShortCopied')));
+    $('utmShortList').addEventListener('click', async (ev) => {
+      const c = ev.target.closest('[data-scopy]'); const d = ev.target.closest('[data-sdel]');
+      if (c) { try { await navigator.clipboard.writeText(location.origin + c.dataset.scopy); c.textContent = 'Đã chép ✓'; setTimeout(() => { c.textContent = 'Sao chép'; }, 1500); } catch (e) { /* ignore */ } }
+      if (d && confirm('Xoá link rút gọn này? Link đã đăng ở đâu đó sẽ chuyển về trang chủ.')) {
+        try { await api('/api/admin/short-links/' + d.dataset.sdel, { method: 'DELETE', headers: HDR }); $('utmShortBox').hidden = true; loadShortList(); } catch (err) { shortErr(err.message); }
+      }
     });
     window.addEventListener('beforeunload', (ev) => { if (dirty) { ev.preventDefault(); ev.returnValue = ''; } });
   }
