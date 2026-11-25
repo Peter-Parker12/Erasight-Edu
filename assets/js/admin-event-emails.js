@@ -606,6 +606,6 @@
     });
   }
 
-  window.AdminEventEmails = { show, reload: loadOverview };
+  window.AdminEventEmails = { show, reload: loadOverview, openMail: async (evId, mailId) => { await show(evId); openEditor(null, mailId); } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

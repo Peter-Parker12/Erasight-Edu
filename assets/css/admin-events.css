@@ -74,3 +74,9 @@
 .utm-short input { background: #fff; font-family: monospace; font-size: 12.5px; }
 .utm-list { overflow-x: auto; }
 .utm-list code { font-size: 12px; word-break: break-all; }
+
+/* ---- registration extras (confirmation email + Zalo popup) ---------------- */
+.rg-card { border: 1px solid var(--crm-line); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; background: #fff; }
+.rg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; }
+.rg-pic { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.rg-pic img { width: 96px; height: 96px; object-fit: contain; border: 1px solid var(--crm-line); border-radius: 8px; background: #fff; }

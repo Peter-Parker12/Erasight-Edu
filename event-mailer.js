@@ -161,6 +161,33 @@ module.exports = function init(ctx) {
     const only = new Set(testers(ev));
     return people.filter((p) => only.has(p.email));
   }
+  // Registration confirmation: an ordinary "on register" notification flagged as the confirmation (confirm: true).
+  // Turning it on/off only toggles it (or creates it with a default body); its content is edited in the normal email editor.
+  const confirmMailOf = (ev) => mailsOf(ev).find((x) => x.confirm) || null;
+  const confirmationOn = (ev) => { const m = confirmMailOf(ev); return !!(m && m.enabled); };
+  const confirmationInfo = (ev) => { const m = confirmMailOf(ev); return { enabled: !!(m && m.enabled), mailId: m ? m.id : '', sent: m ? ((counts.get(m.id) || {}).sent || 0) : 0 }; };
+  function defaultConfirmBody(ev) {
+    let html = '<p>Xin chào {{first_name}},</p><p>Cảm ơn bạn đã đăng ký tham dự sự kiện. Đây là email xác nhận đăng ký của bạn.</p>'
+      + '<p><strong>{{event_title}}</strong><br>Thời gian: {{event_date}} lúc {{event_time}}<br>Hình thức: {{event_mode}}<br>Địa điểm: {{event_location}}</p>';
+    if (ev.joinLink) html += '<p>Link tham gia: <a href="{{join_link}}">{{join_link}}</a></p>';
+    return html;
+  }
+  function setConfirmation(ev, on) {
+    let m = confirmMailOf(ev);
+    if (!m) {
+      if (!on) return;
+      m = { id: newId(), type: 'notification', name: 'Xác nhận đăng ký', subject: 'Xác nhận đăng ký: {{event_title}}', format: 'html',
+        body: emailHtml.sanitize(defaultConfirmBody(ev)), enabled: false, audience: 'registered', timing: { mode: 'on_register', delayHours: 0 },
+        confirm: true, createdAt: new Date(now()).toISOString() };
+      const next = [...mailsOf(ev), m];
+      validateSet(next);
+      ev.emails = next;
+    }
+    if (on && !m.enabled) m.activeSince = new Date(now()).toISOString(); // only people who register from now on
+    m.enabled = !!on;
+  }
+  const schedMails = (ev) => mailsOf(ev);
+
   // An event takes part in sending when it is published, or when it is in test mode (drafts can be tested).
   const sendable = (ev) => ev.status === 'published' || testOn(ev);
 
@@ -196,7 +223,7 @@ module.exports = function init(ctx) {
     const out = [];
     const start = h.startMs(ev);
     if (t >= start) return out;
-    const mails = only ? mailsOf(ev).filter((m) => m.id === only.id) : mailsOf(ev).filter((m) => m.enabled);
+    const mails = only ? schedMails(ev).filter((m) => m.id === only.id) : schedMails(ev).filter((m) => m.enabled);
     const seedStart = seedStartOf(ev);
     const lc = lastCallAt(ev);
     const lastNoticeOn = mailsOf(ev).some((m) => m.type === 'last_notification' && m.enabled);
@@ -279,7 +306,7 @@ module.exports = function init(ctx) {
   function dueBatch() {
     const run = async () => {
       const t = now();
-      const evs = getEvents().filter((e) => sendable(e) && t < h.startMs(e) && mailsOf(e).some((m) => m.enabled));
+      const evs = getEvents().filter((e) => sendable(e) && t < h.startMs(e) && schedMails(e).some((m) => m.enabled));
       const items = [];
       const tests = testQueue; testQueue = [];
       for (const q of tests) {
@@ -362,7 +389,7 @@ module.exports = function init(ctx) {
     const c = counts.get(m.id) || { sent: 0, cancel: 0 };
     const o = {
       id: m.id, type: m.type, name: m.name, subject: m.subject, body: m.body, format: m.format === 'html' ? 'html' : 'text', enabled: !!m.enabled,
-      audience: m.audience, sent: c.sent, cancelled: c.cancel, ...flight(m.id),
+      audience: m.audience, sent: c.sent, cancelled: c.cancel, ...flight(m.id), confirm: !!m.confirm,
     };
     if (m.type === 'seeding') {
       Object.assign(o, { offsetHours: m.offsetHours, isLastCall: !!m.isLastCall, skipRegistered: m.skipRegistered !== false });
@@ -679,5 +706,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
+  return { confirmationOn, confirmationInfo, setConfirmation, workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };

@@ -37,6 +37,34 @@
 
   function showError(msg) { const el = $('evError'); el.textContent = msg; el.hidden = false; }
 
+  // Popup shown right after a successful registration when the admin set up a Zalo group (QR and/or link).
+  function showZalo(z) {
+    const wrap = document.createElement('div');
+    wrap.className = 'doc-modal is-open'; wrap.id = 'zaloModal';
+    wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-labelledby', 'zaloTitle');
+    const box = document.createElement('div'); box.className = 'dl-box'; box.style.textAlign = 'center';
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'doc-modal-close'; x.setAttribute('aria-label', 'Đóng'); x.textContent = '×';
+    const h = document.createElement('h3'); h.id = 'zaloTitle'; h.style.margin = '6px 0 8px'; h.textContent = z.title || 'Tham gia nhóm Zalo';
+    box.append(x, h);
+    if (z.text) { const p = document.createElement('p'); p.className = 'dl-sub'; p.textContent = z.text; box.append(p); }
+    if (z.image) {
+      const img = document.createElement('img'); img.src = z.image; img.alt = 'Mã QR nhóm Zalo'; img.width = 220; img.height = 220;
+      img.style.cssText = 'display:block;margin:10px auto;max-width:100%;height:auto;border-radius:8px;'; box.append(img);
+    }
+    if (z.link) {
+      const a = document.createElement('a'); a.href = z.link; a.target = '_blank'; a.rel = 'noopener';
+      a.className = 'btn btn-primary'; a.style.marginTop = '8px'; a.textContent = 'Mở nhóm Zalo'; box.append(a);
+    }
+    wrap.append(box); document.body.append(wrap);
+    document.body.style.overflow = 'hidden';
+    const done = () => { wrap.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') done(); };
+    x.addEventListener('click', done);
+    wrap.addEventListener('click', (e) => { if (e.target === wrap) done(); });
+    document.addEventListener('keydown', onKey);
+    setTimeout(() => x.focus(), 60);
+  }
+
   if (btn) btn.addEventListener('click', open);
   $('evClose').addEventListener('click', close);
   $('evDoneClose').addEventListener('click', close);
@@ -72,7 +100,8 @@
       $('evDoneTitle').textContent = data.duplicate ? 'Bạn đã đăng ký rồi' : 'Đăng ký thành công!';
       $('evDoneText').textContent = data.duplicate
         ? 'Chúng tôi đã có thông tin của bạn cho sự kiện này. Giáo vụ sẽ liên hệ qua Zalo/email.'
-        : 'Giáo vụ sẽ liên hệ xác nhận và gửi thông tin tham dự qua Zalo/email trong vòng 2 giờ làm việc.';
+        : (data.emailSoon ? `Email xác nhận đã được đăng ký gửi tới ${email} trong vài phút tới. ` : '') + 'Giáo vụ sẽ liên hệ xác nhận và gửi thông tin tham dự qua Zalo/email trong vòng 2 giờ làm việc.';
+      if (data.zalo && !data.duplicate) { close(); showZalo(data.zalo); return; } // the Zalo popup replaces the success text
       $('evFormView').hidden = true;
       $('evDoneView').hidden = false;
     } catch (err) {

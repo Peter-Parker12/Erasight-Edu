@@ -1141,6 +1141,7 @@
                 <button type="button" class="ev-tab is-active" role="tab" id="evTabInfo" data-etab="info" aria-controls="evPaneInfo" aria-selected="true">Thông tin chung</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabEmails" data-etab="emails" aria-controls="emCard" aria-selected="false">Email theo lịch</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabUtm" data-etab="utm" aria-controls="evPaneUtm" aria-selected="false">Link theo dõi (UTM)</button>
+                <button type="button" class="ev-tab" role="tab" id="evTabReg" data-etab="reg" aria-controls="evPaneReg" aria-selected="false">Xác nhận &amp; Zalo</button>
               </div>
 
               <div class="ev-pane" id="evPaneInfo" role="tabpanel" aria-labelledby="evTabInfo">
@@ -1214,6 +1215,28 @@
             <div class="em-scroll" id="emLastBox"></div>
           </div>
               </div>
+
+              <div class="ev-pane" id="evPaneReg" role="tabpanel" aria-labelledby="evTabReg" hidden>
+          <p class="form-hint" style="margin:0 0 14px;">Dành cho người vừa đăng ký: một email xác nhận (kèm mã QR) gửi tự động, và một popup nhóm Zalo hiện ngay sau khi họ bấm “Xác nhận đăng ký”.</p>
+          <div class="rg-card">
+            <div class="rg-head"><b>1 · Email xác nhận đăng ký</b><label class="em-check" style="margin:0;"><input type="checkbox" id="rgConfEnabled" /> Bật</label></div>
+            <p class="form-hint" style="margin:0 0 10px;">Gửi tự động cho mỗi người vừa đăng ký (chỉ người đăng ký sau khi bật). Tiêu đề, nội dung, ảnh QR và nút bấm được sửa trong trình soạn email.</p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button type="button" class="crm-btn" id="rgEditMail">Sửa nội dung email xác nhận →</button> <span class="form-hint" id="rgConfNote"></span></div>
+          </div>
+
+          <div class="rg-card">
+            <div class="rg-head"><b>2 · Popup nhóm Zalo (sau khi đăng ký)</b><label class="em-check" style="margin:0;"><input type="checkbox" id="rgZaloOn" /> Bật</label></div>
+            <div class="form-group-clean"><label for="rgZaloTitle">Tiêu đề popup</label><input type="text" id="rgZaloTitle" maxlength="120" placeholder="Tham gia nhóm Zalo của sự kiện" /></div>
+            <div class="form-group-clean"><label for="rgZaloText">Nội dung</label><textarea id="rgZaloText" rows="3" maxlength="500" placeholder="Quét mã QR hoặc bấm nút để vào nhóm Zalo, nơi giáo vụ thông báo thông tin mới nhất."></textarea></div>
+            <div class="form-row-2">
+              <div class="form-group-clean"><label for="rgZaloFile">Ảnh mã QR nhóm Zalo</label><div class="rg-pic"><img id="rgZaloPreview" alt="" hidden /><div><input type="file" id="rgZaloFile" accept="image/png,image/jpeg,image/webp" /> <button type="button" class="crm-btn sm" id="rgZaloClear">Gỡ ảnh</button></div></div></div>
+              <div class="form-group-clean"><label for="rgZaloLink">Link nhóm Zalo (tuỳ chọn)</label><input type="url" id="rgZaloLink" placeholder="https://zalo.me/g/…" /></div>
+            </div>
+            <div class="form-hint">Popup chỉ hiện khi có ảnh QR hoặc link nhóm. Người đăng ký trùng (nếu có) không thấy popup.</div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center;margin-top:14px;"><button type="button" class="crm-btn primary" id="rgSave">Lưu cài đặt</button><span class="form-hint" id="rgMsg"></span></div>
+        </div>
 
               <div class="ev-pane" id="evPaneUtm" role="tabpanel" aria-labelledby="evTabUtm" hidden>
           <p class="form-hint" style="margin:0 0 12px;">Gắn link này vào bài đăng Facebook, TikTok, Zalo hoặc email. Khi người xem đăng ký, nguồn sẽ hiện ở cột “UTM tags” của Lead trong Twenty (chỉ khi họ chấp nhận cookie đo lường).</p>

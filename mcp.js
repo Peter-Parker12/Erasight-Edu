@@ -142,6 +142,18 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => ovView(await api('PATCH', EM(a), { testMode: pick({ on: a.on, emails: a.emails }, ['on', 'emails']) })) },
     { name: 'set_internal_copy', description: 'Internal recipients (max 20) who each get ONE copy of every seeding / notification email when it goes out ("[BẢN SAO NỘI BỘ]" prefix). Replaces the per-event list; the server-wide INTERNAL_COPY_EMAILS list is added on top.', props: { event_id: S, emails: { type: 'array', items: S } }, req: ['event_id', 'emails'],
       run: async (a) => ovView(await api('PATCH', EM(a), { internalCopy: a.emails })) },
+    { name: 'set_registration_extras', description: 'Registration extras. confirmation_enabled switches the automatic confirmation email on or off (it is the email named "Xác nhận đăng ký" in get_email_config; edit its subject, body, QR picture and buttons with update_email, using upload_email_image for pictures). zalo_* set the Zalo group popup shown right after registering (zalo_image / zalo_link). Send only the parts that change.', props: { event_id: S, confirmation_enabled: B, zalo_enabled: B, zalo_title: S, zalo_text: S, zalo_image: { ...S, description: 'src from upload_email_image' }, zalo_link: { ...S, description: 'https://zalo.me/g/… group link' } }, req: ['event_id'],
+      run: async (a) => {
+        const cur = (await api('GET', EV(a))).event;
+        const z = cur.zalo || {};
+        const pickStr = (v, old) => (v !== undefined ? v : old);
+        const body = {};
+        if (a.confirmation_enabled !== undefined) body.confirmation = { enabled: a.confirmation_enabled };
+        if (a.zalo_enabled !== undefined || a.zalo_title !== undefined || a.zalo_text !== undefined || a.zalo_image !== undefined || a.zalo_link !== undefined) {
+          body.zalo = { enabled: a.zalo_enabled !== undefined ? a.zalo_enabled : !!z.enabled, title: pickStr(a.zalo_title, z.title || ''), text: pickStr(a.zalo_text, z.text || ''), image: pickStr(a.zalo_image, z.image || ''), linkUrl: pickStr(a.zalo_link, z.linkUrl || '') };
+        }
+        return (await api('PATCH', EV(a), body)).event;
+      } },
     // ---- short links ----
     { name: 'create_short_link', description: 'Shorten a campaign link: returns a short URL (https://…/s/abc123) that redirects to the full URL with all its utm_* tags kept, and counts clicks. Only links on the Erasight Academy site can be shortened. The same URL always gives the same short link.', props: { url: { ...S, description: 'Full URL (or a path like /su-kien/x?utm_source=facebook&utm_medium=social&utm_campaign=t11)' }, label: { ...S, description: 'Optional name; defaults to source/medium · campaign · content' } }, req: ['url'],
       run: async (a) => api('POST', '/api/admin/short-links', pick(a, ['url', 'label'])) },

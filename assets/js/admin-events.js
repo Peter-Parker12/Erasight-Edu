@@ -10,7 +10,7 @@
   const HDR = { 'X-Requested-With': 'erasight-admin' };
   const JSON_HDR = Object.assign({ 'Content-Type': 'application/json' }, HDR);
   const PHASE = { upcoming: ['Sắp diễn ra', '#E85D04'], live: ['Đang diễn ra', '#E85D04'], past: ['Đã diễn ra', '#6b8590'] };
-  const TABS = ['info', 'emails', 'utm'];
+  const TABS = ['info', 'emails', 'utm', 'reg'];
   const STORE_SEL = 'erasight.admin.event.selected';
   const STORE_TAB = 'erasight.admin.event.tab';
 
@@ -125,7 +125,7 @@
   function showTab(name) {
     if (isNew || !TABS.includes(name)) name = 'info';
     tab = name;
-    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'] };
+    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'], reg: ['evTabReg', 'evPaneReg'] };
     for (const [k, [b, p]] of Object.entries(map)) {
       const on = k === name;
       $(b).classList.toggle('is-active', on); $(b).setAttribute('aria-selected', String(on)); $(b).tabIndex = on ? 0 : -1;
@@ -135,6 +135,7 @@
     if (!isNew) store.set(STORE_TAB, name);
     if (name === 'emails' && window.AdminEventEmails) window.AdminEventEmails.show(selectedId);
     if (name === 'utm') setUtmEvent();
+    if (name === 'reg') fillReg();
   }
 
   function confirmDiscard() {
@@ -272,6 +273,57 @@
     syncShortBox();
   }
 
+  // ---- registration extras: confirmation email (+ QR picture) and the Zalo popup ----
+  const regPic = { qr: '', zalo: '' };   // uploaded picture urls, applied on save
+  function rgMsg(text, isErr) { const el = $('rgMsg'); el.textContent = text || ''; el.style.color = isErr ? '#b3261e' : ''; }
+  function paintPics() {
+    for (const [img, url] of [[$('rgZaloPreview'), regPic.zalo]]) { img.hidden = !url; if (url) img.src = url; }
+  }
+  function fillReg() {
+    const e = current(); if (!e) return;
+    const c = e.confirmation || {}; const z = e.zalo || {};
+    $('rgConfEnabled').checked = !!c.enabled;
+    $('rgEditMail').disabled = !c.mailId;
+    $('rgConfNote').textContent = c.mailId
+      ? (c.enabled ? `Đang bật — đã gửi ${c.sent || 0} email xác nhận. Chỉ người đăng ký sau khi bật mới nhận được; email đi trong lần chạy kế tiếp của workflow (tối đa 15 phút).` : 'Đang tắt — chưa gửi email xác nhận nào.')
+      : 'Bật để tạo email xác nhận.';
+    $('rgZaloOn').checked = !!z.enabled; $('rgZaloTitle').value = z.title || ''; $('rgZaloText').value = z.text || ''; $('rgZaloLink').value = z.linkUrl || '';
+    regPic.zalo = z.image || '';
+    paintPics(); rgMsg('');
+    $('rgConfNote').textContent = c.enabled
+      ? `Đã gửi ${e.confirmationSent || 0} email xác nhận. Chỉ người đăng ký sau khi bật mới nhận được. Email đi trong lần chạy kế tiếp của workflow (tối đa 15 phút).`
+      : 'Đang tắt — chưa gửi email xác nhận nào.';
+  }
+  async function uploadPic(file) {
+    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : file.type === 'image/jpeg' ? 'jpg' : '';
+    if (!ext) throw new Error('Ảnh chỉ nhận PNG, JPG hoặc WebP');
+    if (file.size > 3 * 1024 * 1024) throw new Error('Ảnh tối đa 3MB');
+    const d = await api(`/api/admin/events/${selectedId}/emails/images?ext=${ext}`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/octet-stream' }, HDR), body: file });
+    return d.url;
+  }
+  async function pickPic(inputId, key) {
+    const input = $(inputId); const f = input.files[0]; input.value = ''; if (!f) return;
+    rgMsg('Đang tải ảnh…');
+    try { regPic[key] = await uploadPic(f); paintPics(); rgMsg('Đã tải ảnh. Bấm “Lưu cài đặt” để áp dụng.'); }
+    catch (err) { rgMsg(err.message, true); }
+  }
+  async function saveReg() {
+    const e = current(); if (!e) return;
+    const body = {
+      confirmation: { enabled: $('rgConfEnabled').checked },
+      zalo: {
+        enabled: $('rgZaloOn').checked, title: $('rgZaloTitle').value.trim(), text: $('rgZaloText').value,
+        image: regPic.zalo, linkUrl: $('rgZaloLink').value.trim(),
+      },
+    };
+    rgMsg('Đang lưu…');
+    try {
+      const d = await api(`/api/admin/events/${e.id}`, { method: 'PATCH', headers: JSON_HDR, body: JSON.stringify(body) });
+      const i = events.findIndex((x) => x.id === e.id); if (i >= 0) events[i] = d.event;
+      fillReg(); rgMsg('Đã lưu ✓');
+    } catch (err) { rgMsg(err.message, true); }
+  }
+
   // ---- short links (the UTM link above, shortened; the short link redirects to the full URL so UTM tags are kept) ----
   let shortFor = '';   // the long link the visible short link was made for
   const fmtDay = (iso) => { try { return new Date(iso).toLocaleDateString('vi-VN'); } catch (e) { return ''; } };
@@ -335,6 +387,13 @@
       $('utmCopied').hidden = false; setTimeout(() => { $('utmCopied').hidden = true; }, 1800);
     });
     $('utmShorten').addEventListener('click', shorten);
+    $('rgSave').addEventListener('click', saveReg);
+    $('rgEditMail').addEventListener('click', () => {
+      const c = (current() || {}).confirmation || {}; if (!c.mailId || !selectedId) return;
+      showTab('emails'); window.AdminEventEmails && window.AdminEventEmails.openMail(selectedId, c.mailId);
+    });
+    $('rgZaloFile').addEventListener('change', () => pickPic('rgZaloFile', 'zalo'));
+    $('rgZaloClear').addEventListener('click', () => { regPic.zalo = ''; paintPics(); rgMsg('Đã gỡ ảnh. Bấm “Lưu cài đặt” để áp dụng.'); });
     $('utmShortCopy').addEventListener('click', () => copyText($('utmShortResult').value, $('utmShortResult'), $('utmShortCopied')));
     $('utmShortList').addEventListener('click', async (ev) => {
       const c = ev.target.closest('[data-scopy]'); const d = ev.target.closest('[data-sdel]');

@@ -104,7 +104,33 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       bannerUrl: e.banner ? `/api/admin/events/${e.id}/banner?v=${encodeURIComponent(e.updatedAt)}` : null,
       registrations: r ? r.count : 0, bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
       joinLink: e.joinLink || '', previousTitles: e.previousTitles || [],
+      confirmation: mailer.confirmationInfo(e), zalo: e.zalo || null,
     };
+  }
+
+  // Registration extras: confirmation email (+ QR picture) and the Zalo group popup shown after registering.
+  const imgRe = (evId) => new RegExp(`^/api/email-images/${evId}-[a-f0-9]{12}\\.(png|jpg|webp)$`);
+  function cleanImage(v, evId) {
+    const s = String(v || '').trim(); if (!s) return '';
+    if (!imgRe(evId).test(s)) throw fail(400, 'Ảnh QR phải được tải lên từ phần cài đặt của sự kiện này');
+    return s;
+  }
+  function cleanLink(v, label) {
+    const s = cleanText(v, 500); if (s && !/^https?:\/\/[^\s]+$/i.test(s)) throw fail(400, `${label} phải bắt đầu bằng http:// hoặc https://`);
+    return s;
+  }
+  const cleanLong = (v, max) => String(v ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, max);
+  function applyExtras(e, b) {
+    if (b.confirmation !== undefined) mailer.setConfirmation(e, !!(b.confirmation || {}).enabled); // content: the email editor
+    if (b.zalo !== undefined) {
+      const z = b.zalo || {}; const prev = e.zalo || {};
+      const f = (k) => (z[k] !== undefined ? z[k] : prev[k]);
+      e.zalo = {
+        enabled: z.enabled !== undefined ? !!z.enabled : !!prev.enabled, title: cleanText(f('title') ?? '', 120), text: cleanLong(f('text') ?? '', 500),
+        image: cleanImage(f('image') ?? '', e.id), linkUrl: cleanLink(f('linkUrl') ?? '', 'Link nhóm Zalo'),
+      };
+      if (e.zalo.enabled && !e.zalo.image && !e.zalo.linkUrl) throw fail(400, 'Popup Zalo cần ít nhất ảnh QR hoặc link nhóm');
+    }
   }
 
   function applyFields(e, b, creating) {
@@ -422,7 +448,9 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       console.error('event lead failed (registration kept):', e.message);
       fs.appendFile(FAILED_LEADS, JSON.stringify({ at: rec.at, name, phone, email, event: ev.title, utm: rec.utm }) + '\n', () => {});
     }
-    return send(res, 200, { ok: true, seatsLeft: seatsLeft(ev) });
+    const z = ev.zalo;
+    const zalo = z && z.enabled && (z.image || z.linkUrl) ? { title: z.title || 'Tham gia nhóm Zalo', text: z.text || '', image: z.image || '', link: z.linkUrl || '' } : null;
+    return send(res, 200, { ok: true, seatsLeft: seatsLeft(ev), zalo, emailSoon: mailer.confirmationOn(ev) });
   }
 
   // ---- Admin -----------------------------------------------------------------
@@ -472,6 +500,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     if (req.method === 'PATCH') {
       const b = await readJson(req, 64 * 1024);
       applyFields(ev, b, false);
+      applyExtras(ev, b);
       ev.updatedAt = new Date().toISOString(); save();
       return send(res, 200, { event: adminEvent(ev) });
     }
