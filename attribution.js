@@ -9,11 +9,22 @@ const KEYS = ['source', 'medium', 'campaign', 'content'];
 const clean = (v) => String(v == null ? '' : v)
   .replace(/[\u0000-\u001f\u007f|=]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
 
+// The channels we track. Anything else that arrives as utm_source is recorded as "other".
+const CHANNELS = { facebook: 'social', instagram: 'social', zalo: 'social', thread: 'social', tiktok: 'social', email: 'email', website: 'web', referral: 'referral', other: 'other' };
+const ALIASES = { fb: 'facebook', meta: 'facebook', ig: 'instagram', insta: 'instagram', threads: 'thread', mail: 'email', 'e-mail': 'email', newsletter: 'email', web: 'website', site: 'website' };
+function canonicalSource(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return null;
+  const x = ALIASES[s] || s;
+  return Object.prototype.hasOwnProperty.call(CHANNELS, x) ? x : 'other';
+}
+
 // -> {source, medium, campaign, content} with only non-empty, sanitised values (or null)
 function parse(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
   const out = {};
   for (const k of KEYS) { const v = clean(input[k]); if (v) out[k] = v; }
+  if (out.source) out.source = canonicalSource(out.source);
   return Object.keys(out).length ? out : null;
 }
 
@@ -25,15 +36,12 @@ const utmTags = (input) => {
 
 const TYPES = { course: 'COURSE_REGISTRATION', document: 'MATERIAL_DOWNLOAD', event: 'EVENT_REGISTRATION', other: 'OTHERS' };
 
-// utm_source -> short code for the Lead's Source select. Unknown or missing source -> null (field left empty).
-const SOURCE_RULES = [
-  [/facebook|^fb$|^meta$/, 'FB'], [/instagram|^ig$/, 'IG'], [/zalo/, 'ZALO'], [/tiktok/, 'TIKTOK'],
-  [/youtube|^yt$/, 'YT'], [/google/, 'GOOGLE'], [/^e-?mail$|newsletter/, 'EMAIL'],
-];
+// channel -> short code for the Lead's Source select. Thread, Website, Referral and Other have no code in Twenty yet:
+// they stay in the UTM tags, and the Source field is left empty for them.
+const SOURCE_CODE = { facebook: 'FB', instagram: 'IG', zalo: 'ZALO', tiktok: 'TIKTOK', email: 'EMAIL' };
 function sourceCode(source) {
-  const s = String(source || '').toLowerCase();
-  const hit = s && SOURCE_RULES.find(([re]) => re.test(s));
-  return hit ? hit[1] : null;
+  const c = canonicalSource(source);
+  return c ? (SOURCE_CODE[c] || null) : null;
 }
 
 // Fields to merge into the POST /leads body. `type` is one of TYPES' keys.
@@ -49,4 +57,4 @@ function leadFields({ type, requestedItem, utm }) {
   return out;
 }
 
-module.exports = { parse, utmTags, leadFields, sourceCode, KEYS, TYPES };
+module.exports = { parse, utmTags, leadFields, sourceCode, canonicalSource, CHANNELS, KEYS, TYPES };

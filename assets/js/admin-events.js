@@ -261,10 +261,7 @@
   }
   function buildLink() {
     const path = $('utmEvent').value;
-    const custom = $('utmChannel').value.startsWith('custom');
-    $('utmCustomRow').hidden = !custom;
-    let [source, medium] = $('utmChannel').value.split('|');
-    if (custom) { source = slug($('utmSource').value); medium = slug($('utmMedium').value); }
+    const [source, medium] = $('utmChannel').value.split('|');
     const p = new URLSearchParams();
     if (source) p.set('utm_source', source);
     if (medium) p.set('utm_medium', medium);
@@ -424,7 +421,7 @@
     $('aeToggle').addEventListener('click', togglePublish);
     $('aeDelete').addEventListener('click', removeEvent);
     $('aeSummary').addEventListener('input', () => { $('aeSummaryHint').textContent = `${$('aeSummary').value.length}/220 ký tự`; });
-    ['utmChannel', 'utmCampaign', 'utmContent', 'utmSource', 'utmMedium'].forEach((id) => $(id).addEventListener('input', buildLink));
+    ['utmChannel', 'utmCampaign', 'utmContent'].forEach((id) => $(id).addEventListener('input', buildLink));
     $('utmCopy').addEventListener('click', async () => {
       const v = $('utmResult').value; if (!v) return;
       try { await navigator.clipboard.writeText(v); } catch (e) { $('utmResult').select(); document.execCommand('copy'); }

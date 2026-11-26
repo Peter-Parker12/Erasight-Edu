@@ -340,8 +340,18 @@ module.exports = function init(ctx) {
         ledger({ k: CLAIMS ? 'claim' : 'sent', e: en.mail.id, r: en.person.email }); // claimed = being sent; confirmed later (workflow) or by the send result (direct)
         const r = renderFor(en.ev, en.mail, en.person);
         items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
+        // Registration confirmation: the internal team gets one copy per registrant, each tracked separately
+        if (en.mail.confirm) {
+          for (const to of copyAll(en.ev)) {
+            const ck = 'cc:' + to + '>' + en.person.email;
+            const cs = state.get(key(en.mail.id, ck)) || {};
+            if (cs.sentAt || pendingNow(cs, t) || failedNow(cs, t)) continue;
+            ledger(CLAIMS ? { k: 'claim', e: en.mail.id, r: ck, cc: true } : { k: 'cc', e: en.mail.id, r: ck });
+            items.push({ to, name: 'Erasight', subject: `[ĐĂNG KÝ MỚI] ${en.person.name || en.person.email} · ${r.subject}`, html: r.html, eventId: en.ev.id, mailId: en.mail.id, internalCopy: true, copyOf: en.person.email, ledgerKey: ck });
+          }
+        }
       }
-      const mailsSent = new Map(); for (const en of take) mailsSent.set(en.mail.id, en);
+      const mailsSent = new Map(); for (const en of take) if (!en.mail.confirm) mailsSent.set(en.mail.id, en);
       for (const en of mailsSent.values()) {
         for (const to of copyAll(en.ev)) {
           const cs = state.get(key(en.mail.id, 'cc:' + to)) || {};
@@ -367,7 +377,8 @@ module.exports = function init(ctx) {
     const mailId = String(b.mailId || ''); const to = String(b.to || '').trim().toLowerCase();
     if (!/^[a-f0-9]{12}$/.test(mailId) || !EMAIL_RE.test(to)) return send(res, 400, { error: 'mailId / to invalid' });
     let confirmed = false;
-    for (const r of [to, 'cc:' + to]) {
+    const copyOf = String(b.copyOf || '').trim().toLowerCase();
+    for (const r of (copyOf ? ['cc:' + to + '>' + copyOf] : [to, 'cc:' + to])) {
       const s = state.get(key(mailId, r));
       if (s && s.claimAt && !s.sentAt) { ledger({ k: 'sent', e: mailId, r }); confirmed = true; }
     }
@@ -431,7 +442,7 @@ module.exports = function init(ctx) {
     const batch = await dueBatch(freshLeads, room);
     for (const it of batch.items) {
       const kind = it.test ? 'test' : it.internalCopy ? 'copy' : 'lead';
-      const key = it.internalCopy ? 'cc:' + it.to : it.to;
+      const key = it.ledgerKey || (it.internalCopy ? 'cc:' + it.to : it.to);
       const unsubscribe = kind === 'lead' && /huy-dang-ky-email/.test(it.html) ? unsubUrl(it.to) : '';
       const raw = mailSmtp.assemble(mailSmtp.buildMessage({ from: SEND.from, fromName: SEND.fromName, to: it.to, subject: it.subject, html: it.html,
         messageId: crypto.randomBytes(12).toString('hex'), domain: SEND.domain, unsubscribe, date: new Date(now()) }), SEND.dkim);

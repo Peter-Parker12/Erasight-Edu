@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const dns = require('dns').promises;
 const net = require('net');
 const emailHtml = require('./email-html');
+const attribution = require('./attribution');
 
 const PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 const IMG_MAX = 3 * 1024 * 1024;
@@ -216,7 +217,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => {
         const ev = (await api('GET', EV(a))).event;
         const p = new URLSearchParams();
-        p.set('utm_source', slugOf(a.source)); if (slugOf(a.medium)) p.set('utm_medium', slugOf(a.medium));
+        p.set('utm_source', attribution.canonicalSource(a.source) || 'other'); if (slugOf(a.medium)) p.set('utm_medium', slugOf(a.medium));
         p.set('utm_campaign', slugOf(a.campaign)); if (slugOf(a.content)) p.set('utm_content', slugOf(a.content));
         const path = `${ev.url}?${p.toString()}`;
         if (!a.shorten) return { path, note: 'Relative to the site: https://academy.erasight.net' + path };

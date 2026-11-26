@@ -1258,16 +1258,14 @@
           <input type="hidden" id="utmEvent" value="" />
           <div class="em-zone" id="utmNote" style="margin:0 0 12px;" hidden>Sự kiện đang là bản nháp — link chỉ hoạt động sau khi xuất bản.</div>
           <div class="form-group-clean"><label for="utmChannel">Kênh</label><select id="utmChannel">
-              <option value="facebook|social">Facebook</option><option value="tiktok|social">TikTok</option><option value="zalo|social">Zalo</option>
-              <option value="instagram|social">Instagram</option><option value="youtube|social">YouTube</option><option value="email|email">Email</option><option value="custom|">Tuỳ chỉnh…</option></select></div>
+              <option value="facebook|social">Facebook</option><option value="instagram|social">Instagram</option><option value="zalo|social">Zalo</option>
+              <option value="email|email">Email</option><option value="website|web">Website</option><option value="thread|social">Thread</option>
+              <option value="tiktok|social">TikTok</option><option value="referral|referral">Giới thiệu (referral)</option><option value="other|other">Khác (other)</option></select></div>
           <div class="form-row-2">
             <div class="form-group-clean"><label for="utmCampaign">Chiến dịch (utm_campaign)</label><input type="text" id="utmCampaign" maxlength="100" placeholder="workshop-t11" /></div>
             <div class="form-group-clean"><label for="utmContent">Nội dung (utm_content, tuỳ chọn)</label><input type="text" id="utmContent" maxlength="100" placeholder="banner-a" /></div>
           </div>
-          <div class="form-row-2" id="utmCustomRow" hidden>
-            <div class="form-group-clean"><label for="utmSource">utm_source</label><input type="text" id="utmSource" maxlength="100" placeholder="newsletter" /></div>
-            <div class="form-group-clean"><label for="utmMedium">utm_medium</label><input type="text" id="utmMedium" maxlength="100" placeholder="email" /></div>
-          </div>
+          
           <div class="form-group-clean"><label for="utmResult">Link kết quả</label><input type="text" id="utmResult" readonly style="background:#f6fafa;font-family:monospace;font-size:12.5px;" /></div>
           <div class="utm-actions"><button type="button" class="crm-btn primary" id="utmCopy">Sao chép link</button> <button type="button" class="crm-btn" id="utmShorten">Rút gọn link</button> <span class="form-hint" id="utmCopied" hidden>Đã sao chép ✓</span></div>
           <div class="utm-short" id="utmShortBox" hidden>
