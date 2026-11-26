@@ -385,8 +385,9 @@
     const url = $('utmResult').value; if (!url) return;
     shortErr(''); $('utmShorten').disabled = true;
     try {
-      const l = await api('/api/admin/short-links', { method: 'POST', headers: JSON_HDR, body: JSON.stringify({ url }) });
-      $('utmShortResult').value = location.origin + l.path; shortFor = url; $('utmShortBox').hidden = false;
+      const code = $('utmShortCode').value.trim();
+      const l = await api('/api/admin/short-links', { method: 'POST', headers: JSON_HDR, body: JSON.stringify(code ? { url, code } : { url }) });
+      $('utmShortResult').value = location.origin + l.path; $('utmShortEdit').value = l.code; shortFor = url; $('utmShortBox').hidden = false;
       loadShortList();
     } catch (err) { shortErr(err.message); }
     finally { $('utmShorten').disabled = false; }
@@ -439,6 +440,16 @@
     $('rgZaloFile').addEventListener('change', () => pickPic('rgZaloFile', 'zalo'));
     $('rgZaloClear').addEventListener('click', () => { regPic.zalo = ''; paintPics(); rgMsg('Đã gỡ ảnh. Bấm “Lưu cài đặt” để áp dụng.'); });
     $('utmShortCopy').addEventListener('click', () => copyText($('utmShortResult').value, $('utmShortResult'), $('utmShortCopied')));
+    $('utmShortRename').addEventListener('click', async () => {
+      const current = ($('utmShortResult').value.split('/s/')[1] || '');
+      const want = $('utmShortEdit').value.trim().toLowerCase();
+      if (!want || want === current) { shortErr(''); return; }
+      shortErr('');
+      try {
+        const l = await api('/api/admin/short-links/' + encodeURIComponent(current), { method: 'PATCH', headers: JSON_HDR, body: JSON.stringify({ code: want }) });
+        $('utmShortResult').value = location.origin + l.path; $('utmShortEdit').value = l.code; loadShortList();
+      } catch (err) { shortErr(err.message); }
+    });
     $('utmShortList').addEventListener('click', async (ev) => {
       const c = ev.target.closest('[data-scopy]'); const d = ev.target.closest('[data-sdel]');
       if (c) { try { await navigator.clipboard.writeText(location.origin + c.dataset.scopy); c.textContent = 'Đã chép ✓'; setTimeout(() => { c.textContent = 'Sao chép'; }, 1500); } catch (e) { /* ignore */ } }

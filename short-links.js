@@ -46,6 +46,20 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     u.hash = '';
     return u.toString();
   }
+  // Custom endings: 3-30 letters, digits or dashes. Some words are used by the site itself.
+  const CODE_RE = /^[a-z0-9][a-z0-9-]{2,29}$/;
+  const RESERVED = new Set(['admin', 'api', 'mcp', 's', 'su-kien', 'blog', 'tai-lieu-ai', 'san-pham-hoc-vien', 'huy-dang-ky-email']);
+  function cleanCode(v, selfCode) {
+    const c = String(v || '').trim().toLowerCase();
+    if (!CODE_RE.test(c)) throw fail(400, 'Đuôi link chỉ gồm chữ thường, số và dấu gạch ngang (3–30 ký tự)');
+    if (RESERVED.has(c)) throw fail(400, 'Đuôi này đã được website dùng, hãy chọn đuôi khác');
+    if (byCode.has(c) && c !== selfCode) throw fail(409, 'Đuôi này đã có link khác dùng');
+    return c;
+  }
+  function renameTo(l, code) {
+    if (code === l.code) return;
+    byCode.delete(l.code); l.code = code; byCode.set(code, l); save(true);
+  }
   const newCode = () => {
     for (let n = 0; n < 50; n++) {
       let c = ''; const b = crypto.randomBytes(CODE_LEN);
@@ -62,7 +76,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
 
   // ---- public redirect --------------------------------------------------------------
   function redirect(req, res, pathname) {
-    const m = pathname.match(/^\/s\/([a-z0-9]{4,12})\/?$/i);
+    const m = pathname.match(/^\/s\/([a-z0-9][a-z0-9-]{2,29})\/?$/i);
     const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
     if (rateLimited(ip, 'short-redirect', 300, 60_000)) { res.writeHead(429); return res.end(); }
     if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
@@ -77,7 +91,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
   async function admin(req, res, pathname) {
     if (!isAdmin(req)) return send(res, 401, { error: 'Login required' });
     if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'erasight-admin') return send(res, 403, { error: 'Bad request' });
-    const m = pathname.match(/^\/api\/admin\/short-links(?:\/([a-z0-9]{4,12}))?$/i);
+    const m = pathname.match(/^\/api\/admin\/short-links(?:\/([a-z0-9][a-z0-9-]{2,29}))?$/i);
     if (!m) return send(res, 404, { error: 'Not found' });
     if (!m[1]) {
       if (req.method === 'GET') {
@@ -89,12 +103,18 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
       if (req.method === 'POST') {
         const b = await readJson(req, 8 * 1024);
         const url = normalise(b.url);
+        const wanted = b.code !== undefined && String(b.code).trim() !== '' ? cleanCode(b.code, null) : null;
         let l = links.find((x) => x.url === url);
         if (!l) {
           if (links.length >= MAX_LINKS) throw fail(409, 'Đã đạt giới hạn số link rút gọn');
-          l = { code: newCode(), url, label: String(b.label || '').trim().slice(0, 120) || autoLabel(url), createdAt: new Date().toISOString(), clicks: 0 };
+          const code = wanted || newCode();
+          if (wanted && byCode.has(wanted)) throw fail(409, 'Đuôi này đã có link khác dùng');
+          l = { code, url, label: String(b.label || '').trim().slice(0, 120) || autoLabel(url), createdAt: new Date().toISOString(), clicks: 0 };
           links.push(l); byCode.set(l.code, l); save(true);
-        } else if (b.label && String(b.label).trim()) { l.label = String(b.label).trim().slice(0, 120); save(true); }
+        } else {
+          if (wanted) renameTo(l, cleanCode(wanted, l.code)); // same destination, new ending
+          if (b.label && String(b.label).trim()) { l.label = String(b.label).trim().slice(0, 120); save(true); }
+        }
         return send(res, 200, view(l));
       }
       return send(res, 405, { error: 'Method not allowed' });
@@ -103,6 +123,11 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     if (!l) return send(res, 404, { error: 'Not found' });
     if (req.method === 'DELETE') { links = links.filter((x) => x !== l); byCode.delete(l.code); save(true); return send(res, 200, { ok: true }); }
     if (req.method === 'GET') return send(res, 200, view(l));
+    if (req.method === 'PATCH') { // change the ending of an existing link
+      const b = await readJson(req, 2 * 1024);
+      renameTo(l, cleanCode(b.code, l.code));
+      return send(res, 200, view(l));
+    }
     return send(res, 405, { error: 'Method not allowed' });
   }
 

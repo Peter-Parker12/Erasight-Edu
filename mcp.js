@@ -213,7 +213,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
         }
         return { ...preview, text: require('./mail-smtp').textOf(preview.html), placeholders: ph.found, warnings, next: 'Save with add_email (type, subject, body = html) or update_email' };
       } },
-    { name: 'build_utm_link', description: 'Build a campaign (UTM) link for an event, optionally shortened (the short link keeps the tags and counts clicks). Source, medium, campaign and content are written like the admin page does (lowercase, dashes). Example: source "facebook", medium "social", campaign "workshop-t12".', props: { event_id: S, source: S, medium: S, campaign: S, content: S, shorten: B }, req: ['event_id', 'source', 'campaign'],
+    { name: 'build_utm_link', description: 'Build a campaign (UTM) link for an event, optionally shortened (the short link keeps the tags and counts clicks). Source, medium, campaign and content are written like the admin page does (lowercase, dashes). Example: source "facebook", medium "social", campaign "workshop-t12".', props: { event_id: S, source: S, medium: S, campaign: S, content: S, shorten: B, code: { ...S, description: 'Custom ending for the short link (3-30 letters, digits, dashes)' } }, req: ['event_id', 'source', 'campaign'],
       run: async (a) => {
         const ev = (await api('GET', EV(a))).event;
         const p = new URLSearchParams();
@@ -221,7 +221,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
         p.set('utm_campaign', slugOf(a.campaign)); if (slugOf(a.content)) p.set('utm_content', slugOf(a.content));
         const path = `${ev.url}?${p.toString()}`;
         if (!a.shorten) return { path, note: 'Relative to the site: https://academy.erasight.net' + path };
-        const sl = await api('POST', '/api/admin/short-links', { url: path });
+        const sl = await api('POST', '/api/admin/short-links', { url: path, ...(a.code ? { code: a.code } : {}) });
         return { path, shortUrl: sl.shortUrl, code: sl.code, clicks: sl.clicks };
       } },
 
@@ -264,11 +264,13 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
 
     // ---- short links ----
     { name: 'create_short_link', description: 'Shorten a campaign link: returns a short URL (https://…/s/abc123) that redirects to the full URL with all its utm_* tags kept, and counts clicks. Only links on the Erasight Academy site can be shortened. The same URL always gives the same short link.', props: { url: { ...S, description: 'Full URL (or a path like /su-kien/x?utm_source=facebook&utm_medium=social&utm_campaign=t11)' }, label: { ...S, description: 'Optional name; defaults to source/medium · campaign · content' } }, req: ['url'],
-      run: async (a) => api('POST', '/api/admin/short-links', pick(a, ['url', 'label'])) },
+      run: async (a) => api('POST', '/api/admin/short-links', pick(a, ['url', 'label', 'code'])) },
+    { name: 'rename_short_link', description: 'Change the ending of a short link (e.g. erasight/s/workshop-t12). The old short link stops working.', props: { code: S, new_code: S }, req: ['code', 'new_code'],
+      run: async (a) => api('PATCH', '/api/admin/short-links/' + String(a.code), { code: a.new_code }) },
     { name: 'list_short_links', description: 'Short links with their click counts, newest first (max 200). Optionally only those pointing at one page path, e.g. /su-kien/my-event.', props: { path: { ...S, description: 'Page path to filter on' } }, req: [],
       run: async (a) => api('GET', '/api/admin/short-links' + (a.path ? '?path=' + encodeURIComponent(a.path) : '')) },
     { name: 'delete_short_link', description: 'Delete a short link (anyone who still has it is redirected to the home page).', props: { code: S }, req: ['code'],
-      run: async (a) => { if (!/^[a-z0-9]{4,12}$/i.test(String(a.code))) throw new Error('code is invalid'); return api('DELETE', '/api/admin/short-links/' + a.code); } },
+      run: async (a) => { if (!/^[a-z0-9][a-z0-9-]{2,29}$/i.test(String(a.code))) throw new Error('code is invalid'); return api('DELETE', '/api/admin/short-links/' + a.code); } },
     { name: 'upload_email_image', description: 'Upload a picture from a public https URL for use inside an email body; returns the src to put in <img src="…"> (max 40 per event).', props: { event_id: S, image_url: S }, req: ['event_id', 'image_url'],
       run: async (a) => { const img = await fetchImage(a.image_url); const d = await api('PUT', `${EM(a)}/images?ext=${img.ext}`, undefined, img); return { src: d.url, example: `<img src="${d.url}" alt="">` }; } },
   ];

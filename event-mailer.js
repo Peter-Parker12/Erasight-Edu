@@ -197,6 +197,8 @@ module.exports = function init(ctx) {
     m.enabled = !!on;
   }
   const schedMails = (ev) => mailsOf(ev);
+  // "Registration" emails: the confirmation and any notification sent on registration (e.g. Đăng Ký Thành Công)
+  const perRegistrant = (m) => !!m.confirm || (m.type === 'notification' && !!m.timing && m.timing.mode === 'on_register');
 
   // An event takes part in sending when it is published, or when it is in test mode (drafts can be tested).
   const sendable = (ev) => ev.status === 'published' || testOn(ev);
@@ -341,7 +343,7 @@ module.exports = function init(ctx) {
         const r = renderFor(en.ev, en.mail, en.person);
         items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
         // Registration confirmation: the internal team gets one copy per registrant, each tracked separately
-        if (en.mail.confirm) {
+        if (perRegistrant(en.mail)) {
           for (const to of copyAll(en.ev)) {
             const ck = 'cc:' + to + '>' + en.person.email;
             const cs = state.get(key(en.mail.id, ck)) || {};
@@ -351,7 +353,7 @@ module.exports = function init(ctx) {
           }
         }
       }
-      const mailsSent = new Map(); for (const en of take) if (!en.mail.confirm) mailsSent.set(en.mail.id, en);
+      const mailsSent = new Map(); for (const en of take) if (!perRegistrant(en.mail)) mailsSent.set(en.mail.id, en);
       for (const en of mailsSent.values()) {
         for (const to of copyAll(en.ev)) {
           const cs = state.get(key(en.mail.id, 'cc:' + to)) || {};
