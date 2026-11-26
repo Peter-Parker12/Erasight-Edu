@@ -20,11 +20,12 @@ const textOf = (html) => String(html)
   .replace(/\n{3,}/g, '\n\n').trim();
 
 // -> { headers: [string], body: string } (CRLF line endings)
-function buildMessage({ from, fromName, to, subject, html, messageId, domain, unsubscribe, date = new Date() }) {
+function buildMessage({ from, fromName, to, cc, subject, html, messageId, domain, unsubscribe, date = new Date() }) {
   const boundary = '=_' + crypto.randomBytes(12).toString('hex');
   const headers = [
     `From: ${fromName ? `${encodeHeader(fromName)} <${from}>` : from}`,
     `To: ${to}`,
+    ...(cc && cc.length ? [`Cc: ${cc.join(', ')}`] : []),
     `Subject: ${encodeHeader(subject)}`,
     `Date: ${date.toUTCString()}`,
     `Message-ID: <${messageId}@${domain}>`,
@@ -118,7 +119,7 @@ function connect(host, port, secure) {
 }
 
 // One delivery attempt to one server. Resolves with the server's final reply; rejects with .temporary / .permanent set.
-async function session({ host, port, helo, from, to, data, user, pass, secure = false, starttls = true, allowPlainAuth = false }) {
+async function session({ host, port, helo, from, to, cc = [], data, user, pass, secure = false, starttls = true, allowPlainAuth = false }) {
   let c = new Conn(await connect(host, port, secure));
   let encrypted = secure;
   try {
@@ -149,12 +150,17 @@ async function session({ host, port, helo, from, to, data, user, pass, secure = 
     }
     await cmd(c, `MAIL FROM:<${from}>`, [250]);
     await cmd(c, `RCPT TO:<${to}>`, [250, 251]);
+    // Cc recipients: a refused one does not stop the message to the main recipient
+    const ccRejected = [];
+    for (const addr of cc) {
+      try { await cmd(c, `RCPT TO:<${addr}>`, [250, 251]); } catch (e) { ccRejected.push({ to: addr, code: e.code, message: e.message }); }
+    }
     await cmd(c, 'DATA', [354]);
     c.write(data.replace(/(^|\r\n)\./g, '$1..') + '.' + CRLF);
     const done = await c.read();
     if (done.code !== 250) throw smtpError(done.code, done.text);
     c.write('QUIT' + CRLF);
-    return done;
+    return { ...done, ccRejected };
   } finally {
     c.sock.destroy();
   }
@@ -172,7 +178,7 @@ async function mxHosts(domain) {
 }
 
 // Sends one message. cfg: {helo, from, relay?:{host,port,user,pass}, dkim?}. Throws with .temporary / .permanent.
-async function deliver(to, raw, cfg) {
+async function deliver(to, raw, cfg, cc = []) {
   const domain = to.slice(to.lastIndexOf('@') + 1);
   const targets = cfg.relay
     ? [{ host: cfg.relay.host, port: cfg.relay.port || 587, secure: !!cfg.relay.secure, user: cfg.relay.user, pass: cfg.relay.pass, allowPlainAuth: !!cfg.relay.allowPlainAuth }]
@@ -180,8 +186,8 @@ async function deliver(to, raw, cfg) {
   let last = null;
   for (const t of targets) {
     try {
-      const r = await session({ ...t, helo: cfg.helo, from: cfg.from, to, data: raw });
-      return { code: r.code, text: r.text, host: t.host };
+      const r = await session({ ...t, helo: cfg.helo, from: cfg.from, to, cc, data: raw });
+      return { code: r.code, text: r.text, host: t.host, ccRejected: r.ccRejected };
     } catch (e) {
       last = e;
       if (e.permanent) break; // the server said no: other MX hosts would say the same

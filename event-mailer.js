@@ -354,9 +354,16 @@ module.exports = function init(ctx) {
       for (const en of take) {
         ledger({ k: CLAIMS ? 'claim' : 'sent', e: en.mail.id, r: en.person.email }); // claimed = being sent; confirmed later (workflow) or by the send result (direct)
         const r = renderFor(en.ev, en.mail, en.person);
-        items.push({ to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) });
-        // Registration confirmation: the internal team gets one copy per registrant, each tracked separately
-        if (perRegistrant(en.mail)) {
+        const item = { to: en.person.email, name: en.person.name || '', subject: r.subject, html: r.html, eventId: en.ev.id, mailId: en.mail.id, ...(testOn(en.ev) ? { testMode: true } : {}) };
+        items.push(item);
+        // Direct sending: the team is put in Cc of the registrant's email (one message, tracked per team address)
+        if (perRegistrant(en.mail) && CLAIMS) {
+          const ccKeys = copyAll(en.ev).filter((a) => a !== en.person.email).map((to) => ({ to, key: 'cc:' + to + '>' + en.person.email }))
+            .filter((c) => { const cs = state.get(key(en.mail.id, c.key)) || {}; return !(cs.sentAt || pendingNow(cs, t) || failedNow(cs, t)); });
+          if (ccKeys.length) { item.cc = ccKeys.map((c) => c.to); item.ccKeys = ccKeys; }
+        }
+        // Twenty sending (one recipient per workflow item): the team gets a separate copy per registrant, each tracked separately
+        if (perRegistrant(en.mail) && !CLAIMS) {
           for (const to of copyAll(en.ev)) {
             const ck = 'cc:' + to + '>' + en.person.email;
             const cs = state.get(key(en.mail.id, ck)) || {};
@@ -459,12 +466,18 @@ module.exports = function init(ctx) {
       const kind = it.test ? 'test' : it.internalCopy ? 'copy' : 'lead';
       const key = it.ledgerKey || (it.internalCopy ? 'cc:' + it.to : it.to);
       const unsubscribe = kind === 'lead' && /huy-dang-ky-email/.test(it.html) ? unsubUrl(it.to) : '';
-      const raw = mailSmtp.assemble(mailSmtp.buildMessage({ from: SEND.from, fromName: SEND.fromName, to: it.to, subject: it.subject, html: it.html,
+      const raw = mailSmtp.assemble(mailSmtp.buildMessage({ from: SEND.from, fromName: SEND.fromName, to: it.to, cc: it.cc, subject: it.subject, html: it.html,
         messageId: crypto.randomBytes(12).toString('hex'), domain: SEND.domain, unsubscribe, date: new Date(now()) }), SEND.dkim);
       try {
-        const r = await mailSmtp.deliver(it.to, raw, SEND);
+        const r = await mailSmtp.deliver(it.to, raw, SEND, it.cc || []);
         if (kind !== 'test') ledger({ k: 'sent', e: it.mailId, r: key });
         logSend(it, 'accepted', r);
+        // team members in Cc who received it: recorded per team address and registrant
+        const refused = new Set((r.ccRejected || []).map((x) => x.to));
+        for (const c of it.ccKeys || []) {
+          if (refused.has(c.to)) { logSend({ ...it, to: c.to, internalCopy: true }, 'rejected', { code: 0, message: 'Cc refused' }); continue; }
+          ledger({ k: 'cc', e: it.mailId, r: c.key });
+        }
       } catch (e) {
         if (e.permanent) { if (kind !== 'test') ledger({ k: 'fail', e: it.mailId, r: key, reason: e.message }); logSend(it, 'rejected', e); }
         else { if (kind !== 'test') ledger({ k: 'release', e: it.mailId, r: key }); logSend(it, 'retry', e); }
