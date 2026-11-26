@@ -10,7 +10,7 @@
   const HDR = { 'X-Requested-With': 'erasight-admin' };
   const JSON_HDR = Object.assign({ 'Content-Type': 'application/json' }, HDR);
   const PHASE = { upcoming: ['Sắp diễn ra', '#E85D04'], live: ['Đang diễn ra', '#E85D04'], past: ['Đã diễn ra', '#6b8590'] };
-  const TABS = ['info', 'emails', 'utm', 'reg'];
+  const TABS = ['info', 'emails', 'utm', 'reg', 'rep'];
   const STORE_SEL = 'erasight.admin.event.selected';
   const STORE_TAB = 'erasight.admin.event.tab';
 
@@ -125,7 +125,7 @@
   function showTab(name) {
     if (isNew || !TABS.includes(name)) name = 'info';
     tab = name;
-    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'], reg: ['evTabReg', 'evPaneReg'] };
+    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'], reg: ['evTabReg', 'evPaneReg'], rep: ['evTabRep', 'evPaneRep'] };
     for (const [k, [b, p]] of Object.entries(map)) {
       const on = k === name;
       $(b).classList.toggle('is-active', on); $(b).setAttribute('aria-selected', String(on)); $(b).tabIndex = on ? 0 : -1;
@@ -136,6 +136,7 @@
     if (name === 'emails' && window.AdminEventEmails) window.AdminEventEmails.show(selectedId);
     if (name === 'utm') setUtmEvent();
     if (name === 'reg') fillReg();
+    if (name === 'rep') fillReport();
   }
 
   function confirmDiscard() {
@@ -285,7 +286,7 @@
     $('rgConfEnabled').checked = !!c.enabled;
     $('rgEditMail').disabled = !c.mailId;
     $('rgConfNote').textContent = c.mailId
-      ? (c.enabled ? `Đang bật — đã gửi ${c.sent || 0} email xác nhận. Chỉ người đăng ký sau khi bật mới nhận được; email đi trong lần chạy kế tiếp của workflow (tối đa 15 phút).` : 'Đang tắt — chưa gửi email xác nhận nào.')
+      ? (c.enabled ? `Đang bật — đã gửi ${c.sent || 0} email xác nhận. Gửi cho tất cả người đã đăng ký, kể cả người đăng ký trước khi bật; mỗi người chỉ nhận một lần. Email đi trong lần chạy kế tiếp của workflow (mỗi lần tối đa 50 email).` : 'Đang tắt — chưa gửi email xác nhận nào.')
       : 'Bật để tạo email xác nhận.';
     $('rgZaloOn').checked = !!z.enabled; $('rgZaloTitle').value = z.title || ''; $('rgZaloText').value = z.text || ''; $('rgZaloLink').value = z.linkUrl || '';
     regPic.zalo = z.image || '';
@@ -322,6 +323,49 @@
       const i = events.findIndex((x) => x.id === e.id); if (i >= 0) events[i] = d.event;
       fillReg(); rgMsg('Đã lưu ✓');
     } catch (err) { rgMsg(err.message, true); }
+  }
+
+  // ---- sending report (sent / failed counts from the server) ----
+  let repData = null;
+  const numFmt = (n) => Number(n || 0).toLocaleString('vi-VN');
+  function fillReport() {
+    if (!selectedId) return;
+    $('repCards').innerHTML = '<div class="form-hint">Đang tải…</div>';
+    const id = selectedId;
+    api(`/api/admin/events/${id}/emails/report?days=${encodeURIComponent($('repDays').value)}`, { cache: 'no-store', headers: HDR }).then((d) => {
+      if (id !== selectedId) return;
+      repData = d; renderReport(d);
+    }).catch((err) => { $('repCards').innerHTML = `<div class="form-hint">${esc(err.message)}</div>`; });
+  }
+  function renderReport(d) {
+    const st = d.setup || {};
+    const warn = [];
+    if (st.mode !== 'direct') warn.push('Đang gửi qua workflow Twenty. Đặt MAIL_MODE=direct để máy chủ tự gửi.');
+    else if (!st.ready) warn.push('Chưa đặt MAIL_FROM — máy chủ chưa gửi được email.');
+    if (st.mode === 'direct' && !st.dkim) warn.push('Chưa cấu hình DKIM — email dễ bị đưa vào thư rác.');
+    $('repSetup').innerHTML = `<b>Chế độ gửi:</b> ${st.mode === 'direct' ? 'máy chủ tự gửi' : 'Twenty workflow'}${st.from ? ` · từ <code>${esc(st.from)}</code>` : ''}${st.relay ? ` · qua ${esc(st.relay)}` : ''}${st.dkim ? ' · DKIM ✓' : ''}`
+      + (warn.length ? `<div class="em-zone" style="margin-top:8px;">${warn.map(esc).join('<br>')}</div>` : '');
+    const t = d.totals;
+    const card = (n, label, cls) => `<div class="rep-card ${cls || ''}"><b>${numFmt(n)}</b><span>${label}</span></div>`;
+    $('repCards').innerHTML = card(t.sent, 'Đã gửi (máy chủ nhận)', 'ok') + card(t.pending, 'Đang gửi') + card(t.retry, 'Sẽ thử lại', 'warn')
+      + card(t.failed, 'Thất bại', 'bad') + card(t.cancelled, 'Đã huỷ') + card(t.copies, 'Bản sao nội bộ');
+    const rows = d.perMail.map((m) => `<tr><td class="em-t">${esc(m.name)}${m.confirm ? ' <span class="em-badge o">Tự động</span>' : ''}</td><td>${m.enabled ? 'Bật' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${numFmt(m.sent)}</td><td class="em-num">${numFmt(m.pending)}</td><td class="em-num">${numFmt(m.retry)}</td><td class="em-num">${numFmt(m.failed)}</td><td class="em-num">${numFmt(m.cancelled)}</td></tr>`).join('');
+    $('repMails').innerHTML = d.perMail.length ? `<table class="em-tbl"><tr><th>Email</th><th>Trạng thái</th><th>Đã gửi</th><th>Đang gửi</th><th>Sẽ thử lại</th><th>Thất bại</th><th>Huỷ</th></tr>${rows}</table>` : '<div class="em-empty">Sự kiện chưa có email nào.</div>';
+    const max = Math.max(1, ...d.byDay.map((x) => x.accepted + x.rejected + x.retry));
+    $('repDaily').innerHTML = d.byDay.length ? `<table class="em-tbl"><tr><th>Ngày</th><th>Đã nhận</th><th>Bị từ chối</th><th>Thử lại</th><th style="width:40%">Biểu đồ</th></tr>${d.byDay.map((x) =>
+      `<tr><td>${esc(x.day)}</td><td class="em-num">${numFmt(x.accepted)}</td><td class="em-num">${numFmt(x.rejected)}</td><td class="em-num">${numFmt(x.retry)}</td><td><div class="rep-bar"><i style="width:${Math.round(x.accepted / max * 100)}%"></i><u style="width:${Math.round((x.rejected + x.retry) / max * 100)}%"></u></div></td></tr>`).join('')}</table>`
+      : '<div class="em-empty">Chưa có lần gửi nào trong khoảng này.</div>';
+    $('repFail').innerHTML = d.failures.length ? `<table class="em-tbl"><tr><th>Thời gian</th><th>Email nhận</th><th>Mã</th><th>Lý do từ máy chủ nhận</th><th>Kết quả</th></tr>${d.failures.map((f) =>
+      `<tr><td>${esc(new Date(f.at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }))}</td><td>${esc(f.to)}</td><td class="em-num">${esc(f.code || '')}</td><td>${esc(f.msg)}</td><td>${f.status === 'rejected' ? '<span class="em-badge r">Không gửi được</span>' : '<span class="em-badge o">Sẽ thử lại</span>'}</td></tr>`).join('')}</table>`
+      : '<div class="em-empty">Không có lỗi.</div>';
+  }
+  function reportCsv() {
+    if (!repData) return;
+    const cols = ['name', 'type', 'enabled', 'sent', 'pending', 'retry', 'failed', 'cancelled', 'copies'];
+    const q = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const csv = [cols.join(','), ...repData.perMail.map((m) => cols.map((c) => q(m[c])).join(','))].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `bao-cao-gui-${selectedId}.csv`; document.body.appendChild(a); a.click(); a.remove();
   }
 
   // ---- short links (the UTM link above, shortened; the short link redirects to the full URL so UTM tags are kept) ----
@@ -388,6 +432,9 @@
     });
     $('utmShorten').addEventListener('click', shorten);
     $('rgSave').addEventListener('click', saveReg);
+    $('repRefresh').addEventListener('click', fillReport);
+    $('repDays').addEventListener('change', fillReport);
+    $('repCsv').addEventListener('click', reportCsv);
     $('rgEditMail').addEventListener('click', () => {
       const c = (current() || {}).confirmation || {}; if (!c.mailId || !selectedId) return;
       showTab('emails'); window.AdminEventEmails && window.AdminEventEmails.openMail(selectedId, c.mailId);

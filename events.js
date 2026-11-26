@@ -450,6 +450,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     }
     const z = ev.zalo;
     const zalo = z && z.enabled && (z.image || z.linkUrl) ? { title: z.title || 'Tham gia nhóm Zalo', text: z.text || '', image: z.image || '', link: z.linkUrl || '' } : null;
+    mailer.kick(true); // direct mode: send the confirmation now (fresh lead list), not at the next timer tick
     return send(res, 200, { ok: true, seatsLeft: seatsLeft(ev), zalo, emailSoon: mailer.confirmationOn(ev) });
   }
 

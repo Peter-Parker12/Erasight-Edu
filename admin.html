@@ -1142,6 +1142,7 @@
                 <button type="button" class="ev-tab" role="tab" id="evTabEmails" data-etab="emails" aria-controls="emCard" aria-selected="false">Email theo lịch</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabUtm" data-etab="utm" aria-controls="evPaneUtm" aria-selected="false">Link theo dõi (UTM)</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabReg" data-etab="reg" aria-controls="evPaneReg" aria-selected="false">Xác nhận &amp; Zalo</button>
+                <button type="button" class="ev-tab" role="tab" id="evTabRep" data-etab="rep" aria-controls="evPaneRep" aria-selected="false">Báo cáo gửi</button>
               </div>
 
               <div class="ev-pane" id="evPaneInfo" role="tabpanel" aria-labelledby="evTabInfo">
@@ -1220,7 +1221,7 @@
           <p class="form-hint" style="margin:0 0 14px;">Dành cho người vừa đăng ký: một email xác nhận (kèm mã QR) gửi tự động, và một popup nhóm Zalo hiện ngay sau khi họ bấm “Xác nhận đăng ký”.</p>
           <div class="rg-card">
             <div class="rg-head"><b>1 · Email xác nhận đăng ký</b><label class="em-check" style="margin:0;"><input type="checkbox" id="rgConfEnabled" /> Bật</label></div>
-            <p class="form-hint" style="margin:0 0 10px;">Gửi tự động cho mỗi người vừa đăng ký (chỉ người đăng ký sau khi bật). Tiêu đề, nội dung, ảnh QR và nút bấm được sửa trong trình soạn email.</p>
+            <p class="form-hint" style="margin:0 0 10px;">Gửi tự động cho mỗi người đã đăng ký, kể cả những người đăng ký trước khi bật (mỗi người chỉ nhận một lần). Tiêu đề, nội dung, ảnh QR và nút bấm được sửa trong trình soạn email.</p>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button type="button" class="crm-btn" id="rgEditMail">Sửa nội dung email xác nhận →</button> <span class="form-hint" id="rgConfNote"></span></div>
           </div>
 
@@ -1236,6 +1237,20 @@
           </div>
 
           <div style="display:flex;gap:10px;align-items:center;margin-top:14px;"><button type="button" class="crm-btn primary" id="rgSave">Lưu cài đặt</button><span class="form-hint" id="rgMsg"></span></div>
+        </div>
+
+              <div class="ev-pane" id="evPaneRep" role="tabpanel" aria-labelledby="evTabRep" hidden>
+          <div class="rep-top"><div id="repSetup" class="rep-setup"></div>
+            <div class="rep-ctl"><label for="repDays">Khoảng thời gian</label><select id="repDays"><option value="7">7 ngày</option><option value="14" selected>14 ngày</option><option value="30">30 ngày</option></select>
+            <button type="button" class="crm-btn sm" id="repRefresh">↻ Làm mới</button> <button type="button" class="crm-btn sm" id="repCsv">Tải CSV</button></div></div>
+          <div class="rep-cards" id="repCards"></div>
+          <h3 class="rep-h">Theo từng email</h3>
+          <div class="rep-scroll" id="repMails"></div>
+          <h3 class="rep-h">Theo ngày (giờ Việt Nam)</h3>
+          <div class="rep-scroll" id="repDaily"></div>
+          <h3 class="rep-h">Chưa gửi được (lỗi từ máy chủ nhận)</h3>
+          <div class="rep-scroll" id="repFail"></div>
+          <p class="form-hint">“Đã gửi” nghĩa là máy chủ của người nhận đã nhận email. Không đo được việc email vào hộp thư, mở hay bấm link.</p>
         </div>
 
               <div class="ev-pane" id="evPaneUtm" role="tabpanel" aria-labelledby="evTabUtm" hidden>
