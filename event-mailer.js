@@ -137,6 +137,19 @@ module.exports = function init(ctx) {
     return leads;
   }
 
+  // Registrations per event, counted from Twenty: EVENT_REGISTRATION leads whose requested item is the event (or one of its old titles).
+  // -> Map(eventId -> count), or null when Twenty cannot be read.
+  async function twentyRegistrationCounts(evs) {
+    let leads;
+    try { leads = await fetchLeads(false); } catch { return null; }
+    const out = new Map();
+    for (const ev of evs) {
+      const titles = new Set([h.norm(ev.title), ...(ev.previousTitles || []).map(h.norm)]);
+      out.set(ev.id, leads.reduce((n, l) => n + (l.type === 'EVENT_REGISTRATION' && titles.has(h.norm(l.item)) ? 1 : 0), 0));
+    }
+    return out;
+  }
+
   // One person per email address (several leads with the same email collapse into one).
   function peopleFor(ev, leads) {
     const titles = new Set([h.norm(ev.title), ...(ev.previousTitles || []).map(h.norm)]);
@@ -869,5 +882,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { kick, sendRound, reportFor, setupInfo, confirmationOn, confirmationInfo, setConfirmation, workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
+  return { twentyRegistrationCounts, kick, sendRound, reportFor, setupInfo, confirmationOn, confirmationInfo, setConfirmation, workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };

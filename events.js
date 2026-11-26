@@ -94,7 +94,8 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   const bannerUrl = (e) => `/api/events/${e.id}/banner?v=${encodeURIComponent(e.updatedAt)}`;
   const eventUrl = (e) => `/su-kien-${e.slug}`;
 
-  function adminEvent(e) {
+  // twCount: registrations counted from Twenty (undefined -> fall back to this server's own count)
+  function adminEvent(e, twCount) {
     const r = regs.get(e.id);
     return {
       id: e.id, slug: e.slug, title: e.title, summary: e.summary, body: e.body, mode: e.mode, location: e.location,
@@ -102,7 +103,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       status: e.status, hasBanner: !!e.banner, url: eventUrl(e), phase: phase(e),
       // served from the admin route: the admin cookie is scoped to /api/admin, so drafts' banners show here too
       bannerUrl: e.banner ? `/api/admin/events/${e.id}/banner?v=${encodeURIComponent(e.updatedAt)}` : null,
-      registrations: r ? r.count : 0, bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
+      registrations: twCount != null ? twCount : (r ? r.count : 0), registrationSource: twCount != null ? 'twenty' : 'server', bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
       joinLink: e.joinLink || '', previousTitles: e.previousTitles || [],
       confirmation: mailer.confirmationInfo(e), zalo: e.zalo || null,
     };
@@ -463,7 +464,10 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     const [, id, sub] = m;
 
     if (!id) {
-      if (req.method === 'GET') return send(res, 200, { events: [...events].sort((a, b) => startMs(b) - startMs(a)).map(adminEvent) });
+      if (req.method === 'GET') {
+        const tw = await mailer.twentyRegistrationCounts(events);
+        return send(res, 200, { events: [...events].sort((a, b) => startMs(b) - startMs(a)).map((e) => adminEvent(e, tw && tw.get(e.id))) });
+      }
       if (req.method === 'POST') {
         const b = await readJson(req, 64 * 1024);
         const now = new Date().toISOString();
@@ -497,13 +501,14 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       return send(res, 200, { event: adminEvent(ev) });
     }
 
-    if (req.method === 'GET') return send(res, 200, { event: adminEvent(ev) });
+    const twCount = async () => { const tw = await mailer.twentyRegistrationCounts([ev]); return tw ? tw.get(ev.id) : undefined; };
+    if (req.method === 'GET') return send(res, 200, { event: adminEvent(ev, await twCount()) });
     if (req.method === 'PATCH') {
       const b = await readJson(req, 64 * 1024);
       applyFields(ev, b, false);
       applyExtras(ev, b);
       ev.updatedAt = new Date().toISOString(); save();
-      return send(res, 200, { event: adminEvent(ev) });
+      return send(res, 200, { event: adminEvent(ev, await twCount()) });
     }
     if (req.method === 'DELETE') {
       removeBanner(ev.banner); mailer.removeImages(ev.id);
