@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-module.exports = function init({ twenty, leadFields, twentyReady, normalizePhone, send, readJson, rateLimited }) {
+module.exports = function init({ twenty, leadFields, twentyReady, normalizePhone, send, readJson, rateLimited, isInternal }) {
   const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
   const FILES_DIR = path.join(DATA_DIR, 'files');
   const COVERS_DIR = path.join(DATA_DIR, 'covers');
@@ -109,7 +109,7 @@ module.exports = function init({ twenty, leadFields, twentyReady, normalizePhone
   function setCookie(req, res, name, value, maxAgeMs, cookiePath) {
     res.setHeader('Set-Cookie', `${name}=${encodeURIComponent(value)}; Path=${cookiePath}; HttpOnly; SameSite=Lax; Max-Age=${Math.floor(maxAgeMs / 1000)}${isHttps(req) ? '; Secure' : ''}`);
   }
-  const isAdmin = (req) => !!verify(cookies(req).adm, 'admin');
+  const isAdmin = (req) => !!verify(cookies(req).adm, 'admin') || !!(isInternal && isInternal(req));
   const hasAccess = (req) => verify(cookies(req).lib_access, 'access');
 
   // ---- Helpers ---------------------------------------------------------------

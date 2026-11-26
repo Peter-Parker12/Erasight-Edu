@@ -10,6 +10,7 @@
 const crypto = require('crypto');
 const dns = require('dns').promises;
 const net = require('net');
+const emailHtml = require('./email-html');
 
 const PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 const IMG_MAX = 3 * 1024 * 1024;
@@ -44,21 +45,51 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
     if (net.isIPv4(ip)) { const [a, b] = ip.split('.').map(Number); return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224; }
     const x = ip.toLowerCase(); return x === '::1' || x === '::' || x.startsWith('fc') || x.startsWith('fd') || x.startsWith('fe80') || x.startsWith('::ffff:');
   };
-  async function fetchImage(url) {
-    let u; try { u = new URL(String(url)); } catch { throw new Error('image_url is not a valid URL'); }
-    if (u.protocol !== 'https:') throw new Error('image_url must start with https://');
-    if (net.isIP(u.hostname) || /^localhost$|\.local$|\.internal$/i.test(u.hostname)) throw new Error('image_url must be a public host name');
+  // Downloads a file from a public https address. types: { ext: mime }, max: bytes. Returns { buf, ext }.
+  async function fetchFile(url, types, max, what) {
+    let u; try { u = new URL(String(url)); } catch { throw new Error(`${what} URL is not valid`); }
+    if (u.protocol !== 'https:') throw new Error(`${what} URL must start with https://`);
+    if (net.isIP(u.hostname) || /^localhost$|\.local$|\.internal$/i.test(u.hostname)) throw new Error(`${what} URL must use a public host name`);
     const addrs = await dns.lookup(u.hostname, { all: true });
-    if (!addrs.length || addrs.some((a) => privateIp(a.address))) throw new Error('image_url resolves to a non-public address');
-    const r = await fetch(u, { redirect: 'error', signal: AbortSignal.timeout(15000), headers: { Accept: 'image/png,image/jpeg,image/webp' } });
-    if (!r.ok) throw new Error(`Could not download the image (HTTP ${r.status})`);
+    if (!addrs.length || addrs.some((a) => privateIp(a.address))) throw new Error(`${what} URL resolves to a non-public address`);
+    const r = await fetch(u, { redirect: 'error', signal: AbortSignal.timeout(60000) });
+    if (!r.ok) throw new Error(`Could not download the ${what} (HTTP ${r.status})`);
     const type = String(r.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
-    const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[type];
-    if (!ext) throw new Error('Only PNG, JPG or WebP images are accepted');
-    if (Number(r.headers.get('content-length')) > IMG_MAX) throw new Error('Image is larger than 3MB');
+    const ext = Object.keys(types).find((k) => types[k] === type) || (type === 'application/octet-stream' ? String(u.pathname).split('.').pop().toLowerCase() : '');
+    if (!ext || !types[ext]) throw new Error(`${what} type not accepted (${type || 'unknown'})`);
+    if (Number(r.headers.get('content-length')) > max) throw new Error(`${what} is too large`);
     const buf = Buffer.from(await r.arrayBuffer());
-    if (buf.length > IMG_MAX) throw new Error('Image is larger than 3MB');
+    if (buf.length > max) throw new Error(`${what} is too large`);
     return { buf, ext };
+  }
+    const fetchImage = (url) => fetchFile(url, { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }, IMG_MAX, 'image');
+
+  // ---- drafting helpers (no saving here: the result is a preview to check, then add_email / update_email saves it) ----
+  const slugOf = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const KNOWN_TOKENS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url'];
+  const BLOCK_TYPES = ['heading', 'subheading', 'paragraph', 'bullets', 'button', 'image', 'divider'];
+  function blocksToHtml(blocks) {
+    const E = emailHtml.esc;
+    const t = (x) => E(String(x == null ? '' : x)).replace(/\n/g, '<br>');
+    return blocks.map((b) => {
+      switch (b.type) {
+        case 'heading': return `<h2>${t(b.text)}</h2>`;
+        case 'subheading': return `<h3>${t(b.text)}</h3>`;
+        case 'paragraph': return `<p>${t(b.text)}</p>`;
+        case 'bullets': return `<ul>${(b.items || []).map((i) => `<li>${t(i)}</li>`).join('')}</ul>`;
+        case 'button': return `<p><a href="${E(b.url)}" data-btn="1">${t(b.label || 'Xem thêm')}</a></p>`;
+        case 'image': {
+          const img = `<img src="${E(b.src)}" alt="${E(b.alt || '')}" width="${/^\d{2,3}$/.test(String(b.width)) ? Number(b.width) : 560}">`;
+          return `<p>${b.url ? `<a href="${E(b.url)}">${img}</a>` : img}</p>`;
+        }
+        case 'divider': return '<hr>';
+        default: throw new Error(`Unknown block type "${b.type}". Use one of: ${BLOCK_TYPES.join(', ')}`);
+      }
+    }).join('');
+  }
+  function placeholdersIn(text) {
+    const found = new Set(); for (const m of String(text).matchAll(/\{\{\s*([a-z_]+)\s*\}\}/gi)) found.add(m[1].toLowerCase());
+    return { found: [...found], unknown: [...found].filter((x) => !KNOWN_TOKENS.includes(x)) };
   }
 
   // ---- views -------------------------------------------------------------------------------------------------------
@@ -70,6 +101,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
   const mid = (a) => { if (!/^[a-f0-9]{12}$/.test(String(a.mail_id || ''))) throw new Error('mail_id must be a 12-character email id (see get_email_config)'); return a.mail_id; };
   const EV = (a) => `/api/admin/events/${eid(a)}`;
   const EM = (a) => `${EV(a)}/emails`;
+  const docId = (a) => { if (!/^[a-f0-9]{16}$/.test(String(a.document_id || ''))) throw new Error('document_id must be a 16-character id (see list_documents)'); return a.document_id; };
+  const showId = (a) => { if (!/^shc_[a-f0-9]{12}$/.test(String(a.showcase_id || ''))) throw new Error('showcase_id must look like shc_xxxxxxxxxxxx (see list_showcases)'); return a.showcase_id; };
 
   const S = { type: 'string' }, B = { type: 'boolean' }, N = { type: 'integer' };
   const EVENT_PROPS = {
@@ -154,6 +187,80 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
         }
         return (await api('PATCH', EV(a), body)).event;
       } },
+    // ---- drafting ----
+    { name: 'draft_email', description: 'Draft an event email from simple blocks and preview it (nothing is saved). Blocks: heading, subheading, paragraph, bullets (items), button (label + url), image (src from upload_email_image, optional url and width), divider. Placeholders you can use in text, links and the subject: {{name}} {{first_name}} {{email}} {{requested_item}} {{event_title}} {{event_date}} {{event_time}} {{event_mode}} {{event_location}} {{join_link}} {{event_url}}. With event_id the preview fills the event details and a sample name. Save the result with add_email (type, subject, body = the html returned).',
+      props: { subject: S, blocks: { type: 'array', description: 'Email content in order', items: { type: 'object', properties: { type: { type: 'string', enum: BLOCK_TYPES }, text: S, items: { type: 'array', items: S }, label: S, url: S, src: S, alt: S, width: S } } }, event_id: S, sample_name: S }, req: ['subject', 'blocks'],
+      run: async (a) => {
+        if (!Array.isArray(a.blocks) || !a.blocks.length) throw new Error('blocks must be a non-empty list');
+        const html = emailHtml.sanitize(blocksToHtml(a.blocks));
+        if (emailHtml.isEmpty(html)) throw new Error('The email has no text or picture');
+        const subject = String(a.subject).replace(/[\r\n]+/g, ' ').trim().slice(0, 200);
+        const ph = placeholdersIn(subject + ' ' + html);
+        const warnings = [];
+        if (ph.unknown.length) warnings.push(`Unknown placeholders (they will stay as typed): ${ph.unknown.map((x) => '{{' + x + '}}').join(', ')}`);
+        if (/\{\{(join_link|event_url)\}\}/.test(html) && !a.event_id) warnings.push('The email uses {{join_link}} / {{event_url}}: pass event_id to preview their values');
+        let preview = { subject, html };
+        if (a.event_id) {
+          const ev = (await api('GET', EV(a))).event;
+          const sample = a.sample_name || 'Nguyễn Văn An';
+          const vals = { name: sample, first_name: sample.split(/\s+/).pop(), email: 'an@example.com', requested_item: ev.title,
+            event_title: ev.title, event_date: ev.startLocal ? ev.startLocal.slice(0, 10) : '', event_time: ev.startLocal ? ev.startLocal.slice(11, 16) : '', event_mode: ev.mode === 'offline' ? 'Trực tiếp' : 'Trực tuyến',
+            event_location: ev.location || '', join_link: ev.joinLink || '', event_url: ev.url || '' };
+          const fill = (x) => String(x).replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (m, k) => (vals[k.toLowerCase()] !== undefined ? emailHtml.esc(vals[k.toLowerCase()]) : m));
+          preview = { subject: subject.replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (m, k) => (vals[k.toLowerCase()] !== undefined ? vals[k.toLowerCase()] : m)), html: fill(html) };
+          if (!ev.joinLink && /join_link/.test(html)) warnings.push('The event has no join link yet: the {{join_link}} link will be empty');
+        }
+        return { ...preview, text: require('./mail-smtp').textOf(preview.html), placeholders: ph.found, warnings, next: 'Save with add_email (type, subject, body = html) or update_email' };
+      } },
+    { name: 'build_utm_link', description: 'Build a campaign (UTM) link for an event, optionally shortened (the short link keeps the tags and counts clicks). Source, medium, campaign and content are written like the admin page does (lowercase, dashes). Example: source "facebook", medium "social", campaign "workshop-t12".', props: { event_id: S, source: S, medium: S, campaign: S, content: S, shorten: B }, req: ['event_id', 'source', 'campaign'],
+      run: async (a) => {
+        const ev = (await api('GET', EV(a))).event;
+        const p = new URLSearchParams();
+        p.set('utm_source', slugOf(a.source)); if (slugOf(a.medium)) p.set('utm_medium', slugOf(a.medium));
+        p.set('utm_campaign', slugOf(a.campaign)); if (slugOf(a.content)) p.set('utm_content', slugOf(a.content));
+        const path = `${ev.url}?${p.toString()}`;
+        if (!a.shorten) return { path, note: 'Relative to the site: https://academy.erasight.net' + path };
+        const sl = await api('POST', '/api/admin/short-links', { url: path });
+        return { path, shortUrl: sl.shortUrl, code: sl.code, clicks: sl.clicks };
+      } },
+
+    // ---- event sending report ----
+    { name: 'get_email_report', description: 'Sending report for one event: sent / pending / retrying / failed / cancelled per email, daily numbers and the reasons for refused messages, plus the sending setup (mode, account, daily cap).', props: { event_id: S, days: { type: 'integer', minimum: 1, maximum: 90, description: 'Days of history (default 14)' } }, req: ['event_id'],
+      run: async (a) => api('GET', `${EM(a)}/report?days=${Math.min(90, Math.max(1, Number(a.days) || 14))}`) },
+
+    // ---- Tài liệu AI (documents) ----
+    { name: 'list_documents', description: 'AI documents in the library (Tài liệu AI), newest first: id, title, description, type, views, status, link, whether a file and a cover are set.', props: {}, req: [],
+      run: async () => (await api('GET', '/api/admin/documents')).documents },
+    { name: 'create_document', description: 'Add a document. Give a link (external page), then add the file with set_document_file if needed.', props: { title: S, description: S, link: { ...S, description: 'https:// link to the document or page' }, views: { type: 'integer', description: 'Starting view count (random if omitted)' } }, req: ['title'],
+      run: async (a) => (await api('POST', '/api/admin/documents', pick(a, ['title', 'description', 'link', 'views']))).document },
+    { name: 'update_document', description: 'Change a document’s title, description, link or view count (send only what changes).', props: { document_id: S, title: S, description: S, link: S, views: { type: 'integer' } }, req: ['document_id'],
+      run: async (a) => (await api('PATCH', `/api/admin/documents/${docId(a)}`, pick(a, ['title', 'description', 'link', 'views']))).document },
+    { name: 'set_document_file', description: 'Attach the file for a document from a public https URL. Accepted: pdf, docx, doc, xlsx, xls, csv (max 25 MB).', props: { document_id: S, file_url: S }, req: ['document_id', 'file_url'],
+      run: async (a) => { const f = await fetchFile(a.file_url, { pdf: 'application/pdf', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', doc: 'application/msword', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', csv: 'text/csv' }, 25 * 1024 * 1024, 'file'); return (await api('PUT', `/api/admin/documents/${docId(a)}/file?ext=${f.ext}`, undefined, f)).document; } },
+    { name: 'set_document_cover', description: 'Set the cover picture of a document from a public https image URL (PNG, JPG or WebP, max 3 MB).', props: { document_id: S, image_url: S }, req: ['document_id', 'image_url'],
+      run: async (a) => { const f = await fetchImage(a.image_url); return (await api('PUT', `/api/admin/documents/${docId(a)}/cover?ext=${f.ext}`, undefined, f)).document; } },
+    { name: 'delete_document', description: 'PERMANENTLY delete a document and its file and cover. confirm_title must equal the document title exactly.', props: { document_id: S, confirm_title: S }, req: ['document_id', 'confirm_title'],
+      run: async (a) => { const d = (await api('GET', '/api/admin/documents')).documents.find((x) => x.id === docId(a)); if (!d) throw new Error('Document not found'); if (String(a.confirm_title) !== d.title) throw new Error(`confirm_title does not match. The document is called: "${d.title}"`); await api('DELETE', `/api/admin/documents/${d.id}`); return { ok: true, deleted: d.title }; } },
+
+    // ---- Sản phẩm học viên (showcases) ----
+    { name: 'list_showcases', description: 'Student showcases (Sản phẩm học viên): id, title, student, course, category, badge, description, media type and whether media / thumb / avatar are set.', props: {}, req: [],
+      run: async () => (await api('GET', '/api/admin/showcases')).showcases },
+    { name: 'create_showcase', description: 'Add a student showcase. Then add its picture or video with set_showcase_media.', props: { title: S, student_name: S, student_role: S, course: { type: 'string', enum: ['mkt', 'eng'], description: 'mkt = AI Marketing, eng = English Track' }, category: S, badge: S, description: S, media_type: { type: 'string', enum: ['video', 'image'] } }, req: ['title', 'student_name'],
+      run: async (a) => (await api('POST', '/api/admin/showcases', { title: a.title, studentName: a.student_name, studentRole: a.student_role, course: a.course, category: a.category, badge: a.badge, description: a.description, mediaType: a.media_type })).showcase },
+    { name: 'update_showcase', description: 'Change a showcase’s text fields (send only what changes).', props: { showcase_id: S, title: S, student_name: S, student_role: S, course: { type: 'string', enum: ['mkt', 'eng'] }, category: S, badge: S, description: S }, req: ['showcase_id'],
+      run: async (a) => (await api('PATCH', `/api/admin/showcases/${showId(a)}`, pick({ title: a.title, studentName: a.student_name, studentRole: a.student_role, course: a.course, category: a.category, badge: a.badge, description: a.description }, ['title', 'studentName', 'studentRole', 'course', 'category', 'badge', 'description']))).showcase },
+    { name: 'set_showcase_media', description: 'Set a showcase picture from a public https URL. kind: "media" = the video (mp4 or webm, up to 60 MB) or a main image; "thumb" = poster / cover image (max 12 MB); "avatar" = student photo (max 5 MB). Pictures: png, jpg or webp.', props: { showcase_id: S, kind: { type: 'string', enum: ['media', 'thumb', 'avatar'] }, url: S }, req: ['showcase_id', 'kind', 'url'],
+      run: async (a) => {
+        const kind = String(a.kind);
+        const images = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' };
+        const f = kind === 'media'
+          ? await fetchFile(a.url, { mp4: 'video/mp4', webm: 'video/webm', ...images }, 60 * 1024 * 1024, 'media')
+          : await fetchFile(a.url, images, kind === 'thumb' ? 12 * 1024 * 1024 : 5 * 1024 * 1024, kind === 'thumb' ? 'cover image' : 'avatar');
+        return (await api('PUT', `/api/admin/showcases/${showId(a)}/${kind}?ext=${f.ext}`, undefined, f)).showcase;
+      } },
+    { name: 'delete_showcase', description: 'PERMANENTLY delete a showcase and its files. confirm_title must equal the showcase title exactly.', props: { showcase_id: S, confirm_title: S }, req: ['showcase_id', 'confirm_title'],
+      run: async (a) => { const x = (await api('GET', '/api/admin/showcases')).showcases.find((s) => s.id === showId(a)); if (!x) throw new Error('Showcase not found'); if (String(a.confirm_title) !== x.title) throw new Error(`confirm_title does not match. The showcase is called: "${x.title}"`); await api('DELETE', `/api/admin/showcases/${x.id}`); return { ok: true, deleted: x.title }; } },
+
     // ---- short links ----
     { name: 'create_short_link', description: 'Shorten a campaign link: returns a short URL (https://…/s/abc123) that redirects to the full URL with all its utm_* tags kept, and counts clicks. Only links on the Erasight Academy site can be shortened. The same URL always gives the same short link.', props: { url: { ...S, description: 'Full URL (or a path like /su-kien/x?utm_source=facebook&utm_medium=social&utm_campaign=t11)' }, label: { ...S, description: 'Optional name; defaults to source/medium · campaign · content' } }, req: ['url'],
       run: async (a) => api('POST', '/api/admin/short-links', pick(a, ['url', 'label'])) },

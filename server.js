@@ -322,9 +322,15 @@ const blog = require('./blog-ssr')({
 const attribution = require('./attribution');
 
 // ---- Document library (admin uploads, gallery, gated downloads) -----------
+// The MCP server (mcp.js) calls the admin APIs over loopback with a random per-process secret, accepted as "admin".
+const MCP_INTERNAL = crypto.randomBytes(24).toString('hex');
+const internalOk = (req) => {
+  const got = String(req.headers['x-mcp-internal'] || '');
+  return got.length === MCP_INTERNAL.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(MCP_INTERNAL));
+};
 const documents = require('./documents')({
   twenty, leadFields: attribution.leadFields, normalizePhone, send, readJson, rateLimited,
-  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY),
+  twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isInternal: internalOk,
 });
 
 // ---- Showcase library (admin student project uploads) ---------------------
@@ -334,12 +340,7 @@ const showcases = require('./showcases')({
 
 // ---- Events (admin-managed listing, per-event pages, on-site registration -> CRM lead) ----
 // The MCP server (mcp.js) calls the events admin API over loopback with a random per-process secret, accepted here as "admin".
-const MCP_INTERNAL = crypto.randomBytes(24).toString('hex');
-const eventsAdmin = (req) => {
-  const got = String(req.headers['x-mcp-internal'] || '');
-  if (got.length === MCP_INTERNAL.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(MCP_INTERNAL))) return true;
-  return documents.isAdmin(req);
-};
+const eventsAdmin = (req) => internalOk(req) || documents.isAdmin(req);
 const events = require('./events')({
   ROOT, SITE_URL, finalize: stampAssets, respond, twenty, normalizePhone, send, readJson, rateLimited,
   twentyReady: () => !!(TWENTY_URL && TWENTY_API_KEY), isAdmin: eventsAdmin,
