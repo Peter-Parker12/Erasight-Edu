@@ -406,7 +406,7 @@
   }
   function svRenderTesters(list) {
     $('svTestList').innerHTML = list.length ? `<table class="em-tbl"><tr><th>Người thử</th><th>Link</th><th></th></tr>${list.map((t) =>
-      `<tr><td class="em-t">${esc(t.email)}</td><td><code class="sv-test-link">${esc(location.origin + t.link)}</code></td><td style="white-space:nowrap"><button type="button" class="crm-btn sm" data-tcopy="${esc(location.origin + t.link)}">Sao chép</button></td></tr>`).join('')}</table>` : '<div class="em-empty">Chưa có link thử.</div>';
+      `<tr><td class="em-t">${esc(t.email)}</td><td><code class="sv-test-link">${esc(t.link)}</code></td><td style="white-space:nowrap"><button type="button" class="crm-btn sm" data-tcopy="${esc(t.link)}">Sao chép</button></td></tr>`).join('')}</table>` : '<div class="em-empty">Chưa có link thử.</div>';
   }
   async function svMakeTesters() {
     if (!selectedId) return;
