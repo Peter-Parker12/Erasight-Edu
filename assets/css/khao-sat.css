@@ -1,7 +1,7 @@
-/* Erasight survey page (brand: Era Ink / Era Paper / Champagne; Fraunces, Inter, JetBrains Mono) */
+/* Erasight survey page (brand: Era Ink / Era Paper / Champagne; Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono — as on the website) */
 :root { --ink: #0B0E14; --paper: #F6F2EA; --champagne: #C9A24A; --bone: #ECE6DA; --stone: #8C8579; --ink-soft: #3B3832; --line: #D9D2C3; }
 html, body { background: var(--paper); }
-body { margin: 0; color: var(--ink); font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body { margin: 0; color: var(--ink); font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 .ks-top, .ks-wrap, .ks-foot { box-sizing: border-box; width: min(680px, 100%); margin-left: auto; margin-right: auto; }
 .ks-top { padding: 22px 18px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ks-top img { height: 30px; width: auto; display: block; }
@@ -9,11 +9,11 @@ body { margin: 0; color: var(--ink); font-family: 'Inter', -apple-system, 'Segoe
 .ks-wrap { padding: 28px 18px 40px; }
 .ks-kicker { margin: 0 0 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--stone); display: flex; align-items: center; gap: 10px; }
 .ks-kicker::before { content: ''; width: 28px; height: 1px; background: var(--champagne); }
-.ks-title { margin: 0 0 12px; font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-weight: 600; font-size: 34px; line-height: 1.12; letter-spacing: -0.01em; font-optical-sizing: auto; }
+.ks-title { margin: 0 0 12px; font-family: 'Bricolage Grotesque', 'Be Vietnam Pro', sans-serif; font-weight: 800; font-size: 34px; line-height: 1.12; letter-spacing: -0.01em; font-optical-sizing: auto; }
 .ks-intro { margin: 0 0 26px; color: var(--ink-soft); font-size: 16px; }
 .ks-form { display: grid; gap: 14px; }
 .ks-q { border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; margin: 0; background: #FFFDF8; min-width: 0; }
-.ks-q__text { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 18px; line-height: 1.35; margin: 0; }
+.ks-q__text { font-family: 'Bricolage Grotesque', 'Be Vietnam Pro', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.35; margin: 0; }
 .ks-opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .ks-opts--rating, .ks-opts--nps { display: grid; gap: 8px; }
 .ks-opts--rating { grid-template-columns: repeat(5, minmax(0, 1fr)); }

@@ -194,7 +194,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
 <meta name="robots" content="noindex,nofollow"><title>${esc(surveyOf(ev).title)} · ${esc(ev.title)}</title>
 <meta name="theme-color" content="#0B0E14">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/khao-sat.css?v=${ASSET_VER}">
 </head><body>
 <header class="ks-top"><a href="${esc(SITE)}" aria-label="Erasight Academy"><img src="/assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" width="180" height="30"></a><span class="ks-mono">Khảo sát sau sự kiện</span></header>
