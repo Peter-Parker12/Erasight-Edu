@@ -199,6 +199,16 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => { const r = await api('GET', `${EV(a)}/survey/results`); const { rows, ...rest } = r; return { ...rest, responseRows: rows.length }; } },
     { name: 'create_survey_test_links', description: 'Create personal survey links for team members (emails, max 30) to try the survey. Their answers are kept out of the results. The event must be published for the links to open. Returns every test link of the event.', props: { event_id: S, emails: { type: 'array', items: S, description: 'Team email addresses' } }, req: ['event_id', 'emails'],
       run: async (a) => (await api('POST', `${EV(a)}/survey/test-links`, { emails: a.emails })).survey.testers },
+    { name: 'send_survey_email_test', description: 'Test the after-event email with the team: creates a personal survey link for each email (their answers are kept out of the results), then sends the post-event email to them with their own link. The test email goes out on the next send round (about a minute when the server sends directly).', props: { event_id: S, mail_id: S, emails: { type: 'array', items: S, description: 'Team email addresses (max 20)' } }, req: ['event_id', 'mail_id', 'emails'],
+      run: async (a) => {
+        const list = [...new Set(a.emails.map((x) => String(x).trim().toLowerCase()).filter(Boolean))];
+        if (!list.length || list.length > 20) throw new Error('Give 1 to 20 email addresses');
+        await api('POST', `${EV(a)}/survey/test-links`, { emails: list });
+        const sent = [];
+        for (const to of list) { await api('POST', `${EM(a)}/${mid(a)}/test`, { to, name: to.split('@')[0] }); sent.push(to); }
+        const testers = (await api('GET', `${EV(a)}/survey`)).survey.testers;
+        return { queued: sent, links: testers.filter((t) => list.includes(t.email)), note: 'Sent on the next send round (about a minute when the server sends directly).' };
+      } },
     { name: 'list_survey_responses', description: 'Every answer to an event survey (one per person, the latest answer), newest first. Includes the participant email.', props: { event_id: S, limit: { type: 'integer', minimum: 1, maximum: 500 } }, req: ['event_id'],
       run: async (a) => (await api('GET', `${EV(a)}/survey/results`)).rows.slice(0, Math.min(500, Number(a.limit) || 100)) },
 

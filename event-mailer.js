@@ -346,7 +346,7 @@ module.exports = function init(ctx) {
     const evVars = h.eventVars(ev);
     const vars = Object.assign({}, evVars, {
       name: p.name || 'bạn', first_name: firstName(p.name) || 'bạn', email: p.email, requested_item: p.item || ev.title,
-      survey_link: p.preview ? '#' : surveys.linkFor(ev.id, p.email), recording_link: evVars.event_url + '#ghi-hinh',
+      survey_link: surveys.linkFor(ev.id, p.email), recording_link: evVars.event_url + '#ghi-hinh',
     });
     const marketing = m.type === 'seeding' || m.type === 'post_event' || m.audience === 'all';
     const footer = marketing
