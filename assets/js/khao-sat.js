@@ -16,13 +16,15 @@
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
   function field(q, prev) {
-    const box = el('fieldset', 'ks-q'); box.dataset.qid = q.id; box.dataset.type = q.type;
-    const legend = el('legend', 'ks-q__text', q.text + (q.required ? ' *' : ''));
-    box.append(legend);
-    const group = el('div', 'ks-opts');
+    const box = el('div', 'ks-q'); box.dataset.qid = q.id; box.dataset.type = q.type;
+    const label = el('div', 'ks-q__text', q.text + (q.required ? ' *' : ''));
+    label.id = 'q_label_' + q.id;
+    box.append(label);
+    const group = el('div', 'ks-opts'); group.setAttribute('role', 'group'); group.setAttribute('aria-labelledby', label.id);
     const name = 'q_' + q.id;
     if (q.type === 'rating' || q.type === 'nps') {
       const min = q.type === 'rating' ? 1 : 0; const max = q.type === 'rating' ? 5 : 10;
+      group.classList.add(q.type === 'rating' ? 'ks-opts--rating' : 'ks-opts--nps');
       for (let v = min; v <= max; v++) {
         const lab = el('label', 'ks-opt');
         const input = el('input'); input.type = 'radio'; input.name = name; input.value = String(v);
