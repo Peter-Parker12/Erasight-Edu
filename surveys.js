@@ -14,6 +14,11 @@ const path = require('path');
 const crypto = require('crypto');
 
 const TYPES = ['rating', 'nps', 'choice', 'multi', 'text'];
+// Version tag for the answer page's CSS/JS: the server caches static files for a day, so a changed file needs a new URL.
+const ASSET_VER = (() => {
+  const root = path.join(__dirname, 'assets');
+  return ['css/khao-sat.css', 'js/khao-sat.js'].map((f) => { try { return crypto.createHash('sha1').update(fs.readFileSync(path.join(root, f))).digest('hex').slice(0, 10); } catch { return '0'; } }).join('-');
+})();
 const MAX_Q = 20;
 const STOP = new Set(['và', 'của', 'là', 'có', 'các', 'những', 'cho', 'được', 'một', 'này', 'với', 'trong', 'khi', 'để', 'không', 'thì', 'mà', 'đã', 'sẽ', 'rất', 'cũng', 'cần', 'bạn', 'tôi', 'chúng', 'the', 'and', 'for', 'that', 'with', 'you', 'are', 'was', 'have', 'this', 'not', 'but', 'from']);
 
@@ -190,12 +195,12 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
 <meta name="theme-color" content="#0B0E14">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/khao-sat.css">
+<link rel="stylesheet" href="/assets/css/khao-sat.css?v=${ASSET_VER}">
 </head><body>
 <header class="ks-top"><a href="${esc(SITE)}" aria-label="Erasight Academy"><img src="/assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" width="180" height="30"></a><span class="ks-mono">Khảo sát sau sự kiện</span></header>
 <main class="ks-wrap" data-event="${esc(ev.id)}" data-token="${esc(token || '')}"${preview ? ' data-preview="1"' : ''}><div id="ksApp"><p class="ks-muted">Đang tải…</p></div></main>
 <footer class="ks-foot"><span class="ks-mono">Erasight Academy · Learn · Work · Grow · Global</span><a href="${esc(SITE)}">${esc(SITE.replace(/^https?:\/\//, ''))}</a></footer>
-<script src="/assets/js/khao-sat.js" defer></script></body></html>`;
+<script src="/assets/js/khao-sat.js?v=${ASSET_VER}" defer></script></body></html>`;
   }
   const notFound = (res) => { res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }); res.end('<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Không tìm thấy</title><p style="font-family:sans-serif;padding:40px">Liên kết khảo sát không hợp lệ hoặc đã hết hạn.</p>'); };
 
