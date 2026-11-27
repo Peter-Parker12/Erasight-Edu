@@ -359,6 +359,7 @@ http.createServer((req, res) => {
   if (pathname === '/mcp' || pathname === '/mcp/') return mcp.handle(req, res, pathname).catch((e) => { console.error('mcp error:', e); if (!res.headersSent) send(res, 500, { error: 'Server error' }); else res.end(); });
   if (pathname.startsWith('/s/') || pathname === '/api/admin/short-links' || pathname.startsWith('/api/admin/short-links/')) return shortLinks.handle(req, res, pathname);
   if (pathname.startsWith('/api/showcases') || pathname.startsWith('/api/admin/showcases')) return showcases.handle(req, res, pathname);
+  if (pathname.startsWith('/khao-sat/') || pathname.startsWith('/api/survey/') || pathname.startsWith('/api/admin/surveys')) return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/events') || pathname.startsWith('/api/email-images/') || pathname.startsWith('/api/admin/events') || pathname.startsWith('/api/workflow/') || pathname === '/huy-dang-ky-email') return events.handle(req, res, pathname);
   if (pathname.startsWith('/api/documents') || pathname.startsWith('/api/admin')) return documents.handle(req, res, pathname);
   if (pathname === '/api/enroll' && req.method === 'POST') return handleEnroll(req, res);

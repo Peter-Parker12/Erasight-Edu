@@ -107,6 +107,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
 
   const S = { type: 'string' }, B = { type: 'boolean' }, N = { type: 'integer' };
   const EVENT_PROPS = {
+    recording_url: { ...S, description: 'Link to the recording (https). YouTube, Vimeo and Google Drive play on the event page; empty removes it' },
+    recording_title: { ...S, description: 'Optional title for the recording' },
     title: { ...S, description: 'Event title (max 150 chars)' },
     summary: { ...S, description: 'One-line summary shown in listings (max 220 chars)' },
     body: { ...S, description: 'Event description, plain text with blank lines between paragraphs (max 20000 chars)' },
@@ -146,7 +148,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
     { name: 'create_event', description: 'Create a new event as a DRAFT. A banner is required before it can be published (use set_event_banner), then call update_event with status "published".', props: EVENT_PROPS, req: ['title', 'start_local'],
       run: async (a) => (await api('POST', '/api/admin/events', evBody(a))).event },
     { name: 'update_event', description: 'Change any field of an event; send only what changes. status "published" makes it public (needs a banner), "draft" hides it.', props: { event_id: S, ...EVENT_PROPS, status: { type: 'string', enum: ['draft', 'published'] } }, req: ['event_id'],
-      run: async (a) => (await api('PATCH', EV(a), Object.assign(evBody(a), a.status !== undefined ? { status: a.status } : {}))).event },
+      run: async (a) => (await api('PATCH', EV(a), Object.assign(evBody(a), a.status !== undefined ? { status: a.status } : {}, a.recording_url !== undefined ? { recording: { url: a.recording_url, title: a.recording_title || '' } } : {}))).event },
     { name: 'set_event_banner', description: 'Set the event banner (16:9 recommended) from a public https image URL (PNG/JPG/WebP, up to 3MB).', props: { event_id: S, image_url: { ...S, description: 'https:// URL of the image' } }, req: ['event_id', 'image_url'],
       run: async (a) => { const img = await fetchImage(a.image_url); return (await api('PUT', `${EV(a)}/banner?ext=${img.ext}`, undefined, img)).event; } },
     { name: 'delete_event', description: 'PERMANENTLY delete an event, its banner and its email pictures. confirm_title must equal the event title exactly.', props: { event_id: S, confirm_title: S }, req: ['event_id', 'confirm_title'],
@@ -156,7 +158,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => ovView(await api('GET', EM(a)), a.include_bodies === true) },
     { name: 'set_seeding_start', description: 'Set when the first seeding email goes out (Vietnam time); later seeding emails follow at their offset_hours. Empty string clears it.', props: { event_id: S, start_local: { ...S, description: '"YYYY-MM-DDTHH:mm" or ""' } }, req: ['event_id', 'start_local'],
       run: async (a) => ovView(await api('PATCH', EM(a), { seedingStartLocal: a.start_local })) },
-    { name: 'add_email', description: 'Add an email. type "seeding" = the seeding sequence (first one anchors the sequence, later ones need offset_hours; set is_last_call for the last-call email); "notification" = event notification (needs timing); "last_notification" = the single final notification, sent to leads registering after the last call. Returns the updated setup — the new email has the newest id.', props: { event_id: S, type: { type: 'string', enum: ['seeding', 'notification', 'last_notification'] }, ...MAIL_PROPS }, req: ['event_id', 'type', 'subject', 'body'],
+    { name: 'add_email', description: 'Add an email. type "post_event" = the email sent after the event (timing {"mode":"after_end","hours":N}, audience "all" or "unanswered"; put {{survey_link}} and {{recording_link}} in the body). type "seeding" = the seeding sequence (first one anchors the sequence, later ones need offset_hours; set is_last_call for the last-call email); "notification" = event notification (needs timing); "last_notification" = the single final notification, sent to leads registering after the last call. Returns the updated setup — the new email has the newest id.', props: { event_id: S, type: { type: 'string', enum: ['seeding', 'notification', 'last_notification', 'post_event'] }, ...MAIL_PROPS }, req: ['event_id', 'type', 'subject', 'body'],
       run: async (a) => ovView(await api('POST', EM(a), Object.assign({ type: a.type }, mailBody(a, true)))) },
     { name: 'update_email', description: 'Edit an email; send only the fields that change (get mail_id from get_email_config).', props: { event_id: S, mail_id: S, ...MAIL_PROPS }, req: ['event_id', 'mail_id'],
       run: async (a) => ovView(await api('PATCH', `${EM(a)}/${mid(a)}`, mailBody(a, false))) },
@@ -188,6 +190,16 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
         }
         return (await api('PATCH', EV(a), body)).event;
       } },
+    // ---- feedback survey ----
+    { name: 'get_survey', description: 'The feedback survey of an event: title, intro, thanks text, open/closed, and the questions (rating 1-5, nps 0-10, choice, multi, text).', props: { event_id: S }, req: ['event_id'],
+      run: async (a) => (await api('GET', `${EV(a)}/survey`)).survey },
+    { name: 'set_survey', description: 'Set the feedback survey: texts, open/closed and the questions (replaces the whole question list). Question: {type: rating|nps|choice|multi|text, text, required, options (choice/multi, 2-12)}. Send the email with add_email type "post_event" (use {{survey_link}} in it).', props: { event_id: S, title: S, intro: S, thanks: S, open: B, questions: { type: 'array', items: { type: 'object', properties: { id: S, type: { type: 'string', enum: ['rating', 'nps', 'choice', 'multi', 'text'] }, text: S, required: B, options: { type: 'array', items: S } } } } }, req: ['event_id'],
+      run: async (a) => (await api('PATCH', `${EV(a)}/survey`, pick(a, ['title', 'intro', 'thanks', 'open', 'questions']))).survey },
+    { name: 'get_survey_results', description: 'Survey results for an event: invited, responses, response rate, rating averages, NPS, choice percentages, top words of open answers, daily responses, and who has not answered yet.', props: { event_id: S }, req: ['event_id'],
+      run: async (a) => { const r = await api('GET', `${EV(a)}/survey/results`); const { rows, ...rest } = r; return { ...rest, responseRows: rows.length }; } },
+    { name: 'list_survey_responses', description: 'Every answer to an event survey (one per person, the latest answer), newest first. Includes the participant email.', props: { event_id: S, limit: { type: 'integer', minimum: 1, maximum: 500 } }, req: ['event_id'],
+      run: async (a) => (await api('GET', `${EV(a)}/survey/results`)).rows.slice(0, Math.min(500, Number(a.limit) || 100)) },
+
     // ---- drafting ----
     { name: 'draft_email', description: 'Draft an event email from simple blocks and preview it (nothing is saved). Blocks: heading, subheading, paragraph, bullets (items), button (label + url), image (src from upload_email_image, optional url and width), divider. Placeholders you can use in text, links and the subject: {{name}} {{first_name}} {{email}} {{requested_item}} {{event_title}} {{event_date}} {{event_time}} {{event_mode}} {{event_location}} {{join_link}} {{event_url}}. With event_id the preview fills the event details and a sample name. Save the result with add_email (type, subject, body = the html returned).',
       props: { subject: S, blocks: { type: 'array', description: 'Email content in order', items: { type: 'object', properties: { type: { type: 'string', enum: BLOCK_TYPES }, text: S, items: { type: 'array', items: S }, label: S, url: S, src: S, alt: S, width: S } } }, event_id: S, sample_name: S }, req: ['subject', 'blocks'],
@@ -236,8 +248,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => (await api('POST', '/api/admin/documents', pick(a, ['title', 'description', 'link', 'views']))).document },
     { name: 'update_document', description: 'Change a document’s title, description, link or view count (send only what changes).', props: { document_id: S, title: S, description: S, link: S, views: { type: 'integer' } }, req: ['document_id'],
       run: async (a) => (await api('PATCH', `/api/admin/documents/${docId(a)}`, pick(a, ['title', 'description', 'link', 'views']))).document },
-    { name: 'set_document_file', description: 'Attach the file for a document from a public https URL. Accepted: pdf, docx, doc, xlsx, xls, csv (max 25 MB).', props: { document_id: S, file_url: S }, req: ['document_id', 'file_url'],
-      run: async (a) => { const f = await fetchFile(a.file_url, { pdf: 'application/pdf', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', doc: 'application/msword', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', csv: 'text/csv' }, 25 * 1024 * 1024, 'file'); return (await api('PUT', `/api/admin/documents/${docId(a)}/file?ext=${f.ext}`, undefined, f)).document; } },
+    { name: 'set_document_file', description: 'Attach the file for a document from a public https URL. Accepted: pdf, docx, doc, xlsx, xls, csv, txt, pptx, ppt, zip, rar (max 25 MB).', props: { document_id: S, file_url: S }, req: ['document_id', 'file_url'],
+      run: async (a) => { const f = await fetchFile(a.file_url, { pdf: 'application/pdf', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', doc: 'application/msword', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel', csv: 'text/csv', txt: 'text/plain', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', ppt: 'application/vnd.ms-powerpoint', zip: 'application/zip', rar: 'application/vnd.rar' }, 25 * 1024 * 1024, 'file'); return (await api('PUT', `/api/admin/documents/${docId(a)}/file?ext=${f.ext}`, undefined, f)).document; } },
     { name: 'set_document_cover', description: 'Set the cover picture of a document from a public https image URL (PNG, JPG or WebP, max 3 MB).', props: { document_id: S, image_url: S }, req: ['document_id', 'image_url'],
       run: async (a) => { const f = await fetchImage(a.image_url); return (await api('PUT', `/api/admin/documents/${docId(a)}/cover?ext=${f.ext}`, undefined, f)).document; } },
     { name: 'delete_document', description: 'PERMANENTLY delete a document and its file and cover. confirm_title must equal the document title exactly.', props: { document_id: S, confirm_title: S }, req: ['document_id', 'confirm_title'],

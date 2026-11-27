@@ -11,7 +11,7 @@
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
   const HEADERS = { 'X-Requested-With': 'erasight-admin' };
-  const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv'];
+  const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'ppt', 'pptx', 'zip', 'rar'];
   const COVER_EXT = ['png', 'jpg', 'jpeg', 'webp'];
   const extOf = (name) => (String(name).split('.').pop() || '').toLowerCase();
 
@@ -158,7 +158,7 @@
     replaceCtx = null;
     const m = row.querySelector('.adm-msg');
     const ext = extOf(file.name);
-    if (!(kind === 'file' ? DOC_EXT : COVER_EXT).includes(ext)) return msg(m, kind === 'file' ? 'Chỉ nhận PDF, DOC, DOCX, XLSX, XLS, CSV.' : 'Chỉ nhận PNG, JPG, WebP.', 'err');
+    if (!(kind === 'file' ? DOC_EXT : COVER_EXT).includes(ext)) return msg(m, kind === 'file' ? 'Chỉ nhận PDF, Word, Excel, CSV, TXT, PowerPoint, ZIP hoặc RAR.' : 'Chỉ nhận PNG, JPG, WebP.', 'err');
     msg(m, 'Đang tải lên...', 'ok');
     try {
       await uploadFile(`/api/admin/documents/${id}/${kind}?ext=${ext}`, file);
@@ -178,7 +178,7 @@
 
     if (act === 'file' || act === 'cover') {
       const input = $('admReplaceInput');
-      input.accept = act === 'file' ? '.pdf,.doc,.docx,.xls,.xlsx,.csv' : 'image/png,image/jpeg,image/webp';
+      input.accept = act === 'file' ? '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.ppt,.pptx,.zip,.rar' : 'image/png,image/jpeg,image/webp';
       replaceCtx = { id, kind: act, row };
       return input.click();
     }
@@ -222,8 +222,8 @@
     const coverExt = cover && extOf(cover.name);
 
     if (!title) return msg(m, 'Vui lòng nhập tên tài liệu.', 'err');
-    if (!file && !link) return msg(m, 'Vui lòng chọn file (.pdf, .docx, .xlsx, .csv) hoặc nhập link tài liệu.', 'err');
-    if (file && !DOC_EXT.includes(fileExt)) return msg(m, 'File không được hỗ trợ. Chỉ nhận PDF, Word, Excel (.xlsx, .xls) hoặc CSV.', 'err');
+    if (!file && !link) return msg(m, 'Vui lòng chọn file (.pdf, .docx, .xlsx, .zip, …) hoặc nhập link tài liệu.', 'err');
+    if (file && !DOC_EXT.includes(fileExt)) return msg(m, 'File không được hỗ trợ. Chỉ nhận PDF, Word, Excel, CSV, TXT, PowerPoint, ZIP hoặc RAR.', 'err');
     if (!cover || !COVER_EXT.includes(coverExt)) return msg(m, 'Vui lòng chọn ảnh bìa (PNG, JPG hoặc WebP).', 'err');
 
     const submit = $('upSubmit');

@@ -105,7 +105,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
       bannerUrl: e.banner ? `/api/admin/events/${e.id}/banner?v=${encodeURIComponent(e.updatedAt)}` : null,
       registrations: twCount != null ? twCount : (r ? r.count : 0), registrationSource: twCount != null ? 'twenty' : 'server', bySource: r ? r.bySource : {}, createdAt: e.createdAt, updatedAt: e.updatedAt,
       joinLink: e.joinLink || '', previousTitles: e.previousTitles || [],
-      confirmation: mailer.confirmationInfo(e), zalo: e.zalo || null,
+      confirmation: mailer.confirmationInfo(e), zalo: e.zalo || null, recording: e.recording || null,
     };
   }
 
@@ -122,6 +122,11 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   }
   const cleanLong = (v, max) => String(v ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').trim().slice(0, max);
   function applyExtras(e, b) {
+    if (b.recording !== undefined) { // recording shown on the event page once the event is past
+      const r = b.recording || {}; const url = cleanText(r.url, 500);
+      if (url && !/^https:\/\/[^\s]+$/i.test(url)) throw fail(400, 'Link bản ghi phải bắt đầu bằng https://');
+      e.recording = url ? { url, title: cleanText(r.title, 120) } : null;
+    }
     if (b.confirmation !== undefined) mailer.setConfirmation(e, !!(b.confirmation || {}).enabled); // content: the email editor
     if (b.zalo !== undefined) {
       const z = b.zalo || {}; const prev = e.zalo || {};
@@ -261,7 +266,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
             <div class="ev-meta"><span>${ICON.cal} ${fmtDate(e.startAt)} · ${fmtTime(e.startAt)}</span><span>${e.mode === 'online' ? ICON.web : ICON.pin} ${modeLabel(e)}</span></div>
             <h3>${esc(e.title)}</h3>
             ${e.summary ? `<p>${esc(e.summary)}</p>` : ''}
-            <span class="ev-more">${past ? 'Xem lại thông tin →' : full ? 'Đã đủ chỗ · Xem chi tiết →' : 'Xem chi tiết →'}</span>
+            <span class="ev-more">${past ? `${e.recording && e.recording.url ? 'Có bản ghi · ' : ''}Xem lại thông tin →` : full ? 'Đã đủ chỗ · Xem chi tiết →' : 'Xem chi tiết →'}</span>
           </div>
         </a>`;
   }
@@ -319,6 +324,29 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     return out.join('\n');
   }
 
+  // Recording link -> embed for YouTube / Vimeo / Google Drive, otherwise a plain link. Only https links are used.
+  function recordingEmbed(raw) {
+    let u; try { u = new URL(String(raw)); } catch { return null; }
+    if (u.protocol !== 'https:') return null;
+    const host = u.hostname.replace(/^(www|m)\./, '');
+    let id = null; let m;
+    if (host === 'youtu.be') id = u.pathname.slice(1).split('/')[0];
+    else if (host === 'youtube.com') id = u.searchParams.get('v') || ((m = u.pathname.match(/^\/(?:embed|live|shorts)\/([\w-]+)/)) ? m[1] : null);
+    if (id && /^[\w-]{6,20}$/.test(id)) return { kind: 'embed', src: `https://www.youtube-nocookie.com/embed/${id}`, open: `https://www.youtube.com/watch?v=${id}` };
+    if (host === 'vimeo.com' && (m = u.pathname.match(/^\/(\d{6,12})/))) return { kind: 'embed', src: `https://player.vimeo.com/video/${m[1]}`, open: `https://vimeo.com/${m[1]}` };
+    if (host === 'drive.google.com' && (m = u.pathname.match(/\/file\/d\/([\w-]{10,80})/))) return { kind: 'embed', src: `https://drive.google.com/file/d/${m[1]}/preview`, open: u.toString() };
+    return { kind: 'link', open: u.toString() };
+  }
+
+  function recordingSection(e) {
+    const rec = e.recording && e.recording.url && phase(e) === 'past' ? recordingEmbed(e.recording.url) : null;
+    if (!rec) return '';
+    const title = e.recording.title || `Bản ghi: ${e.title}`;
+    const frame = rec.kind === 'embed'
+      ? `<div class="ev-rec-frame"><iframe src="${esc(rec.src)}" title="${esc(title)}" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"></iframe></div>` : '';
+    return `<section class="ev-rec" id="ghi-hinh" aria-label="Xem lại sự kiện"><h2>Xem lại sự kiện</h2>${frame}<p><a class="ev-rec-btn" href="${esc(rec.open)}" target="_blank" rel="noopener">${rec.kind === 'embed' ? 'Mở trên trang gốc' : 'Xem bản ghi'} →</a></p></section>`;
+  }
+
   function renderDetail(e) {
     const p = phase(e);
     const left = seatsLeft(e);
@@ -341,6 +369,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
           <h1>${esc(e.title)}</h1>
           ${e.summary ? `<p class="ev-lead">${esc(e.summary)}</p>` : ''}
           <div class="ev-body">${renderBody(e.body)}</div>
+          ${recordingSection(e)}
         </article>
         <aside class="ev-side" aria-label="Thông tin sự kiện">
           <div class="ev-row"><span class="ev-ic">${ICON.cal}</span><div><em>Thời gian</em><b>${when}</b><span>${time} (GMT+7)</span></div></div>
@@ -451,6 +480,7 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     }
     const z = ev.zalo;
     const zalo = z && z.enabled && (z.image || z.linkUrl) ? { title: z.title || 'Tham gia nhóm Zalo', text: z.text || '', image: z.image || '', link: z.linkUrl || '' } : null;
+    mailer.invalidateLeads();
     mailer.kick(true); // direct mode: send the confirmation now (fresh lead list), not at the next timer tick
     return send(res, 200, { ok: true, seatsLeft: seatsLeft(ev), zalo, emailSoon: mailer.confirmationOn(ev) });
   }
@@ -541,16 +571,25 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
     fs.createReadStream(file).pipe(res);
   }
 
+  // Feedback surveys: questions, personal answer links, responses, analytics (the email that carries the link is in event-mailer.js)
+  const surveyKey = () => process.env.SESSION_SECRET || process.env.WORKFLOW_API_KEY || process.env.ADMIN_PASSWORD || 'erasight-unsubscribe';
+  const surveys = require('./surveys')({
+    DATA_DIR, SITE_URL: SITE, send, readJson, rateLimited, isAdmin,
+    getEvents: () => events, saveEvents: save, secret: surveyKey,
+  });
   const mailer = require('./event-mailer')({
     DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin,
-    getEvents: () => events, saveEvents: save,
-    helpers: { fail, cleanText, clientIp, parseLocal, toLocal, startMs, norm, fillTokens, eventVars, renderEmail, wrapEmail, workflowAuthorized },
+    getEvents: () => events, saveEvents: save, surveys,
+    helpers: { fail, cleanText, clientIp, parseLocal, toLocal, startMs, endMs, norm, fillTokens, eventVars, renderEmail, wrapEmail, workflowAuthorized },
     images: { receive: receiveBanner, TYPES: BANNER_TYPES },
   });
+  surveys.attach({ invitedFor: mailer.invitedFor, participantsFor: mailer.participantsFor });
 
   return {
     async handle(req, res, pathname) {
       try {
+        if (pathname.startsWith('/khao-sat/') || pathname.startsWith('/api/survey/') || pathname === '/api/admin/surveys/summary'
+          || /^\/api\/admin\/events\/[a-f0-9]{16}\/survey(\/results)?$/.test(pathname)) return await surveys.handle(req, res, pathname);
         if (pathname === '/api/workflow/due-emails') return await mailer.workflowDue(req, res);
         if (pathname === '/api/workflow/email-sent') return await mailer.workflowSent(req, res);
         if (pathname === '/huy-dang-ky-email') return await mailer.unsubscribe(req, res);

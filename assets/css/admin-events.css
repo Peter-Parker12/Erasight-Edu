@@ -96,3 +96,24 @@
 .rep-bar { position: relative; height: 10px; background: #EEF3F3; border-radius: 6px; overflow: hidden; min-width: 120px; }
 .rep-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: #0DA096; }
 .rep-bar u { position: absolute; left: 0; top: 0; bottom: 0; background: #E85D04; opacity: .55; text-decoration: none; }
+
+/* ---- feedback survey ------------------------------------------------------ */
+.sv-q { border: 1px solid var(--crm-line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.sv-q__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.sv-q__tools { margin-left: auto; display: flex; gap: 6px; }
+.sv-q__text { width: 100%; box-sizing: border-box; height: 38px; border: 1px solid var(--crm-line); border-radius: 10px; padding: 0 10px; font: inherit; font-size: 14px; }
+.sv-q__opts { width: 100%; box-sizing: border-box; margin-top: 8px; border: 1px solid var(--crm-line); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 13.5px; }
+.sv-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.sv-add select { height: 36px; border: 1px solid var(--crm-line); border-radius: 10px; padding: 0 8px; font: inherit; font-size: 13px; }
+.sv-chart { border: 1px solid var(--crm-line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; background: #fff; }
+.sv-chart__head { margin-bottom: 8px; }
+.sv-chart__sum { font-size: 14px; margin-bottom: 8px; }
+.sv-row { display: grid; grid-template-columns: minmax(90px, 180px) 1fr 90px; gap: 10px; align-items: center; margin: 6px 0; font-size: 13px; }
+.sv-row .rep-bar { min-width: 0; }
+.sv-row .rep-bar.bad i { background: #B3261E; }
+.sv-row .rep-bar.ok i { background: #0A7A3A; }
+.sv-words { margin: 4px 0 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.sv-texts { list-style: none; padding: 0; margin: 0; max-height: 340px; overflow: auto; }
+.sv-texts li { border-top: 1px solid #EEF3F3; padding: 8px 0; font-size: 13.5px; line-height: 1.5; }
+@media (max-width: 640px) { .sv-row { grid-template-columns: 1fr; } }
+

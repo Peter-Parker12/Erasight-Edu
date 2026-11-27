@@ -11,12 +11,17 @@
     { id: 'pdf', label: 'PDF', cls: 'pdf' },
     { id: 'word', label: 'Word', cls: 'docx' },
     { id: 'excel', label: 'Excel / CSV', cls: 'xlsx' },
+    { id: 'slides', label: 'PowerPoint', cls: 'pptx' },
+    { id: 'archive', label: 'ZIP / RAR', cls: 'zip' },
     { id: 'link', label: 'Link online', cls: 'link' }
   ];
   const typeGroup = (t) => {
     if (t === 'pdf') return 'pdf';
     if (t === 'doc' || t === 'docx') return 'word';
     if (t === 'xls' || t === 'xlsx' || t === 'csv') return 'excel';
+    if (t === 'ppt' || t === 'pptx') return 'slides';
+    if (t === 'zip' || t === 'rar') return 'archive';
+    if (t === 'txt') return 'word';
     return 'link';
   };
   const typeLabel = (t) => ({
@@ -26,6 +31,11 @@
     xls: 'XLS',
     xlsx: 'XLSX',
     csv: 'CSV',
+    txt: 'TXT',
+    ppt: 'PPT',
+    pptx: 'PPTX',
+    zip: 'ZIP',
+    rar: 'RAR',
     link: 'LINK'
   }[t] || String(t || 'FILE').toUpperCase());
 

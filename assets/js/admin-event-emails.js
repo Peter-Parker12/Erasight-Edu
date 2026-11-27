@@ -10,7 +10,7 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const HDR = { 'X-Requested-With': 'erasight-admin' };
   const JH = Object.assign({ 'Content-Type': 'application/json' }, HDR);
-  const FIELDS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url'];
+  const FIELDS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url', 'survey_link', 'recording_link'];
 
   let testerInfo = new Map(); let leadTimer = null; let leadSeq = 0; let leadIdx = -1;
   let ov = null; let evId = null; let editing = null; let previewTimer = null; let previewSeq = 0;
@@ -80,6 +80,14 @@
       const when = t.mode === 'on_register' ? 'Ngay khi đăng ký' + (t.delayHours ? ` (+${t.delayHours} giờ)` : '') : t.mode === 'before' ? `${t.hours} giờ trước · ${fmt(m.plannedLocal)}` : `Cố định · ${fmt(m.plannedLocal)}`;
       return `<tr class="${m.afterEvent ? 'x' : ''}"><td class="em-t">${esc(m.name)}</td><td class="em-num">${esc(when)}</td><td>${m.audience === 'all' ? 'Tất cả lead' : 'Đã đăng ký'}</td><td>${m.enabled ? '<span class="em-badge">Bật</span>' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${m.sent}${m.pending ? ` <small title="chờ xác nhận">(+${m.pending}⏳)</small>` : ''}${m.failed ? ` <small style="color:#b3261e" title="lỗi">(${m.failed}⚠)</small>` : ''}</td><td><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
     }).join('')}</table>` : '<div class="em-empty">Chưa có email thông báo. Người đăng ký sẽ không nhận email nào cho đến khi bạn thêm.</div>';
+
+    // after the event
+    const posts = ov.emails.filter((m) => m.type === 'post_event');
+    $('emPostCount').textContent = `${posts.length} email`;
+    $('emPostList').innerHTML = posts.length ? `<table class="em-tbl"><tr><th>Tên</th><th>Gửi lúc</th><th>Đối tượng</th><th>Trạng thái</th><th class="em-num">Đã gửi</th><th></th></tr>${posts.map((m) => {
+      const hrs = m.timing && m.timing.hours ? m.timing.hours : 0;
+      return `<tr><td class="em-t">${esc(m.name)}</td><td class="em-num">${hrs ? `${hrs} giờ sau khi kết thúc` : 'Khi sự kiện kết thúc'}${m.plannedLocal ? ` · ${esc(fmt(m.plannedLocal))}` : ''}</td><td>${m.audience === 'unanswered' ? 'Chưa trả lời khảo sát' : 'Tất cả người đăng ký'}</td><td>${m.enabled ? '<span class="em-badge">Bật</span>' : '<span class="em-badge g">Tắt</span>'}</td><td class="em-num">${m.sent}</td><td style="text-align:right"><button type="button" class="crm-btn sm" data-edit="${esc(m.id)}">Sửa</button></td></tr>`;
+    }).join('')}</table>` : '<div class="em-empty">Chưa có email sau sự kiện.</div>';
 
     // last notification
     const ln = ov.emails.find((m) => m.type === 'last_notification');
@@ -443,16 +451,19 @@
     $('emCalc').innerHTML = '→ ' + esc(fmtFull(at)) + (after ? ' · <span style="color:#9b1c1c">sau giờ sự kiện → sẽ bị huỷ</span>' : '');
   }
 
+  // the same text the server uses when an after-event email is created without a body
+  const POST_EVENT_BODY = '<p>Xin chào {{first_name}},</p><p>Cảm ơn bạn đã tham dự <strong>{{event_title}}</strong>. Chúng tôi rất mong nhận được cảm nhận của bạn.</p><p><a href="{{survey_link}}" data-btn="1">Làm khảo sát (chỉ khoảng 2 phút)</a></p><p>Xem lại buổi học: <a href="{{recording_link}}">tại đây</a></p>';
   function openEditor(type, id) {
     const m = id ? ov.emails.find((x) => x.id === id) : null;
     editing = { id: id || null, type: m ? m.type : type };
     const t = editing.type;
     $('emTitle').textContent = m ? `Sửa email — ${m.name}` : 'Thêm email mới';
     $('emErr').hidden = true; $('emTestOk').hidden = true;
-    $('emSeedF').hidden = t !== 'seeding'; $('emNotF').hidden = t !== 'notification'; $('emLnF').hidden = t !== 'last_notification';
-    $('emName').value = m ? m.name : (t === 'last_notification' ? 'Email thông báo cuối' : '');
-    $('emSubject').value = m ? m.subject : '';
-    setHtml(m ? (m.format === 'html' ? m.body : textToHtml(m.body)) : '');
+    $('emSeedF').hidden = t !== 'seeding'; $('emNotF').hidden = t !== 'notification'; $('emLnF').hidden = t !== 'last_notification'; $('emPostF').hidden = t !== 'post_event';
+    $('emName').value = m ? m.name : (t === 'last_notification' ? 'Email thông báo cuối' : t === 'post_event' ? 'Email sau sự kiện' : '');
+    $('emSubject').value = m ? m.subject : (t === 'post_event' ? 'Cảm ơn bạn đã tham dự {{event_title}}' : '');
+    setHtml(m ? (m.format === 'html' ? m.body : textToHtml(m.body)) : (t === 'post_event' ? POST_EVENT_BODY : ''));
+    if (t === 'post_event') { $('emPostHours').value = m && m.timing ? m.timing.hours : 0; $('emPostAud').value = m ? m.audience : 'all'; }
     $('emSize').textContent = ''; lastField = 'editor';
     $('emEnabled').checked = m ? m.enabled : true;
     if (t === 'seeding') {
@@ -520,6 +531,9 @@
       const mode = $('emMode').value; const v = $('emModeV').value;
       b.timing = mode === 'on_register' ? { mode, delayHours: v } : mode === 'before' ? { mode, hours: v } : { mode, atLocal: v };
       b.audience = $('emNotAud').value;
+    } else if (t === 'post_event') {
+      b.timing = { mode: 'after_end', hours: $('emPostHours').value };
+      b.audience = $('emPostAud').value;
     }
     return b;
   }
@@ -575,6 +589,7 @@
     $('emLeadQ').addEventListener('blur', () => setTimeout(hideLeads, 120));
     $('emAddSeed').addEventListener('click', () => openEditor('seeding'));
     $('emAddNot').addEventListener('click', () => openEditor('notification'));
+    $('emAddPost').addEventListener('click', () => openEditor('post_event'));
     $('emCard').addEventListener('click', (e) => {
       const ed = e.target.closest('[data-edit]'); if (ed) return openEditor(null, ed.dataset.edit);
       if (e.target.id === 'emAddLast') openEditor('last_notification');

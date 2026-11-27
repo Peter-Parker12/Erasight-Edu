@@ -47,7 +47,7 @@ const MAX_HTML = 100000;             // characters of sanitized html per e-mail
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
 module.exports = function init(ctx) {
-  const { DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin, getEvents, saveEvents, images, helpers: h } = ctx;
+  const { DATA_DIR, SITE, twenty, twentyReady, send, readJson, rateLimited, isAdmin, getEvents, saveEvents, images, surveys, helpers: h } = ctx;
   const now = ctx.now || (() => Date.now());
   const LEDGER = path.join(DATA_DIR, 'email-ledger.jsonl');
   const OPTOUT = path.join(DATA_DIR, 'email-optout.json');
@@ -113,6 +113,8 @@ module.exports = function init(ctx) {
   // ---- Leads from Twenty ----------------------------------------------------------
   const firstArray = (o) => (Array.isArray(o) ? o : o && typeof o === 'object' ? Object.values(o).map(firstArray).find(Boolean) : undefined);
   let leadCache = { at: 0, leads: null };
+  // a new registration must be seen by the next send round at once, not after the 2-minute cache
+  const invalidateLeads = () => { leadCache = { at: 0, leads: null }; };
   async function fetchLeads(force) {
     if (!twentyReady()) throw fail(503, 'TWENTY_URL / TWENTY_API_KEY chưa được cấu hình');
     if (!force && leadCache.leads && now() - leadCache.at < 120_000) return leadCache.leads;
@@ -135,6 +137,20 @@ module.exports = function init(ctx) {
     }
     leadCache = { at: now(), leads };
     return leads;
+  }
+
+  // Survey: people a post-event email was actually sent to (distinct addresses), and the registrants of the event
+  function invitedFor(ev) {
+    const out = new Set();
+    for (const m of mailsOf(ev).filter((x) => x.type === 'post_event')) {
+      const pre = m.id + '|';
+      for (const [k, s] of state) if (k.startsWith(pre) && s.sentAt && !s.cc) out.add(k.slice(pre.length));
+    }
+    return out;
+  }
+  async function participantsFor(ev) {
+    const leads = await fetchLeads(false);
+    return peopleFor(ev, leads).filter((p) => p.registeredAt != null && !p.optOut).map((p) => p.email);
   }
 
   // Registrations per event, counted from Twenty: EVENT_REGISTRATION leads whose requested item is the event (or one of its old titles).
@@ -183,6 +199,13 @@ module.exports = function init(ctx) {
     const only = new Set(testers(ev));
     return people.filter((p) => only.has(p.email));
   }
+  // Email sent after the event: thank-you text with the personal survey link and the recording link
+  const POST_EVENT_DEFAULT_SUBJECT = 'Cảm ơn bạn đã tham dự {{event_title}}';
+  const postEventDefaultBody = () => '<p>Xin chào {{first_name}},</p>'
+    + '<p>Cảm ơn bạn đã tham dự <strong>{{event_title}}</strong>. Chúng tôi rất mong nhận được cảm nhận của bạn.</p>'
+    + '<p><a href="{{survey_link}}" data-btn="1">Làm khảo sát (chỉ khoảng 2 phút)</a></p>'
+    + '<p>Xem lại buổi học: <a href="{{recording_link}}">tại đây</a></p>';
+
   // Registration confirmation: an ordinary "on register" notification flagged as the confirmation (confirm: true).
   // Turning it on/off only toggles it (or creates it with a default body); its content is edited in the normal email editor.
   const CONFIRM_SINCE = '1970-01-01T00:00:00.000Z';
@@ -247,8 +270,10 @@ module.exports = function init(ctx) {
   function evaluate(ev, people, t, record, only) {
     const out = [];
     const start = h.startMs(ev);
-    if (t >= start) return out;
-    const mails = only ? schedMails(ev).filter((m) => m.id === only.id) : schedMails(ev).filter((m) => m.enabled);
+    const end = h.endMs(ev);
+    const started = t >= start;
+    let mails = only ? schedMails(ev).filter((m) => m.id === only.id) : schedMails(ev).filter((m) => m.enabled);
+    if (started) mails = mails.filter((m) => m.type === 'post_event'); // after the start only the post-event email is still scheduled
     const seedStart = seedStartOf(ev);
     const lc = lastCallAt(ev);
     const lastNoticeOn = mailsOf(ev).some((m) => m.type === 'last_notification' && m.enabled);
@@ -268,6 +293,15 @@ module.exports = function init(ctx) {
 
     for (const m of mails) {
       const since = Date.parse(m.activeSince || m.createdAt) || 0;
+      if (m.type === 'post_event') { // N hours after the event ends, to registrants (optionally only those who have not answered the survey)
+        const planned = end + (Number(m.timing && m.timing.hours) || 0) * HOUR;
+        for (const p of people) {
+          if (p.registeredAt == null || p.optOut) continue;
+          if (m.audience === 'unanswered' && surveys.hasResponded(ev.id, p.email)) continue;
+          push(m, p, planned, false);
+        }
+        continue;
+      }
       if (m.type === 'seeding') {
         if (seedStart == null || t < seedStart) continue;
         for (const p of people) {
@@ -309,10 +343,12 @@ module.exports = function init(ctx) {
   const firstName = (n) => { const w = String(n || '').trim().split(/\s+/).filter(Boolean); return w.length ? w[w.length - 1] : ''; };
 
   function renderFor(ev, m, p) {
-    const vars = Object.assign({}, h.eventVars(ev), {
+    const evVars = h.eventVars(ev);
+    const vars = Object.assign({}, evVars, {
       name: p.name || 'bạn', first_name: firstName(p.name) || 'bạn', email: p.email, requested_item: p.item || ev.title,
+      survey_link: p.preview ? '#' : surveys.linkFor(ev.id, p.email), recording_link: evVars.event_url + '#ghi-hinh',
     });
-    const marketing = m.type === 'seeding' || m.audience === 'all';
+    const marketing = m.type === 'seeding' || m.type === 'post_event' || m.audience === 'all';
     const footer = marketing
       ? `<p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#8aa0a8">Bạn nhận email này vì đã để lại thông tin tại Erasight Academy. <a href="${p.preview ? '#' : unsubUrl(p.email)}" style="color:#8aa0a8">Hủy nhận email</a></p>`
       : '';
@@ -324,7 +360,7 @@ module.exports = function init(ctx) {
     return { subject, html: h.renderEmail(h.fillTokens(m.body, vars), footer) };
   }
 
-  const PRIO = { last_notification: 0, notification: 1, seeding: 2 };
+  const PRIO = { last_notification: 0, notification: 1, seeding: 2, post_event: 2 };
   let testQueue = [];
   let busy = Promise.resolve();
 
@@ -332,7 +368,7 @@ module.exports = function init(ctx) {
   function dueBatch(freshLeads, cap) {
     const run = async () => {
       const t = now();
-      const evs = getEvents().filter((e) => sendable(e) && t < h.startMs(e) && schedMails(e).some((m) => m.enabled));
+      const evs = getEvents().filter((e) => sendable(e) && schedMails(e).some((m) => m.enabled && (t < h.startMs(e) || m.type === 'post_event')));
       const items = [];
       const tests = testQueue; testQueue = [];
       for (const q of tests) {
@@ -575,6 +611,10 @@ module.exports = function init(ctx) {
       id: m.id, type: m.type, name: m.name, subject: m.subject, body: m.body, format: m.format === 'html' ? 'html' : 'text', enabled: !!m.enabled,
       audience: m.audience, sent: c.sent, cancelled: c.cancel, ...flight(m.id), confirm: !!m.confirm,
     };
+    if (m.type === 'post_event') {
+      const hours = Number(m.timing && m.timing.hours) || 0;
+      Object.assign(o, { timing: { mode: 'after_end', hours }, plannedLocal: h.toLocal(new Date(h.endMs(ev) + hours * HOUR).toISOString()), afterEvent: false });
+    }
     if (m.type === 'seeding') {
       Object.assign(o, { offsetHours: m.offsetHours, isLastCall: !!m.isLastCall, skipRegistered: m.skipRegistered !== false });
       if (seed != null) { const at = seed + m.offsetHours * HOUR; o.plannedLocal = h.toLocal(new Date(at).toISOString()); o.afterEvent = at >= start; }
@@ -638,7 +678,7 @@ module.exports = function init(ctx) {
   }
 
   function fillMail(m, b, creating) {
-    if (b.name !== undefined || creating) m.name = h.cleanText(b.name, 100) || (m.type === 'last_notification' ? 'Email thông báo cuối' : 'Email');
+    if (b.name !== undefined || creating) m.name = h.cleanText(b.name, 100) || (m.type === 'last_notification' ? 'Email thông báo cuối' : m.type === 'post_event' ? 'Email sau sự kiện' : 'Email');
     if (b.subject !== undefined || creating) { const s = h.cleanText(b.subject, 200); if (!s) throw fail(400, 'Vui lòng nhập tiêu đề email'); m.subject = s; }
     if (b.body !== undefined || creating) {
       const fmt = b.format === 'html' ? 'html' : b.format === 'text' ? 'text' : (m.format === 'html' ? 'html' : 'text');
@@ -668,6 +708,13 @@ module.exports = function init(ctx) {
         else if (t.mode === 'before') m.timing = { mode: 'before', hours: intIn(t.hours, 1, 720, 'Số giờ trước sự kiện phải từ 1 đến 720') };
         else if (t.mode === 'at') { const at = h.parseLocal(t.atLocal); if (!at) throw fail(400, 'Thời gian gửi chưa hợp lệ'); m.timing = { mode: 'at', at }; }
         else throw fail(400, 'Kiểu thời gian không hợp lệ');
+      }
+    } else if (m.type === 'post_event') {
+      if (b.audience !== undefined || creating) m.audience = b.audience === 'unanswered' ? 'unanswered' : 'all';
+      if (b.timing !== undefined || creating) {
+        const t = b.timing || { mode: 'after_end', hours: 0 };
+        if (t.mode !== 'after_end') throw fail(400, 'Email sau sự kiện gửi theo số giờ sau khi sự kiện kết thúc');
+        m.timing = { mode: 'after_end', hours: intIn(t.hours ?? 0, 0, 720, 'Số giờ sau khi kết thúc phải từ 0 đến 720') };
       }
     } else {
       m.audience = 'registered';
@@ -760,12 +807,13 @@ module.exports = function init(ctx) {
       }
       if (req.method === 'POST') {
         const b = await readJson(req, BODY_LIMIT);
-        const type = ['seeding', 'notification', 'last_notification'].includes(b.type) ? b.type : null;
+        const type = ['seeding', 'notification', 'last_notification', 'post_event'].includes(b.type) ? b.type : null;
         if (!type) throw fail(400, 'Loại email không hợp lệ');
         const cand = clone(ev.emails);
         if (type === 'last_notification' && cand.some((x) => x.type === 'last_notification')) throw fail(409, 'Sự kiện đã có email thông báo cuối');
         const mail = { id: newId(), type, createdAt: new Date(now()).toISOString() };
-        fillMail(mail, b, true);
+        const bb = type === 'post_event' ? Object.assign({ subject: POST_EVENT_DEFAULT_SUBJECT, body: postEventDefaultBody(), format: 'html', timing: { mode: 'after_end', hours: 0 }, audience: 'all' }, b) : b;
+        fillMail(mail, bb, true);
         if (type === 'seeding') {
           mail.offsetHours = cand.some((x) => x.type === 'seeding') ? intIn(b.offsetHours, 1, MAX_OFFSET_H, 'Số giờ sau email đầu phải từ 1 đến ' + MAX_OFFSET_H) : 0;
           mail.isLastCall = false;
@@ -895,5 +943,5 @@ module.exports = function init(ctx) {
       + `<form method="post" action="${req.url.replace(/"/g, '&quot;')}"><button type="submit" style="background:#E85D04;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer">Xác nhận hủy nhận email</button></form>`);
   }
 
-  return { twentyRegistrationCounts, kick, sendRound, reportFor, setupInfo, confirmationOn, confirmationInfo, setConfirmation, workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
+  return { invalidateLeads, invitedFor, participantsFor, twentyRegistrationCounts, kick, sendRound, reportFor, setupInfo, confirmationOn, confirmationInfo, setConfirmation, workflowSent, workflowDue, admin, unsubscribe, image, removeImages, dueBatch, evaluate, peopleFor, audienceFor, _state: state, _counts: counts, _optOut: optOut };
 };

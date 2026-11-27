@@ -42,6 +42,11 @@ module.exports = function init({ twenty, leadFields, twentyReady, normalizePhone
     xlsx: { mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', magic: [Buffer.from([0x50, 0x4b, 0x03, 0x04])] },
     xls: { mime: 'application/vnd.ms-excel', magic: [Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])] },
     csv: { mime: 'text/csv; charset=utf-8', magic: [], extra: (b) => !b.slice(0, 16).includes(0x00) },
+    txt: { mime: 'text/plain; charset=utf-8', magic: [], extra: (b) => !b.slice(0, 16).includes(0x00) },
+    zip: { mime: 'application/zip', magic: [Buffer.from([0x50, 0x4b, 0x03, 0x04])] },
+    rar: { mime: 'application/vnd.rar', magic: [Buffer.from('Rar!\x1a\x07')] },
+    pptx: { mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', magic: [Buffer.from([0x50, 0x4b, 0x03, 0x04])] },
+    ppt: { mime: 'application/vnd.ms-powerpoint', magic: [Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])] },
   };
   const COVER_TYPES = {
     png: { mime: 'image/png', magic: [Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])] },

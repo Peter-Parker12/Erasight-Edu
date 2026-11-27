@@ -903,8 +903,8 @@
               </div>
               <div class="form-group-clean">
                 <label for="upFile">File tài liệu (PDF, Word, Excel, CSV)</label>
-                <input type="file" id="upFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" />
-                <div class="form-hint">Định dạng: .pdf, .doc, .docx, .xlsx, .csv (tối đa 25MB)</div>
+                <input type="file" id="upFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" />
+                <div class="form-hint">Định dạng: .pdf, .doc, .docx, .xls, .xlsx, .csv, .txt, .ppt, .pptx, .zip, .rar (tối đa 25MB)</div>
               </div>
               <div class="form-group-clean">
                 <label for="upLink">Link tài liệu trực tuyến (tuỳ chọn)</label>
@@ -1143,6 +1143,7 @@
                 <button type="button" class="ev-tab" role="tab" id="evTabUtm" data-etab="utm" aria-controls="evPaneUtm" aria-selected="false">Link theo dõi (UTM)</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabReg" data-etab="reg" aria-controls="evPaneReg" aria-selected="false">Xác nhận &amp; Zalo</button>
                 <button type="button" class="ev-tab" role="tab" id="evTabRep" data-etab="rep" aria-controls="evPaneRep" aria-selected="false">Báo cáo gửi</button>
+                <button type="button" class="ev-tab" role="tab" id="evTabSurvey" data-etab="survey" aria-controls="evPaneSurvey" aria-selected="false">Khảo sát</button>
               </div>
 
               <div class="ev-pane" id="evPaneInfo" role="tabpanel" aria-labelledby="evTabInfo">
@@ -1159,6 +1160,10 @@
               </div>
               <div class="form-group-clean"><label for="aeBody">Nội dung chi tiết</label><textarea id="aeBody" style="min-height:150px" maxlength="20000" placeholder="## Bạn sẽ học được gì&#10;- Dựng flow tự động từ A đến Z&#10;- Viết prompt cho nội dung đa kênh&#10;&#10;Đoạn văn mới cách một dòng trống."></textarea><div class="form-hint">Dòng trống = đoạn mới · “## ” = tiêu đề · “- ” = gạch đầu dòng</div></div>
               <div class="form-group-clean"><label for="aeJoinLink">Link tham gia (riêng tư, chỉ dùng trong email: {{join_link}})</label><input type="url" id="aeJoinLink" maxlength="500" placeholder="https://zoom.us/j/... hoặc Google Meet" /></div>
+              <div class="form-row-2">
+                <div class="form-group-clean"><label for="aeRecUrl">Link bản ghi (hiện trên trang sau khi sự kiện kết thúc)</label><input type="url" id="aeRecUrl" maxlength="500" placeholder="YouTube, Vimeo, Google Drive hoặc link khác (https://…)" /><div class="form-hint">YouTube, Vimeo và Google Drive được phát ngay trên trang; các link khác hiện thành nút “Xem bản ghi”.</div></div>
+                <div class="form-group-clean"><label for="aeRecTitle">Tiêu đề bản ghi (tuỳ chọn)</label><input type="text" id="aeRecTitle" maxlength="120" placeholder="Bản ghi buổi 1" /></div>
+              </div>
               <div class="form-group-clean"><label for="aeBanner">Banner * <span id="aeBannerNote" style="font-weight:400"></span></label><input type="file" id="aeBanner" accept="image/png,image/jpeg,image/webp" /><div class="form-hint">PNG/JPG/WebP, tỉ lệ 16:9 (khuyến nghị 1280×720), tối đa 3MB</div></div>
               <div class="form-row-2">
                 <div class="form-group-clean"><label for="aeCapacity">Số chỗ tối đa</label><input type="number" id="aeCapacity" min="1" step="1" placeholder="Để trống = không giới hạn" /></div>
@@ -1214,6 +1219,11 @@
             <h2 style="margin:26px 0 4px;font-size:15px;"><span>3 · Email thông báo cuối</span> <span class="em-badge o">sau last call</span></h2>
             <p class="em-hint" id="emLastHint">Gửi cho mọi người đăng ký sau thời điểm last call, thay cho email xác nhận. Mỗi sự kiện có một email này.</p>
             <div class="em-scroll" id="emLastBox"></div>
+
+            <h2 style="margin:26px 0 4px;font-size:15px;"><span>4 · Email sau sự kiện</span> <span class="em-badge" id="emPostCount"></span></h2>
+            <p class="em-hint">Gửi sau khi sự kiện kết thúc, mỗi người nhận một link khảo sát riêng ({{survey_link}}) và link xem lại bản ghi ({{recording_link}}). Có thể gửi lại cho những người chưa trả lời.</p>
+            <div class="em-scroll" id="emPostList"></div>
+            <p style="margin:12px 0 0;"><button type="button" class="crm-btn sm accent" id="emAddPost">+ Thêm email sau sự kiện</button></p>
           </div>
               </div>
 
@@ -1251,6 +1261,43 @@
           <h3 class="rep-h">Chưa gửi được (lỗi từ máy chủ nhận)</h3>
           <div class="rep-scroll" id="repFail"></div>
           <p class="form-hint">“Đã gửi” nghĩa là máy chủ của người nhận đã nhận email. Không đo được việc email vào hộp thư, mở hay bấm link.</p>
+        </div>
+
+              <div class="ev-pane" id="evPaneSurvey" role="tabpanel" aria-labelledby="evTabSurvey" hidden>
+          <div class="rep-top"><div class="rep-setup" id="svStatus"></div><div class="rep-ctl"><button type="button" class="crm-btn sm" id="svRefresh">↻ Làm mới</button></div></div>
+
+          <h3 class="rep-h">1 · Nội dung khảo sát</h3>
+          <div class="form-row-2">
+            <div class="form-group-clean"><label for="svTitle">Tiêu đề khảo sát</label><input type="text" id="svTitle" maxlength="120" /></div>
+            <div class="form-group-clean"><label class="em-check" style="margin:22px 0 0;"><input type="checkbox" id="svOpen" /> Đang nhận trả lời</label></div>
+          </div>
+          <div class="form-group-clean"><label for="svIntro">Lời mở đầu</label><textarea id="svIntro" rows="3" maxlength="1000"></textarea></div>
+          <div class="form-group-clean"><label for="svThanks">Lời cảm ơn (sau khi trả lời)</label><input type="text" id="svThanks" maxlength="500" /></div>
+
+          <h3 class="rep-h">2 · Câu hỏi</h3>
+          <div id="svQs"></div>
+          <div class="sv-add">
+            <select id="svNewType" aria-label="Loại câu hỏi mới">
+              <option value="rating">Đánh giá sao 1–5</option><option value="nps">Mức độ giới thiệu 0–10 (NPS)</option>
+              <option value="choice">Chọn một đáp án</option><option value="multi">Chọn nhiều đáp án</option><option value="text">Câu trả lời mở</option>
+            </select>
+            <button type="button" class="crm-btn sm" id="svAddQ">+ Thêm câu hỏi</button>
+          </div>
+          <div style="margin-top:14px;"><button type="button" class="crm-btn primary" id="svSave">Lưu khảo sát</button> <span class="form-hint" id="svMsg"></span></div>
+
+          <h3 class="rep-h">3 · Gửi cho người tham dự</h3>
+          <div class="em-zone">Khảo sát được gửi qua email <b>“Email sau sự kiện”</b> (tab Email theo lịch, mục 4). Email đó chứa link khảo sát riêng cho từng người và link xem lại bản ghi. <button type="button" class="crm-btn sm" id="svGoEmails">Mở “Email sau sự kiện” →</button></div>
+
+          <h3 class="rep-h">4 · Kết quả</h3>
+          <div class="rep-cards" id="svCards"></div>
+          <div id="svCharts"></div>
+          <h3 class="rep-h">Người tham dự đã trả lời / chưa trả lời</h3>
+          <div class="rep-scroll" id="svPeople"></div>
+          <div style="margin-top:10px;"><button type="button" class="crm-btn sm" id="svCsv">Tải CSV câu trả lời</button></div>
+
+          <h3 class="rep-h">Tất cả khảo sát</h3>
+          <div class="rep-scroll" id="svSummary"></div>
+          <p class="form-hint">Đánh giá sao và NPS được tính trên những người đã trả lời câu hỏi đó. Khảo sát không đo được người đã đọc hay mở link, chỉ đo việc trả lời.</p>
         </div>
 
               <div class="ev-pane" id="evPaneUtm" role="tabpanel" aria-labelledby="evTabUtm" hidden>
@@ -1298,6 +1345,11 @@
               <div class="em-row2"><div class="form-group-clean"><label for="emMode">Thời điểm gửi</label><select id="emMode"><option value="on_register">Ngay khi đăng ký</option><option value="before">N giờ trước sự kiện</option><option value="at">Vào giờ cố định</option></select></div>
               <div class="form-group-clean"><label for="emModeV" id="emModeL">Trễ (giờ)</label><input type="number" id="emModeV" /></div></div>
               <div class="form-group-clean" id="emNotAudRow"><label for="emNotAud">Đối tượng</label><select id="emNotAud"><option value="registered">Người đã đăng ký sự kiện</option><option value="all">Tất cả lead trong Twenty</option></select></div>
+            </div>
+            <div id="emPostF" hidden>
+              <div class="em-row2"><div class="form-group-clean"><label for="emPostHours">Gửi sau khi sự kiện kết thúc (giờ)</label><input type="number" id="emPostHours" min="0" max="720" value="0" /><div class="form-hint">0 = ngay khi sự kiện kết thúc.</div></div>
+              <div class="form-group-clean"><label for="emPostAud">Đối tượng</label><select id="emPostAud"><option value="all">Tất cả người đã đăng ký</option><option value="unanswered">Chỉ người chưa trả lời khảo sát (email nhắc)</option></select></div></div>
+              <div class="em-zone" style="margin:0 0 12px;">Email có thể chèn {{survey_link}} (link khảo sát riêng) và {{recording_link}} (xem lại bản ghi). Khảo sát và bản ghi được cấu hình ở tab “Khảo sát” và “Thông tin chung”.</div>
             </div>
             <div id="emLnF" hidden><div class="em-zone" style="margin:0 0 12px;">Gửi cho người đăng ký sau thời điểm last call, thay cho email xác nhận.</div></div>
             <label class="em-check"><input type="checkbox" id="emEnabled" checked /> Bật email này</label>

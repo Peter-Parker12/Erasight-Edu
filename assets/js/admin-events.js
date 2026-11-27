@@ -10,7 +10,7 @@
   const HDR = { 'X-Requested-With': 'erasight-admin' };
   const JSON_HDR = Object.assign({ 'Content-Type': 'application/json' }, HDR);
   const PHASE = { upcoming: ['Sắp diễn ra', '#E85D04'], live: ['Đang diễn ra', '#E85D04'], past: ['Đã diễn ra', '#6b8590'] };
-  const TABS = ['info', 'emails', 'utm', 'reg', 'rep'];
+  const TABS = ['info', 'emails', 'utm', 'reg', 'rep', 'survey'];
   const STORE_SEL = 'erasight.admin.event.selected';
   const STORE_TAB = 'erasight.admin.event.tab';
 
@@ -113,6 +113,7 @@
       $('aeStart').value = e.startLocal; $('aeEnd').value = e.endLocal; $('aeMode').value = e.mode; $('aeLocation').value = e.location || '';
       $('aeCapacity').value = e.capacity || ''; $('aeOpen').value = e.registrationOpen ? '1' : '0'; $('aeStatus').value = e.status;
       $('aeJoinLink').value = e.joinLink || '';
+      $('aeRecUrl').value = e.recording ? e.recording.url : ''; $('aeRecTitle').value = e.recording ? (e.recording.title || '') : '';
     }
     $('aeBanner').value = '';
     $('aeBannerNote').textContent = e && e.hasBanner ? '(đã có — chọn ảnh mới để thay)' : '';
@@ -125,7 +126,7 @@
   function showTab(name) {
     if (isNew || !TABS.includes(name)) name = 'info';
     tab = name;
-    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'], reg: ['evTabReg', 'evPaneReg'], rep: ['evTabRep', 'evPaneRep'] };
+    const map = { info: ['evTabInfo', 'evPaneInfo'], emails: ['evTabEmails', 'emCard'], utm: ['evTabUtm', 'evPaneUtm'], reg: ['evTabReg', 'evPaneReg'], rep: ['evTabRep', 'evPaneRep'], survey: ['evTabSurvey', 'evPaneSurvey'] };
     for (const [k, [b, p]] of Object.entries(map)) {
       const on = k === name;
       $(b).classList.toggle('is-active', on); $(b).setAttribute('aria-selected', String(on)); $(b).tabIndex = on ? 0 : -1;
@@ -137,6 +138,7 @@
     if (name === 'utm') setUtmEvent();
     if (name === 'reg') fillReg();
     if (name === 'rep') fillReport();
+    if (name === 'survey') fillSurvey();
   }
 
   function confirmDiscard() {
@@ -208,6 +210,7 @@
       startLocal: $('aeStart').value, endLocal: $('aeEnd').value, mode: $('aeMode').value, location: $('aeLocation').value,
       capacity: $('aeCapacity').value, registrationOpen: $('aeOpen').value === '1',
       joinLink: $('aeJoinLink').value,
+      recording: { url: $('aeRecUrl').value.trim(), title: $('aeRecTitle').value.trim() },
     };
     const btn = $('aeSubmit'); const prog = $('aeProgress');
     btn.disabled = true; prog.hidden = false; prog.querySelector('i').style.width = '15%'; $('aeMsg').hidden = true;
@@ -219,7 +222,7 @@
       if (file) await putBanner(id, file);
       prog.querySelector('i').style.width = '85%';
       // Publishing needs the banner, so it is applied last.
-      await api(`/api/admin/events/${id}`, { method: 'PATCH', headers: JSON_HDR, body: JSON.stringify({ status: wantStatus }) });
+      await api(`/api/admin/events/${id}`, { method: 'PATCH', headers: JSON_HDR, body: JSON.stringify({ status: wantStatus, recording: body.recording }) });
       prog.querySelector('i').style.width = '100%';
       const created = !existing;
       dirty = false; isNew = false; selectedId = id;
@@ -365,6 +368,148 @@
     a.download = `bao-cao-gui-${selectedId}.csv`; document.body.appendChild(a); a.click(); a.remove();
   }
 
+  // ---- feedback survey: questions, results ----
+  const SV_TYPES = { rating: 'Đánh giá sao 1–5', nps: 'Mức độ giới thiệu 0–10 (NPS)', choice: 'Chọn một đáp án', multi: 'Chọn nhiều đáp án', text: 'Câu trả lời mở' };
+  let svQs = [];   // the questions being edited
+  let svOwner = null;
+  const svNum = (n) => Number(n || 0).toLocaleString('vi-VN');
+  const svWhen = (iso) => { try { return new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }); } catch (e) { return ''; } };
+  const svPct = (n, of) => (of ? Math.round(n / of * 100) : 0);
+  function svMsg(text, isErr) { const el = $('svMsg'); el.textContent = text || ''; el.style.color = isErr ? '#b3261e' : ''; }
+  function svRenderQs() {
+    $('svQs').innerHTML = svQs.length ? svQs.map((q, i) => `
+      <div class="sv-q" data-i="${i}">
+        <div class="sv-q__head"><b>${i + 1}.</b> <span class="em-badge">${esc(SV_TYPES[q.type])}</span>
+          <span class="sv-q__tools"><button type="button" class="crm-btn sm" data-up="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Lên">↑</button>
+          <button type="button" class="crm-btn sm" data-down="${i}" ${i === svQs.length - 1 ? 'disabled' : ''} aria-label="Xuống">↓</button>
+          <button type="button" class="crm-btn sm danger" data-del="${i}">Xoá</button></span></div>
+        <input type="text" class="sv-q__text" maxlength="300" value="${esc(q.text)}" data-f="text" placeholder="Nội dung câu hỏi" aria-label="Nội dung câu hỏi ${i + 1}" />
+        <label class="em-check" style="margin:6px 0 0;"><input type="checkbox" data-f="required" ${q.required ? 'checked' : ''} /> Bắt buộc trả lời</label>
+        ${q.type === 'choice' || q.type === 'multi' ? `<textarea class="sv-q__opts" rows="3" data-f="options" aria-label="Các đáp án, mỗi dòng một đáp án" placeholder="Mỗi dòng một đáp án">${esc((q.options || []).join('\n'))}</textarea>` : ''}
+      </div>`).join('') : '<div class="em-empty">Chưa có câu hỏi. Thêm câu hỏi bên dưới.</div>';
+  }
+  function svReadQs() {
+    return [...document.querySelectorAll('#svQs .sv-q')].map((row) => {
+      const i = Number(row.dataset.i); const q = svQs[i];
+      const out = { id: q.id, type: q.type, text: row.querySelector('[data-f="text"]').value.trim(), required: row.querySelector('[data-f="required"]').checked };
+      const opts = row.querySelector('[data-f="options"]');
+      if (opts) out.options = opts.value.split('\n').map((x) => x.trim()).filter(Boolean);
+      return out;
+    });
+  }
+  function svSyncFromDom() { svQs = svReadQs(); }
+  function svApply(s) {
+    $('svTitle').value = s.title || ''; $('svIntro').value = s.intro || ''; $('svThanks').value = s.thanks || ''; $('svOpen').checked = !!s.open;
+    svQs = (s.questions || []).map((q) => ({ ...q, options: q.options ? [...q.options] : undefined }));
+    svRenderQs();
+  }
+  async function fillSurvey() {
+    if (!selectedId) return;
+    const id = selectedId; svOwner = id;
+    try {
+      const d = await api(`/api/admin/events/${id}/survey`, { cache: 'no-store', headers: HDR });
+      if (svOwner !== id) return;
+      svApply(d.survey);
+      svMsg('');
+      $('svStatus').innerHTML = d.survey.open
+        ? `<span class="em-badge">Đang nhận trả lời</span> Khảo sát được gửi qua “Email sau sự kiện”.`
+        : `<span class="em-badge g">Đã đóng</span> Người tham dự không thể trả lời nữa.`;
+    } catch (err) { svMsg(err.message, true); }
+    loadSurveyResults(id);
+    loadSurveySummary();
+  }
+  async function saveSurvey() {
+    if (!selectedId) return;
+    svSyncFromDom();
+    svMsg('Đang lưu…');
+    try {
+      const d = await api(`/api/admin/events/${selectedId}/survey`, { method: 'PATCH', headers: JSON_HDR, body: JSON.stringify({
+        title: $('svTitle').value.trim(), intro: $('svIntro').value, thanks: $('svThanks').value.trim(), open: $('svOpen').checked, questions: svQs.map((q) => ({ id: q.id, type: q.type, text: q.text, required: q.required, options: q.options })),
+      }) });
+      svApply(d.survey); svMsg('Đã lưu ✓');
+      loadSurveyResults(selectedId);
+    } catch (err) { svMsg(err.message, true); }
+  }
+  function svBar(n, of, cls) { return `<div class="rep-bar ${cls || ''}" title="${svNum(n)} (${svPct(n, of)}%)"><i style="width:${svPct(n, of)}%"></i></div>`; }
+  async function loadSurveyResults(id) {
+    try {
+      const r = await api(`/api/admin/events/${id}/survey/results`, { cache: 'no-store', headers: HDR });
+      if (id !== selectedId) return;
+      renderSurveyResults(r);
+    } catch (err) { $('svCards').innerHTML = `<div class="form-hint">${esc(err.message)}</div>`; }
+  }
+  let svLast = null;
+  function renderSurveyResults(r) {
+    svLast = r;
+    const rating = r.questions.filter((q) => q.type === 'rating' && q.avg != null);
+    const nps = r.questions.find((q) => q.type === 'nps' && q.score != null);
+    const card = (n, label, cls) => `<div class="rep-card ${cls || ''}"><b>${n}</b><span>${label}</span></div>`;
+    $('svCards').innerHTML = card(svNum(r.invited), 'Đã gửi email khảo sát') + card(svNum(r.responses), 'Đã trả lời', 'ok')
+      + card(r.rate == null ? '—' : r.rate + '%', 'Tỉ lệ trả lời', r.rate >= 30 ? 'ok' : 'warn')
+      + card(rating.length ? rating[0].avg + ' / 5' : '—', 'Điểm trung bình') + card(nps ? (nps.score > 0 ? '+' : '') + nps.score : '—', 'NPS');
+    if (!r.questions.length) { $('svCharts').innerHTML = '<div class="em-empty">Chưa có câu hỏi.</div>'; }
+    $('svCharts').innerHTML = r.questions.map((q) => {
+      const head = `<div class="sv-chart__head"><b>${esc(q.text)}</b> <span class="form-hint">${svNum(q.answered)} người trả lời</span></div>`;
+      let body = '';
+      if (q.type === 'rating') {
+        body = `<div class="sv-chart__sum">Trung bình <b>${q.avg == null ? '—' : q.avg}</b> / 5</div>` + [1, 2, 3, 4, 5].map((n) =>
+          `<div class="sv-row"><span>${n} sao</span>${svBar(q.dist[n - 1], q.answered)}<span class="em-num">${svNum(q.dist[n - 1])}</span></div>`).join('');
+      } else if (q.type === 'nps') {
+        body = `<div class="sv-chart__sum">Điểm NPS <b>${q.score == null ? '—' : (q.score > 0 ? '+' : '') + q.score}</b></div>`
+          + [['Người ủng hộ (9–10)', q.promoters, 'ok'], ['Trung lập (7–8)', q.passives, ''], ['Người phê bình (0–6)', q.detractors, 'bad']].map(([l, n, c]) =>
+            `<div class="sv-row"><span>${l}</span>${svBar(n, q.answered, c)}<span class="em-num">${svNum(n)} (${svPct(n, q.answered)}%)</span></div>`).join('');
+      } else if (q.type === 'choice' || q.type === 'multi') {
+        body = q.options.map((o) => `<div class="sv-row"><span>${esc(o.option)}</span>${svBar(o.n, q.answered)}<span class="em-num">${svNum(o.n)} (${svPct(o.n, q.answered)}%)</span></div>`).join('');
+      } else {
+        body = (q.topWords && q.topWords.length ? `<div class="sv-words">${q.topWords.map((w) => `<span class="em-badge">${esc(w.word)} · ${w.n}</span>`).join(' ')}</div>` : '')
+          + (q.texts.length ? `<ul class="sv-texts">${q.texts.slice(0, 40).map((t) => `<li><b>${esc(t.email)}</b> <small>${esc(svWhen(t.at))}</small><br>${esc(t.text)}</li>`).join('')}</ul>` : '<div class="em-empty">Chưa có câu trả lời.</div>');
+      }
+      return `<div class="sv-chart">${head}${body}</div>`;
+    }).join('');
+    const dailyMax = Math.max(1, ...r.daily.map((d) => d.n));
+    if (r.daily.length) $('svCharts').innerHTML += `<div class="sv-chart"><div class="sv-chart__head"><b>Trả lời theo ngày</b></div>${r.daily.map((d) => `<div class="sv-row"><span>${esc(d.day)}</span>${svBar(d.n, dailyMax)}<span class="em-num">${svNum(d.n)}</span></div>`).join('')}</div>`;
+    const answered = r.responders; const not = r.nonResponders;
+    $('svPeople').innerHTML = `<table class="em-tbl"><tr><th>Đã trả lời</th><th>Thời gian</th></tr>${answered.map((x) => `<tr><td>${esc(x.email)}</td><td class="em-num">${esc(svWhen(x.at))}</td></tr>`).join('') || '<tr><td colspan="2" class="em-empty">Chưa ai trả lời.</td></tr>'}</table>`
+      + `<table class="em-tbl" style="margin-top:10px;"><tr><th>Chưa trả lời (${svNum(not.length)})</th></tr>${not.map((e) => `<tr><td>${esc(e)}</td></tr>`).join('') || '<tr><td class="em-empty">Mọi người đã trả lời.</td></tr>'}</table>`;
+  }
+  async function loadSurveySummary() {
+    try {
+      const d = await api('/api/admin/surveys/summary', { cache: 'no-store', headers: HDR });
+      $('svSummary').innerHTML = d.events.length ? `<table class="em-tbl"><tr><th>Sự kiện</th><th class="em-num">Đã gửi</th><th class="em-num">Đã trả lời</th><th class="em-num">Tỉ lệ</th><th class="em-num">Điểm TB</th><th class="em-num">NPS</th></tr>${d.events.map((e) =>
+        `<tr><td class="em-t">${esc(e.title)}</td><td class="em-num">${svNum(e.invited)}</td><td class="em-num">${svNum(e.responses)}</td><td class="em-num">${e.rate == null ? '—' : e.rate + '%'}</td><td class="em-num">${e.avgRating == null ? '—' : e.avgRating}</td><td class="em-num">${e.nps == null ? '—' : (e.nps > 0 ? '+' : '') + e.nps}</td></tr>`).join('')}</table>` : '<div class="em-empty">Chưa có sự kiện.</div>';
+    } catch (err) { $('svSummary').innerHTML = `<div class="form-hint">${esc(err.message)}</div>`; }
+  }
+  function svCsv() {
+    if (!svLast) return;
+    const cols = ['email', 'at', ...svLast.questionsMeta.map((q) => q.text)];
+    const q = (v) => `"${String(v == null ? '' : Array.isArray(v) ? v.join('; ') : v).replace(/"/g, '""')}"`;
+    const csv = [cols.map(q).join(','), ...svLast.rows.map((r) => [r.email, r.at, ...svLast.questionsMeta.map((m) => r.answers[m.id])].map(q).join(','))].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `khao-sat-${selectedId}.csv`; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function svInitListeners() {
+    $('svAddQ').addEventListener('click', () => {
+      svSyncFromDom();
+      const type = $('svNewType').value;
+      const q = { id: 'q' + Math.random().toString(36).slice(2, 8), type, text: '', required: false };
+      if (type === 'choice' || type === 'multi') q.options = ['Đáp án 1', 'Đáp án 2'];
+      svQs.push(q); svRenderQs();
+    });
+    $('svQs').addEventListener('click', (e) => {
+      const up = e.target.closest('[data-up]'); const down = e.target.closest('[data-down]'); const del = e.target.closest('[data-del]');
+      if (!up && !down && !del) return;
+      svSyncFromDom();
+      if (up) { const i = Number(up.dataset.up); [svQs[i - 1], svQs[i]] = [svQs[i], svQs[i - 1]]; }
+      if (down) { const i = Number(down.dataset.down); [svQs[i], svQs[i + 1]] = [svQs[i + 1], svQs[i]]; }
+      if (del) svQs.splice(Number(del.dataset.del), 1);
+      svRenderQs();
+    });
+    $('svSave').addEventListener('click', saveSurvey);
+    $('svRefresh').addEventListener('click', fillSurvey);
+    $('svCsv').addEventListener('click', svCsv);
+    $('svGoEmails').addEventListener('click', () => { showTab('emails'); });
+  }
+
   // ---- short links (the UTM link above, shortened; the short link redirects to the full URL so UTM tags are kept) ----
   let shortFor = '';   // the long link the visible short link was made for
   const fmtDay = (iso) => { try { return new Date(iso).toLocaleDateString('vi-VN'); } catch (e) { return ''; } };
@@ -430,6 +575,7 @@
     });
     $('utmShorten').addEventListener('click', shorten);
     $('rgSave').addEventListener('click', saveReg);
+    svInitListeners();
     $('repRefresh').addEventListener('click', fillReport);
     $('repDays').addEventListener('change', fillReport);
     $('repCsv').addEventListener('click', reportCsv);
