@@ -197,6 +197,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => (await api('PATCH', `${EV(a)}/survey`, pick(a, ['title', 'intro', 'thanks', 'open', 'questions']))).survey },
     { name: 'get_survey_results', description: 'Survey results for an event: invited, responses, response rate, rating averages, NPS, choice percentages, top words of open answers, daily responses, and who has not answered yet.', props: { event_id: S }, req: ['event_id'],
       run: async (a) => { const r = await api('GET', `${EV(a)}/survey/results`); const { rows, ...rest } = r; return { ...rest, responseRows: rows.length }; } },
+    { name: 'create_survey_test_links', description: 'Create personal survey links for team members (emails, max 30) to try the survey. Their answers are kept out of the results. The event must be published for the links to open. Returns every test link of the event.', props: { event_id: S, emails: { type: 'array', items: S, description: 'Team email addresses' } }, req: ['event_id', 'emails'],
+      run: async (a) => (await api('POST', `${EV(a)}/survey/test-links`, { emails: a.emails })).survey.testers },
     { name: 'list_survey_responses', description: 'Every answer to an event survey (one per person, the latest answer), newest first. Includes the participant email.', props: { event_id: S, limit: { type: 'integer', minimum: 1, maximum: 500 } }, req: ['event_id'],
       run: async (a) => (await api('GET', `${EV(a)}/survey/results`)).rows.slice(0, Math.min(500, Number(a.limit) || 100)) },
 

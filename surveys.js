@@ -161,7 +161,9 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
   }
 
   async function results(ev) {
-    const rows = latestRows(ev.id);
+    const testers = new Set((ev.survey && ev.survey.testers) || []);
+    const rows = latestRows(ev.id).filter((r) => !testers.has(r.email));
+    const testAnswers = latestRows(ev.id).filter((r) => testers.has(r.email)).length;
     const invited = hooks.invitedFor(ev);
     let participants = [];
     try { participants = await hooks.participantsFor(ev); } catch { /* Twenty unreachable: no responder list */ }
@@ -171,7 +173,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     const a = analyse(ev, rows);
     return {
       eventId: ev.id, eventTitle: ev.title, open: !!surveyOf(ev).open,
-      invited: invited.size, responses: rows.length, participants: participants.length,
+      invited: invited.size, responses: rows.length, testAnswers, participants: participants.length,
       rate: invited.size ? Math.round(rows.length / invited.size * 100) : null,
       lastAt: rows.length ? rows.map((r) => r.at).sort().pop() : null,
       ...a, responders, nonResponders,
@@ -234,7 +236,8 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
   // ---- admin -----------------------------------------------------------------------------------------------
   function adminSurvey(ev) {
     const s = surveyOf(ev);
-    return { ...s, configured: !!(ev.survey && Array.isArray(ev.survey.questions)), eventTitle: ev.title };
+    const testers = (ev.survey && Array.isArray(ev.survey.testers) ? ev.survey.testers : []).map((email) => ({ email, link: linkFor(ev.id, email) }));
+    return { ...s, testers, configured: !!(ev.survey && Array.isArray(ev.survey.questions)), eventTitle: ev.title };
   }
 
   async function admin(req, res, pathname) {
@@ -243,7 +246,8 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     if (pathname === '/api/admin/surveys/summary') {
       if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
       const rows = getEvents().map((ev) => {
-        const r = latestRows(ev.id); const inv = hooks.invitedFor(ev).size;
+        const testers = new Set((ev.survey && ev.survey.testers) || []);
+        const r = latestRows(ev.id).filter((x) => !testers.has(x.email)); const inv = hooks.invitedFor(ev).size;
         const ratings = surveyOf(ev).questions.filter((q) => q.type === 'rating').map((q) => r.map((x) => Number(x.answers[q.id])).filter(Number.isInteger));
         const flat = ratings.flat(); const avg = flat.length ? r1(flat.reduce((s, n) => s + n, 0) / flat.length) : null;
         const nps = surveyOf(ev).questions.filter((q) => q.type === 'nps').map((q) => r.map((x) => Number(x.answers[q.id])).filter(Number.isInteger)).flat();
@@ -252,10 +256,23 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
       });
       return send(res, 200, { events: rows });
     }
-    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/survey(?:\/(results))?$/);
+    const m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/survey(?:\/(results|test-links))?$/);
     if (!m) return send(res, 404, { error: 'Not found' });
     const ev = getEvents().find((x) => x.id === m[1]);
     if (!ev) return send(res, 404, { error: 'Event not found' });
+    if (m[2] === 'test-links') { // personal links for team members to try the survey (their answers are kept out of the results)
+      if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+      const b = await readJson(req, 16 * 1024);
+      const raw = Array.isArray(b.emails) ? b.emails.join(',') : String(b.emails || '');
+      const list = [...new Set(raw.split(/[\s,;]+/).map((x) => x.trim().toLowerCase()).filter(Boolean))];
+      if (!list.length) throw fail(400, 'Nhập ít nhất một email');
+      if (list.some((x) => !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(x))) throw fail(400, 'Có email chưa đúng định dạng');
+      const cur = ev.survey || {};
+      const testers = [...new Set([...(cur.testers || []), ...list])].slice(0, 30);
+      ev.survey = { ...(ev.survey && ev.survey.questions ? ev.survey : defaultSurvey()), testers };
+      ev.updatedAt = new Date().toISOString(); saveEvents();
+      return send(res, 200, { survey: adminSurvey(ev) });
+    }
     if (m[2] === 'results') {
       if (req.method !== 'GET') return send(res, 405, { error: 'Method not allowed' });
       return send(res, 200, await results(ev));
@@ -264,7 +281,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     if (req.method === 'PATCH') {
       const b = await readJson(req, 64 * 1024);
       const body = b.survey && typeof b.survey === 'object' ? b.survey : b;
-      ev.survey = cleanSurvey(body, ev.survey && ev.survey.questions ? ev.survey : null);
+      ev.survey = { ...cleanSurvey(body, ev.survey && ev.survey.questions ? ev.survey : null), testers: (ev.survey && ev.survey.testers) || [] };
       ev.updatedAt = new Date().toISOString(); saveEvents();
       return send(res, 200, { survey: adminSurvey(ev) });
     }

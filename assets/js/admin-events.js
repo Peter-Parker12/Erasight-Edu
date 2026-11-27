@@ -402,6 +402,20 @@
     $('svTitle').value = s.title || ''; $('svIntro').value = s.intro || ''; $('svThanks').value = s.thanks || ''; $('svOpen').checked = !!s.open;
     svQs = (s.questions || []).map((q) => ({ ...q, options: q.options ? [...q.options] : undefined }));
     svRenderQs();
+    svRenderTesters(s.testers || []);
+  }
+  function svRenderTesters(list) {
+    $('svTestList').innerHTML = list.length ? `<table class="em-tbl"><tr><th>Người thử</th><th>Link</th><th></th></tr>${list.map((t) =>
+      `<tr><td class="em-t">${esc(t.email)}</td><td><code class="sv-test-link">${esc(location.origin + t.link)}</code></td><td style="white-space:nowrap"><button type="button" class="crm-btn sm" data-tcopy="${esc(location.origin + t.link)}">Sao chép</button></td></tr>`).join('')}</table>` : '<div class="em-empty">Chưa có link thử.</div>';
+  }
+  async function svMakeTesters() {
+    if (!selectedId) return;
+    const msg = $('svTestMsg'); msg.hidden = true;
+    try {
+      const d = await api(`/api/admin/events/${selectedId}/survey/test-links`, { method: 'POST', headers: JSON_HDR, body: JSON.stringify({ emails: $('svTestEmails').value }) });
+      $('svTestEmails').value = ''; svRenderTesters(d.survey.testers || []);
+      msg.textContent = 'Đã tạo link. Sao chép và gửi cho người thử.'; msg.hidden = false;
+    } catch (err) { msg.textContent = err.message; msg.hidden = false; }
   }
   async function fillSurvey() {
     if (!selectedId) return;
@@ -508,6 +522,12 @@
       svRenderQs();
     });
     $('svSave').addEventListener('click', saveSurvey);
+    $('svTestMake').addEventListener('click', svMakeTesters);
+    $('svTestList').addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-tcopy]'); if (!b) return;
+      try { await navigator.clipboard.writeText(b.dataset.tcopy); } catch (err) { window.prompt('Sao chép link:', b.dataset.tcopy); }
+      b.textContent = 'Đã chép ✓'; setTimeout(() => { b.textContent = 'Sao chép'; }, 1500);
+    });
     $('svRefresh').addEventListener('click', fillSurvey);
     $('svCsv').addEventListener('click', svCsv);
     $('svGoEmails').addEventListener('click', () => { showTab('emails'); });

@@ -1288,6 +1288,15 @@
           <h3 class="rep-h">3 · Gửi cho người tham dự</h3>
           <div class="em-zone">Khảo sát được gửi qua email <b>“Email sau sự kiện”</b> (tab Email theo lịch, mục 4). Email đó chứa link khảo sát riêng cho từng người và link xem lại bản ghi. <button type="button" class="crm-btn sm" id="svGoEmails">Mở “Email sau sự kiện” →</button></div>
 
+          <h3 class="rep-h">Link thử cho người trong tổ chức</h3>
+          <p class="form-hint" style="margin:0 0 8px;">Nhập email đồng nghiệp để tạo link khảo sát riêng cho họ. Câu trả lời từ các link này không tính vào kết quả. Khảo sát phải đã xuất bản.</p>
+          <div class="sv-test-row">
+            <textarea id="svTestEmails" rows="2" placeholder="ten@erasight.net, ban@erasight.net" aria-label="Email người thử"></textarea>
+            <button type="button" class="crm-btn sm primary" id="svTestMake">Tạo link</button>
+          </div>
+          <div id="svTestList" class="sv-test-list"></div>
+          <p class="sv-test-msg" id="svTestMsg" hidden></p>
+
           <h3 class="rep-h">Xem thử trang khảo sát</h3>
           <p class="form-hint" style="margin:0 0 8px;">Đây là trang người tham dự sẽ thấy, dựa trên khảo sát đã lưu. Xem thử không lưu câu trả lời.</p>
           <div class="sv-preview-bar"><a class="crm-btn sm" id="svPreviewOpen" target="_blank" rel="noopener">Mở trong tab mới ↗</a></div>
