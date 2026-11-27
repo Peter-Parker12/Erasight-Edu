@@ -158,7 +158,7 @@
   // =========================================================================
   // PHÂN HỆ 1: QUẢN LÝ TÀI LIỆU AI
   // =========================================================================
-  const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv'];
+  const DOC_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'ppt', 'pptx', 'zip', 'rar'];
 
   async function loadDocs() {
     const listEl = $('admList');
@@ -363,7 +363,7 @@
         if (act === 'cover' || act === 'file') {
           const input = $('admReplaceInput');
           input.value = '';
-          input.accept = act === 'cover' ? 'image/png,image/jpeg,image/webp' : '.pdf,.doc,.docx,.xls,.xlsx,.csv';
+          input.accept = act === 'cover' ? 'image/png,image/jpeg,image/webp' : '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.ppt,.pptx,.zip,.rar';
           input.onchange = async () => {
             if (!input.files || !input.files.length) return;
             const file = input.files[0];
