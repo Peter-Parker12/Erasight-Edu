@@ -87,6 +87,9 @@
     }
     state.loaded = true;
     render();
+    // a shared link (…/tai-lieu-ai#tai-lieu-<id>) opens that document's pop-up
+    const m = location.hash.match(/^#tai-lieu-([a-f0-9]{16})$/);
+    if (m && state.docs.some((d) => d.id === m[1])) openDocument(m[1]);
   }
 
   function getFilteredDocuments() {
@@ -367,6 +370,15 @@
   function openModal(doc) {
     state.pendingDocId = doc.id;
     $('dlTitle').textContent = doc.title;
+    $('dlDesc').textContent = doc.description || 'Chưa có mô tả cho tài liệu này.';
+    const cover = $('dlCover');
+    cover.parentElement.hidden = !doc.coverUrl;
+    if (doc.coverUrl) cover.src = doc.coverUrl;
+    history.replaceState(null, '', `#tai-lieu-${doc.id}`); // the address now links to this document
+    $('dlFormat').textContent = doc.size ? typeLabel(doc.type) : 'Liên kết';
+    $('dlSize').textContent = doc.size ? fmtSize(doc.size) : 'Trực tuyến';
+    $('dlViews').textContent = fmtViews(doc.views);
+    $('dlDate').textContent = doc.createdAt ? new Date(doc.createdAt).toLocaleDateString('vi-VN') : '—';
     $('dlError').hidden = true;
     $('dlModal').classList.add('is-open');
     document.body.style.overflow = 'hidden';
@@ -377,7 +389,11 @@
     $('dlModal').classList.remove('is-open');
     document.body.style.overflow = '';
     state.pendingDocId = null;
+    if (location.hash.startsWith('#tai-lieu-')) history.replaceState(null, '', location.pathname + location.search);
   }
+
+  // the address of a document's pop-up, for sharing
+  function docLink(id) { return `${location.origin}${location.pathname}#tai-lieu-${id}`; }
 
   function showError(msg) {
     const el = $('dlError');
@@ -390,6 +406,12 @@
     if (dlModal) {
       const dlClose = $('dlClose');
       if (dlClose) dlClose.addEventListener('click', closeModal);
+      const copyBtn = $('dlCopyLink');
+      if (copyBtn) copyBtn.addEventListener('click', async () => {
+        const link = docLink(state.pendingDocId || '');
+        try { await navigator.clipboard.writeText(link); } catch (e) { window.prompt('Sao chép link:', link); }
+        $('dlCopied').hidden = false; setTimeout(() => { $('dlCopied').hidden = true; }, 1800);
+      });
       dlModal.addEventListener('click', (e) => { if (e.target === dlModal) closeModal(); });
     }
 

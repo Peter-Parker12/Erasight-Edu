@@ -128,14 +128,27 @@
 
   <!-- POPUP NHẬP THÔNG TIN TRƯỚC KHI TẢI TÀI LIỆU -->
   <div class="doc-modal" id="dlModal" role="dialog" aria-modal="true" aria-labelledby="dlTitle">
-    <div class="dl-box">
+    <div class="dl-box dl-split">
       <button type="button" class="doc-modal-close" id="dlClose" aria-label="Đóng">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
-      <span class="eyebrow pur">Tải tài liệu miễn phí</span>
-      <h3 id="dlTitle">Tên tài liệu</h3>
-      <p class="dl-sub">Để lại thông tin để tải về. Bạn chỉ cần điền một lần — sau đó tải thêm các tài liệu khác trong 7 ngày.</p>
-      <form id="dlForm" novalidate>
+      <section class="dl-info" aria-label="Thông tin tài liệu">
+        <div class="dl-cover"><img id="dlCover" alt="" /></div>
+        <span class="eyebrow pur">Tài liệu AI</span>
+        <h3 id="dlTitle">Tên tài liệu</h3>
+        <p class="dl-desc" id="dlDesc"></p>
+        <button type="button" class="dl-copy" id="dlCopyLink">Sao chép link tài liệu</button> <span class="dl-copied" id="dlCopied" hidden>Đã sao chép ✓</span>
+        <div class="dl-facts">
+          <div class="dl-fact"><b id="dlFormat">—</b><span>Định dạng</span></div>
+          <div class="dl-fact"><b id="dlSize">—</b><span>Dung lượng</span></div>
+          <div class="dl-fact"><b id="dlViews">—</b><span>Lượt xem</span></div>
+          <div class="dl-fact"><b id="dlDate">—</b><span>Ngày đăng</span></div>
+        </div>
+      </section>
+      <section class="dl-side" aria-label="Nhận tài liệu">
+        <span class="eyebrow pur">Tải tài liệu miễn phí</span>
+        <p class="dl-sub">Để lại thông tin để tải về. Bạn chỉ cần điền một lần — sau đó tải thêm các tài liệu khác trong 7 ngày.</p>
+        <form id="dlForm" novalidate>
         <div class="form-group-clean">
           <label for="dlName">Họ và tên *</label>
           <input type="text" id="dlName" name="name" placeholder="Ví dụ: Nguyễn Văn An" autocomplete="name" maxlength="120" required />
@@ -154,6 +167,7 @@
         <button type="submit" class="btn btn-primary dl-submit" id="dlSubmit">Tải tài liệu ↓</button>
         <p class="dl-note">Erasight chỉ dùng thông tin này để gửi tài liệu và tư vấn khoá học phù hợp.</p>
       </form>
+      </section>
     </div>
   </div>
 
