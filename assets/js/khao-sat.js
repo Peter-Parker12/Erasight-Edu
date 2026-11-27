@@ -10,7 +10,8 @@
   if (!root || !holder) return;
   const id = holder.dataset.event;
   const token = holder.dataset.token;
-  const api = `/api/survey/${encodeURIComponent(id)}/${encodeURIComponent(token)}`;
+  const preview = holder.dataset.preview === '1'; // admin preview: the saved survey, nothing is stored
+  const api = preview ? `/api/admin/events/${encodeURIComponent(id)}/survey` : `/api/survey/${encodeURIComponent(id)}/${encodeURIComponent(token)}`;
 
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
@@ -47,6 +48,7 @@
 
   function draw(d) {
     root.replaceChildren();
+    if (preview) root.append(el('div', 'ks-note', 'Xem thử: đây là trang người tham dự sẽ thấy. Câu trả lời không được lưu.'));
     root.append(el('p', 'ks-kicker', d.eventTitle));
     root.append(el('h1', 'ks-title', d.title));
     if (d.intro) root.append(el('p', 'ks-intro', d.intro));
@@ -79,6 +81,7 @@
 
   async function submit(e, form, err, btn, d) {
     e.preventDefault();
+    if (preview) { err.textContent = 'Xem thử: câu trả lời không được lưu.'; err.hidden = false; return; }
     const { answers, missing } = collect(form, d);
     if (missing.length) { err.textContent = 'Vui lòng trả lời: ' + missing.slice(0, 3).join(' · '); err.hidden = false; err.scrollIntoView({ block: 'center' }); return; }
     err.hidden = true; btn.disabled = true; const label = btn.textContent; btn.textContent = 'Đang gửi…';
@@ -93,7 +96,10 @@
   }
 
   fetch(api, { cache: 'no-store' }).then(async (res) => {
-    if (!res.ok) { root.replaceChildren(el('p', 'ks-note', 'Liên kết khảo sát không hợp lệ hoặc đã hết hạn.')); return; }
-    draw(await res.json());
+    if (!res.ok) { root.replaceChildren(el('p', 'ks-note', preview ? 'Đăng nhập quản trị để xem thử.' : 'Liên kết khảo sát không hợp lệ hoặc đã hết hạn.')); return; }
+    const data = await res.json();
+    if (!preview) { draw(data); return; }
+    const s = data.survey || {};
+    draw({ eventTitle: s.eventTitle || '', title: s.title, intro: s.intro, thanks: s.thanks, open: s.open, questions: s.questions || [], answered: false, answers: null });
   }).catch(() => root.replaceChildren(el('p', 'ks-note', 'Không tải được khảo sát. Vui lòng thử lại sau.')));
 })();

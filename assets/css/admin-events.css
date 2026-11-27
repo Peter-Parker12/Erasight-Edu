@@ -117,3 +117,8 @@
 .sv-texts li { border-top: 1px solid #EEF3F3; padding: 8px 0; font-size: 13.5px; line-height: 1.5; }
 @media (max-width: 640px) { .sv-row { grid-template-columns: 1fr; } }
 
+
+/* ---- survey preview inside the admin ---- */
+.sv-preview-bar { margin: 0 0 10px; }
+.sv-preview-frame { width: 100%; height: 760px; border: 1px solid var(--crm-line); border-radius: 12px; background: #F6F2EA; }
+@media (max-width: 640px) { .sv-preview-frame { height: 560px; } }

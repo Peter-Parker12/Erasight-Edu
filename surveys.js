@@ -182,7 +182,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
 
   // ---- public answer page --------------------------------------------------------------------------------
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  function page(ev, token) {
+  function page(ev, token, preview) {
     return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><title>${esc(surveyOf(ev).title)} · ${esc(ev.title)}</title>
 <meta name="theme-color" content="#0B0E14">
@@ -191,7 +191,7 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
 <link rel="stylesheet" href="/assets/css/khao-sat.css">
 </head><body>
 <header class="ks-top"><a href="${esc(SITE)}" aria-label="Erasight Academy"><img src="/assets/logos/erasight-logo-ngang-mau-1600w.png" alt="Erasight Academy" width="180" height="30"></a><span class="ks-mono">Khảo sát sau sự kiện</span></header>
-<main class="ks-wrap" data-event="${esc(ev.id)}" data-token="${esc(token)}"><div id="ksApp"><p class="ks-muted">Đang tải…</p></div></main>
+<main class="ks-wrap" data-event="${esc(ev.id)}" data-token="${esc(token || '')}"${preview ? ' data-preview="1"' : ''}><div id="ksApp"><p class="ks-muted">Đang tải…</p></div></main>
 <footer class="ks-foot"><span class="ks-mono">Erasight Academy · Learn · Work · Grow · Global</span><a href="${esc(SITE)}">${esc(SITE.replace(/^https?:\/\//, ''))}</a></footer>
 <script src="/assets/js/khao-sat.js" defer></script></body></html>`;
   }
@@ -276,7 +276,15 @@ module.exports = function init({ DATA_DIR, SITE_URL, send, readJson, rateLimited
     tokenFor, linkFor, hasResponded, surveyOf,
     async handle(req, res, pathname) {
       try {
-        let m = pathname.match(/^\/khao-sat\/([a-f0-9]{16})\/([A-Za-z0-9_\-.]+)\/?$/);
+        let m = pathname.match(/^\/api\/admin\/events\/([a-f0-9]{16})\/survey\/preview\/?$/); // under /api/admin: the admin cookie is only sent there
+        if (m) { // admin preview of the answer page (nothing is saved)
+          if (!isAdmin(req)) { res.writeHead(401, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }); return res.end('<!doctype html><meta charset="utf-8"><p style="font-family:sans-serif;padding:40px">Đăng nhập quản trị để xem thử.</p>'); }
+          const ev = getEvents().find((x) => x.id === m[1]);
+          if (!ev) return notFound(res);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow', 'X-Content-Type-Options': 'nosniff' });
+          return res.end(page(ev, '', true));
+        }
+        m = pathname.match(/^\/khao-sat\/([a-f0-9]{16})\/([A-Za-z0-9_\-.]+)\/?$/);
         if (m) {
           if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
           const found = publicLookup(m[1], m[2]);

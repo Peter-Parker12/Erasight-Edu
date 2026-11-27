@@ -588,8 +588,8 @@ module.exports = function init({ ROOT, SITE_URL, finalize, respond, twenty, twen
   return {
     async handle(req, res, pathname) {
       try {
-        if (pathname.startsWith('/khao-sat/') || pathname.startsWith('/api/survey/') || pathname === '/api/admin/surveys/summary'
-          || /^\/api\/admin\/events\/[a-f0-9]{16}\/survey(\/results)?$/.test(pathname)) return await surveys.handle(req, res, pathname);
+        if (pathname.startsWith('/khao-sat/') || pathname.startsWith('/khao-sat/') || pathname.startsWith('/api/survey/') || pathname === '/api/admin/surveys/summary'
+          || /^\/api\/admin\/events\/[a-f0-9]{16}\/survey(\/results|\/preview)?\/?$/.test(pathname)) return await surveys.handle(req, res, pathname);
         if (pathname === '/api/workflow/due-emails') return await mailer.workflowDue(req, res);
         if (pathname === '/api/workflow/email-sent') return await mailer.workflowSent(req, res);
         if (pathname === '/huy-dang-ky-email') return await mailer.unsubscribe(req, res);

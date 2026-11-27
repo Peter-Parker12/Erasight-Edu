@@ -406,6 +406,9 @@
   async function fillSurvey() {
     if (!selectedId) return;
     const id = selectedId; svOwner = id;
+    const previewUrl = `/api/admin/events/${id}/survey/preview`;
+    $('svPreviewOpen').href = previewUrl;
+    if ($('svPreviewFrame').getAttribute('data-for') !== id) { $('svPreviewFrame').src = previewUrl; $('svPreviewFrame').setAttribute('data-for', id); }
     try {
       const d = await api(`/api/admin/events/${id}/survey`, { cache: 'no-store', headers: HDR });
       if (svOwner !== id) return;
