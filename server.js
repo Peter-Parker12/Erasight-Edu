@@ -352,7 +352,7 @@ const shortLinks = require('./short-links')({
 });
 
 // ---- MCP server for the admin end (events + scheduled emails); off unless MCP_TOKEN is set ----
-const mcp = require('./mcp')({ PORT, INTERNAL: MCP_INTERNAL, rateLimited, send, readJson });
+const mcp = require('./mcp')({ PORT, SITE: SITE_URL, INTERNAL: MCP_INTERNAL, rateLimited, send, readJson });
 
 http.createServer((req, res) => {
   const { pathname } = new URL(req.url, 'http://x');

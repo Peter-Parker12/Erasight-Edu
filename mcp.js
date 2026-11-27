@@ -18,10 +18,10 @@ const IMG_MAX = 3 * 1024 * 1024;
 const PLACEHOLDERS = '{{name}} {{first_name}} {{email}} {{requested_item}} {{event_title}} {{event_date}} {{event_time}} {{event_mode}} {{event_location}} {{join_link}} {{event_url}}';
 const BODY_HELP = 'Email body as HTML (format "html"). Allowed: p, br, hr, h2, h3, strong, em, u, s, ul/ol/li, blockquote, a, img, span (inline color/font-size/text-align styles). '
   + 'Anything else is stripped. Placeholders filled per recipient: ' + PLACEHOLDERS + '. A link can be a call-to-action button with <a href="{{join_link}}" data-btn="1">Text</a>. '
-  + 'A clickable picture is <a href="https://…"><img src="/api/email-images/…"></a> (get the src from upload_email_image).';
+  + 'A clickable picture is <a href="https://…"><img src="/api/email-images/…"></a> (get the src from upload_email_image). Blocks may also be given as "blocks" in add_email / update_email, and an image block with src "event-banner" inserts the event banner picture.';
 const TIMING_HELP = 'Only for type "notification". {"mode":"on_register","delayHours":0} = after a lead registers for this event; {"mode":"before","hours":24} = N hours before the event starts (to all registered leads, or all leads if audience is "all"); {"mode":"at","atLocal":"2026-12-01T09:00"} = at a fixed Vietnam-time moment.';
 
-module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) {
+module.exports = function init({ PORT, SITE, INTERNAL, rateLimited, send, readJson }) {
   const TOKEN = String(process.env.MCP_TOKEN || '');
   const enabled = TOKEN.length >= 24;
   const BASE = `http://127.0.0.1:${PORT}`;
@@ -64,12 +64,35 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
     return { buf, ext };
   }
     const fetchImage = (url) => fetchFile(url, { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }, IMG_MAX, 'image');
+  // A picture from either a public https URL (image_url) or the file itself as base64 (image_base64, PNG/JPG/WebP up to 3 MB).
+  // The type is read from the file's first bytes, not from anything the caller says.
+  function imageInput(a) {
+    if (a.image_base64 !== undefined && a.image_base64 !== null && a.image_base64 !== '') {
+      const raw = String(a.image_base64).replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
+      if (!/^[A-Za-z0-9+/]+=*$/.test(raw) || raw.length % 4 === 1) throw new Error('image_base64 is not valid base64');
+      const buf = Buffer.from(raw, 'base64');
+      if (!buf.length) throw new Error('image_base64 is empty');
+      if (buf.length > IMG_MAX) throw new Error('image is too large (max 3 MB)');
+      let ext = null;
+      if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) ext = 'png';
+      else if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) ext = 'jpg';
+      else if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') ext = 'webp';
+      if (!ext) throw new Error('image must be PNG, JPG or WebP');
+      return Promise.resolve({ buf, ext });
+    }
+    if (!a.image_url) throw new Error('Give image_url (public https link) or image_base64 (the file as base64)');
+    return fetchImage(a.image_url);
+  }
+  const IMAGE_PROPS = {
+    image_url: { type: 'string', description: 'Public https link to a PNG, JPG or WebP picture (up to 3 MB). Use this or image_base64.' },
+    image_base64: { type: 'string', description: 'The picture file itself, base64-encoded (PNG, JPG or WebP, up to 3 MB). Use this or image_url.' },
+  };
 
   // ---- drafting helpers (no saving here: the result is a preview to check, then add_email / update_email saves it) ----
   const slugOf = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const KNOWN_TOKENS = ['name', 'first_name', 'email', 'requested_item', 'event_title', 'event_date', 'event_time', 'event_mode', 'event_location', 'join_link', 'event_url'];
   const BLOCK_TYPES = ['heading', 'subheading', 'paragraph', 'bullets', 'button', 'image', 'divider'];
-  function blocksToHtml(blocks) {
+  function blocksToHtml(blocks, a) {
     const E = emailHtml.esc;
     const t = (x) => E(String(x == null ? '' : x)).replace(/\n/g, '<br>');
     return blocks.map((b) => {
@@ -80,7 +103,9 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
         case 'bullets': return `<ul>${(b.items || []).map((i) => `<li>${t(i)}</li>`).join('')}</ul>`;
         case 'button': return `<p><a href="${E(b.url)}" data-btn="1">${t(b.label || 'Xem thêm')}</a></p>`;
         case 'image': {
-          const img = `<img src="${E(b.src)}" alt="${E(b.alt || '')}" width="${/^\d{2,3}$/.test(String(b.width)) ? Number(b.width) : 560}">`;
+          // src "event-banner" puts the event's own banner picture in the email
+          const src = b.src === 'event-banner' ? `${SITE}/api/events/${eid(a || {})}/banner` : b.src;
+          const img = `<img src="${E(src)}" alt="${E(b.alt || '')}" width="${/^\d{2,3}$/.test(String(b.width)) ? Number(b.width) : 560}">`;
           return `<p>${b.url ? `<a href="${E(b.url)}">${img}</a>` : img}</p>`;
         }
         case 'divider': return '<hr>';
@@ -125,6 +150,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
     name: { ...S, description: 'Internal label for the email (max 100 chars)' },
     subject: { ...S, description: 'Subject line; placeholders allowed (max 200 chars)' },
     body: { ...S, description: BODY_HELP },
+    blocks: { type: 'array', description: 'Alternative to body: the same simple blocks draft_email takes (heading, subheading, paragraph, bullets, button, image, divider). Needs event_id.', items: { type: 'object' } },
     format: { type: 'string', enum: ['html', 'text'], description: 'Defaults to "html" for new emails' },
     enabled: { ...B, description: 'Disabled emails are never sent' },
     audience: { type: 'string', enum: ['all', 'registered'], description: 'seeding: "all" leads or only leads "registered" for this event. notification: "registered" (default) or "all" leads' },
@@ -135,6 +161,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
   };
   const mailBody = (a, creating) => {
     const o = pick({ name: a.name, subject: a.subject, body: a.body, format: a.format, enabled: a.enabled, audience: a.audience, skipRegistered: a.skip_registered, timing: a.timing, offsetHours: a.offset_hours, isLastCall: a.is_last_call }, ['name', 'subject', 'body', 'format', 'enabled', 'audience', 'skipRegistered', 'timing', 'offsetHours', 'isLastCall']);
+    if (a.blocks !== undefined) { if (!Array.isArray(a.blocks) || !a.blocks.length) throw new Error('blocks must be a non-empty list'); o.body = emailHtml.sanitize(blocksToHtml(a.blocks, a)); o.format = o.format || 'html'; }
     if (o.body !== undefined && o.format === undefined && creating) o.format = 'html';
     return o;
   };
@@ -149,8 +176,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => (await api('POST', '/api/admin/events', evBody(a))).event },
     { name: 'update_event', description: 'Change any field of an event; send only what changes. status "published" makes it public (needs a banner), "draft" hides it.', props: { event_id: S, ...EVENT_PROPS, status: { type: 'string', enum: ['draft', 'published'] } }, req: ['event_id'],
       run: async (a) => (await api('PATCH', EV(a), Object.assign(evBody(a), a.status !== undefined ? { status: a.status } : {}, a.recording_url !== undefined ? { recording: { url: a.recording_url, title: a.recording_title || '' } } : {}))).event },
-    { name: 'set_event_banner', description: 'Set the event banner (16:9 recommended) from a public https image URL (PNG/JPG/WebP, up to 3MB).', props: { event_id: S, image_url: { ...S, description: 'https:// URL of the image' } }, req: ['event_id', 'image_url'],
-      run: async (a) => { const img = await fetchImage(a.image_url); return (await api('PUT', `${EV(a)}/banner?ext=${img.ext}`, undefined, img)).event; } },
+    { name: 'set_event_banner', description: 'Set the event banner (16:9 recommended) from a public https image URL or from the image file as base64 (PNG/JPG/WebP, up to 3MB).', props: { event_id: S, ...IMAGE_PROPS }, req: ['event_id'],
+      run: async (a) => { const img = await imageInput(a); return (await api('PUT', `${EV(a)}/banner?ext=${img.ext}`, undefined, img)).event; } },
     { name: 'delete_event', description: 'PERMANENTLY delete an event, its banner and its email pictures. confirm_title must equal the event title exactly.', props: { event_id: S, confirm_title: S }, req: ['event_id', 'confirm_title'],
       run: async (a) => { const e = (await api('GET', EV(a))).event; if (String(a.confirm_title) !== e.title) throw new Error(`confirm_title does not match. The event is called: "${e.title}"`); await api('DELETE', EV(a)); return { ok: true, deleted: e.title }; } },
     // ---- email configuration ----
@@ -158,8 +185,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => ovView(await api('GET', EM(a)), a.include_bodies === true) },
     { name: 'set_seeding_start', description: 'Set when the first seeding email goes out (Vietnam time); later seeding emails follow at their offset_hours. Empty string clears it.', props: { event_id: S, start_local: { ...S, description: '"YYYY-MM-DDTHH:mm" or ""' } }, req: ['event_id', 'start_local'],
       run: async (a) => ovView(await api('PATCH', EM(a), { seedingStartLocal: a.start_local })) },
-    { name: 'add_email', description: 'Add an email. type "post_event" = the email sent after the event (timing {"mode":"after_end","hours":N}, audience "all" or "unanswered"; put {{survey_link}} and {{recording_link}} in the body). type "seeding" = the seeding sequence (first one anchors the sequence, later ones need offset_hours; set is_last_call for the last-call email); "notification" = event notification (needs timing); "last_notification" = the single final notification, sent to leads registering after the last call. Returns the updated setup — the new email has the newest id.', props: { event_id: S, type: { type: 'string', enum: ['seeding', 'notification', 'last_notification', 'post_event'] }, ...MAIL_PROPS }, req: ['event_id', 'type', 'subject', 'body'],
-      run: async (a) => ovView(await api('POST', EM(a), Object.assign({ type: a.type }, mailBody(a, true)))) },
+    { name: 'add_email', description: 'Add an email. type "post_event" = the email sent after the event (timing {"mode":"after_end","hours":N}, audience "all" or "unanswered"; put {{survey_link}} and {{recording_link}} in the body). type "seeding" = the seeding sequence (first one anchors the sequence, later ones need offset_hours; set is_last_call for the last-call email); "notification" = event notification (needs timing); "last_notification" = the single final notification, sent to leads registering after the last call. Returns the updated setup — the new email has the newest id.', props: { event_id: S, type: { type: 'string', enum: ['seeding', 'notification', 'last_notification', 'post_event'] }, ...MAIL_PROPS }, req: ['event_id', 'type', 'subject'],
+      run: async (a) => { if (a.body === undefined && a.blocks === undefined) throw new Error('Give body (HTML) or blocks'); return ovView(await api('POST', EM(a), Object.assign({ type: a.type }, mailBody(a, true)))); } },
     { name: 'update_email', description: 'Edit an email; send only the fields that change (get mail_id from get_email_config).', props: { event_id: S, mail_id: S, ...MAIL_PROPS }, req: ['event_id', 'mail_id'],
       run: async (a) => ovView(await api('PATCH', `${EM(a)}/${mid(a)}`, mailBody(a, false))) },
     { name: 'delete_email', description: 'Delete an email from the event (its send history is kept in the ledger).', props: { event_id: S, mail_id: S }, req: ['event_id', 'mail_id'],
@@ -217,7 +244,7 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       props: { subject: S, blocks: { type: 'array', description: 'Email content in order', items: { type: 'object', properties: { type: { type: 'string', enum: BLOCK_TYPES }, text: S, items: { type: 'array', items: S }, label: S, url: S, src: S, alt: S, width: S } } }, event_id: S, sample_name: S }, req: ['subject', 'blocks'],
       run: async (a) => {
         if (!Array.isArray(a.blocks) || !a.blocks.length) throw new Error('blocks must be a non-empty list');
-        const html = emailHtml.sanitize(blocksToHtml(a.blocks));
+        const html = emailHtml.sanitize(blocksToHtml(a.blocks, a));
         if (emailHtml.isEmpty(html)) throw new Error('The email has no text or picture');
         const subject = String(a.subject).replace(/[\r\n]+/g, ' ').trim().slice(0, 200);
         const ph = placeholdersIn(subject + ' ' + html);
@@ -295,8 +322,8 @@ module.exports = function init({ PORT, INTERNAL, rateLimited, send, readJson }) 
       run: async (a) => api('GET', '/api/admin/short-links' + (a.path ? '?path=' + encodeURIComponent(a.path) : '')) },
     { name: 'delete_short_link', description: 'Delete a short link (anyone who still has it is redirected to the home page).', props: { code: S }, req: ['code'],
       run: async (a) => { if (!/^[a-z0-9][a-z0-9-]{2,29}$/i.test(String(a.code))) throw new Error('code is invalid'); return api('DELETE', '/api/admin/short-links/' + a.code); } },
-    { name: 'upload_email_image', description: 'Upload a picture from a public https URL for use inside an email body; returns the src to put in <img src="…"> (max 40 per event).', props: { event_id: S, image_url: S }, req: ['event_id', 'image_url'],
-      run: async (a) => { const img = await fetchImage(a.image_url); const d = await api('PUT', `${EM(a)}/images?ext=${img.ext}`, undefined, img); return { src: d.url, example: `<img src="${d.url}" alt="">` }; } },
+    { name: 'upload_email_image', description: 'Upload a picture (public https URL or the file as base64) for use inside an email body; returns the src to put in <img src="…"> (max 40 per event).', props: { event_id: S, ...IMAGE_PROPS }, req: ['event_id'],
+      run: async (a) => { const img = await imageInput(a); const d = await api('PUT', `${EM(a)}/images?ext=${img.ext}`, undefined, img); return { src: d.url, example: `<img src="${d.url}" alt="">` }; } },
   ];
   const byName = new Map(TOOLS.map((t) => [t.name, t]));
   const toolList = TOOLS.map((t) => ({ name: t.name, description: t.description, inputSchema: { type: 'object', properties: t.props, required: t.req, additionalProperties: false } }));
